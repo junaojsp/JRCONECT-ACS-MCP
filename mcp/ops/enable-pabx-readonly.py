@@ -92,7 +92,7 @@ function pabxReadAuthorized(payload) {
     source = replace_once(source, route_anchor, route + route_anchor, "OAuth read catalog dispatch")
     # For an OAuth subject outside the Shield allowlist, expose only Wiki + PABX
     # queries: no Finance, Opa, IXC, Shield or admin privilege escalation.
-    fallback = "    return mcpHandler(req, res);"
+    fallback = "    return mcpHandler(req, res);\n  } catch {"
     source = replace_once(
         source, fallback,
         "    if (pabxReadAuthorized(payload)) return pabxReadFallbackHandler(req, res);\n" + fallback,
