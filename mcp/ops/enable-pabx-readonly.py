@@ -43,11 +43,6 @@ def patch(source):
     # Do not touch the existing administrative registration or its role check.
     anchor = (
         "  if (includePabx) {\n"
-        "    registrarPabxTools(mcp);\n"
-    )
-    # The deployed implementation uses registerPabxTools, not registrarPabxTools.
-    anchor = (
-        "  if (includePabx) {\n"
         "    registerPabxTools(mcp);\n"
         "    registerPabxQueueReport(mcp);\n"
         "    registerPabxAdminTools(mcp);\n"
@@ -80,6 +75,7 @@ function pabxReadAuthorized(payload) {
         variants.append("  toNodeHandler(makeMcpHandler(true, %s, %s, %s, false, true))," % (fin, opa, ixc))
     handlers = "// Dedicated PABX read-only catalogs: preserve all other granted integration tools.\n"
     handlers += "const pabxReadCentralMcpHandlers = [\n" + "\n".join(variants) + "\n];\n\n"
+    handlers += "const pabxReadFallbackHandler = toNodeHandler(makeMcpHandler(false, false, false, false, false, true));\n\n"
     source = replace_once(source, "const pabxCentralMcpHandlers = [", handlers + "const pabxCentralMcpHandlers = [", "read-only catalog")
 
     # Insert after the unchanged PABX-admin branch, before IXC routing.
@@ -94,6 +90,14 @@ function pabxReadAuthorized(payload) {
         "    }\n"
     )
     source = replace_once(source, route_anchor, route + route_anchor, "OAuth read catalog dispatch")
+    # For an OAuth subject outside the Shield allowlist, expose only Wiki + PABX
+    # queries: no Finance, Opa, IXC, Shield or admin privilege escalation.
+    fallback = "    return mcpHandler(req, res);"
+    source = replace_once(
+        source, fallback,
+        "    if (pabxReadAuthorized(payload)) return pabxReadFallbackHandler(req, res);\n" + fallback,
+        "OAuth basic catalog dispatch",
+    )
     return source
 
 
