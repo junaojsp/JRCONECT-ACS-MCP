@@ -1,0 +1,10 @@
+# Use with existing production docker-compose.yml; do not include admin overlays.
+# Required shell variables: PABX_READ_TOKEN_PATH (existing 64-hex read token file)
+# and PABX_READ_ALLOWED_SUB (explicitly approved Keycloak UUID).
+services:
+  jrconect-mcp:
+    environment:
+      PABX_API_ENABLED: "true"
+      PABX_READ_ALLOWED_SUB: "${PABX_READ_ALLOWED_SUB:?Define the approved OAuth subject UUID}"
+    volumes:
+      - "${PABX_READ_TOKEN_PATH:?Define the local read token file path}:/run/secrets/pabx-read-token:ro"
