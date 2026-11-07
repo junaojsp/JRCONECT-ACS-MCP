@@ -36,14 +36,16 @@ export function createPabxQueueReportHandler({
       if (payload?.ok !== true || payload?.action !== 'queue_report' ||
           !payload.result || !payload.result.atendentes) throw new Error('contrato_invalido');
       const { periodo_dias, inicio_unix, fim_unix, primeiro_evento_unix,
-        ultimo_evento_unix, arquivos_lidos, atendentes, filas, observacao } = payload.result;
+        ultimo_evento_unix, arquivos_lidos, atendentes, filas, observacao, almocos, fuso_horario } = payload.result;
       // Explicit schema projection: never forward arbitrary upstream fields.
       const safe = { periodo_dias, inicio_unix, fim_unix, primeiro_evento_unix,
-        ultimo_evento_unix, arquivos_lidos, atendentes: {}, filas: {}, observacao };
+        ultimo_evento_unix, arquivos_lidos, atendentes: {}, filas: {}, observacao, almocos, fuso_horario };
       for (const name of ['Maria', 'Emylly', 'Ryan']) {
         safe.atendentes[name] = {
           conectadas: Number(atendentes[name]?.conectadas || 0),
           toques_sem_resposta: Number(atendentes[name]?.toques_sem_resposta || 0),
+          toques_no_almoco: Number(atendentes[name]?.toques_no_almoco || 0),
+          toques_fora_almoco: Number(atendentes[name]?.toques_fora_almoco || 0),
         };
       }
       for (const queue of ['601', '602', '603']) {
