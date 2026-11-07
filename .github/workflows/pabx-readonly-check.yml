@@ -1,0 +1,22 @@
+name: PABX read-only MCP patch
+
+on:
+  pull_request:
+    paths:
+      - 'mcp/ops/**'
+      - 'mcp/docker-compose.pabx-readonly.yml'
+      - '.github/workflows/pabx-readonly-check.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate syntax
+        run: python3 -m py_compile mcp/ops/enable-pabx-readonly.py mcp/ops/test_enable_pabx_readonly.py
+      - name: Test fail-closed OAuth and admin separation
+        run: python3 -m unittest discover -s mcp/ops -p 'test_*.py' -v
