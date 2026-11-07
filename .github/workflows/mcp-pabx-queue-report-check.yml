@@ -1,0 +1,23 @@
+name: MCP PABX queue report checks
+on:
+  pull_request:
+    paths:
+      - 'mcp/integrations/pabx-queue-report*'
+      - '.github/workflows/mcp-pabx-queue-report-check.yml'
+  push:
+    branches:
+      - feature/pabx-relatorio-atendentes-20261107
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install MCP dependencies and test
+        working-directory: mcp
+        run: |
+          npm install --no-audit --no-fund
+          node --check integrations/pabx-queue-report.js
+          node --test integrations/pabx-queue-report.test.js
