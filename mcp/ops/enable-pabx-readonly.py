@@ -7,6 +7,7 @@ No OAuth bypass: PABX read access requires explicitly allowlisted Keycloak subje
 import argparse
 import datetime
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -40,21 +41,28 @@ def patch(source):
         "const makeMcpHandler = (includeShield, includeFinance = false, includeOpa = false, includeIxc = false, includePabx = false, includePabxRead = false) =>",
         "handler signature",
     )
-    # Do not touch the existing administrative registration or its role check.
-    anchor = (
-        "  if (includePabx) {\n"
-        "    registerPabxTools(mcp);\n"
-        "    registerPabxQueueReport(mcp);\n"
-        "    registerPabxAdminTools(mcp);\n"
-        "  }"
+    # Preserve the exact admin block, regardless of its existing indentation.
+    # Older deployments contain a differently indented admin registration line.
+    block = re.compile(
+        r"(?m)^([ \t]*)if \(includePabx\) \{\r?\n"
+        r"([ \t]*)registerPabxTools\(mcp\);\r?\n"
+        r"([ \t]*)registerPabxQueueReport\(mcp\);\r?\n"
+        r"([ \t]*)registerPabxAdminTools\(mcp\);\r?\n"
+        r"([ \t]*)\}"
     )
-    replacement = anchor + (
-        "\n  if (includePabxRead) {\n"
-        "    registerPabxTools(mcp);\n"
-        "    registerPabxQueueReport(mcp);\n"
-        "  }"
+    matches = list(block.finditer(source))
+    if len(matches) != 1:
+        raise ValueError("read-only tools registration: expected exactly one block, got %d" % len(matches))
+    m = matches[0]
+    indent = m.group(1)
+    child = m.group(2)
+    read_block = (
+        "\n" + indent + "if (includePabxRead) {\n"
+        + child + "registerPabxTools(mcp);\n"
+        + child + "registerPabxQueueReport(mcp);\n"
+        + indent + "}"
     )
-    source = replace_once(source, anchor, replacement, "read-only tools registration")
+    source = source[:m.end()] + read_block + source[m.end():]
 
     auth = """// Read-only PABX access: explicit OAuth subject allowlist, never the admin role.
 function pabxReadAuthorized(payload) {

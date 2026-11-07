@@ -61,6 +61,21 @@ class ReadOnlyPatchTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "already"):
             patch_module.patch(result)
 
+    def test_real_acs_indentation_and_admin_isolation(self):
+        # Captured from ACS server.js on 2026-11-07; admin line has an extra indentation level.
+        real = FIXTURE.replace(
+            "    registerPabxAdminTools(mcp);",
+            "      registerPabxAdminTools(mcp);",
+        )
+        result = patch_module.patch(real)
+        self.assertIn(
+            "if (includePabxRead) {\n    registerPabxTools(mcp);\n"
+            "    registerPabxQueueReport(mcp);\n  }",
+            result,
+        )
+        self.assertIn("      registerPabxAdminTools(mcp);", result)
+        self.assertEqual(result.count("registerPabxAdminTools(mcp);"), 1)
+
     def test_unknown_production_code_fails_closed(self):
         with self.assertRaises(ValueError):
             patch_module.patch("const makeMcpHandler = somethingElse;")

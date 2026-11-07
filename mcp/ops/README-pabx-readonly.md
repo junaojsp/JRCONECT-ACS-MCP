@@ -57,3 +57,13 @@ O patch imprime o caminho exato de `server.js.bak-pabx-readonly-...`. Se houver 
 ## Segurança
 
 O novo ramo OAuth exige `azp=chatgpt-mcp` **e** o `sub` explicitamente aprovado em `PABX_READ_ALLOWED_SUB`. Se o UUID não estiver definido ou for inválido, a autorização falha. A seleção de catálogos existente continua intacta, inclusive o ramo administrativo. Acesso do PABX permanece somente leitura via segredo montado como arquivo.
+
+## Solicitação adicional: ferramentas de edição do PABX
+
+O operador também solicitou que o MCP principal permita **edições administrativas do PABX**. Isso é um **catálogo distinto** das ferramentas de consulta; nenhuma ferramenta puramente informativa deve receber acesso de escrita por padrão.
+
+O `server.js` **em produção** já registra `registerPabxAdminTools(mcp)` quando `includePabx` é autorizado por `pabxAdminAuthorized(payload)`. Para liberar operações de edição, é necessário revisar `/opt/jrconect-mcp/pabx-admin.js` e a API administrativa correspondente e confirmar a lista exata de ações suportadas. Não inventar endpoints ou ações de edição para `pabx_status`, `pabx_filas`, `pabx_ramais`, `pabx_troncos` ou `pabx_relatorio_atendentes`; estas permanecem ferramentas de consulta.
+
+**Controles obrigatórios antes de habilitar edição:** identidade OAuth individual em allowlist, role administrativa própria, token administrativo separado de leitura, validação de ação/parâmetros no servidor, auditoria e aprovação explícita antes de mudanças de ramais, filas, troncos ou configuração do Issabel. Não ativar `PABX_ADMIN_MCP_ENABLED` apenas para conseguir consultar relatórios. Não combinar o overlay administrativo `docker-compose.pabx-central.yml` com o overlay de leitura sem revisar cada credencial e permissão.
+
+Esta entrega **não ativa edição**: registra a solicitação e preserva a implementação administrativa existente para uma revisão específica de permissões e testes em PR separado, após inspeção do módulo de produção.
