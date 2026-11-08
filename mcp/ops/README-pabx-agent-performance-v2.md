@@ -25,6 +25,8 @@ READ. Este PR nao implanta um endpoint no Issabel automaticamente.
 - chamadas unicas conectadas, tentativas de toque sem resposta,
   chamadas distintas envolvidas e destino da tentativa
 - almoco de Maria 12h–13h e Emylly 13h–14h exclusivamente seg-sex
+- distribuicao de chamadas unicas por hora local e tempo medio de conversa
+  quando eventos COMPLETE incluirem duracao
 - tempo de toque ate CONNECT e tempo de espera na fila se os campos
   existirem; quantidade de amostras permite avaliar confiabilidade
 - abandono/saida sem CONNECT da fila, **nao atribuivel individualmente**
