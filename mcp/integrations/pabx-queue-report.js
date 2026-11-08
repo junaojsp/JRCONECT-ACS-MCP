@@ -1,6 +1,7 @@
 // Read-only, aggregate PABX queue metrics. No raw queue_log or subscriber data.
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import { registerAgentPerformanceV2 } from './pabx-agent-performance-v2.js';
 
 export function createPabxQueueReportHandler({
   baseUrl = 'https://pabx.jrconect.com/api/mcp/index.php',
@@ -63,4 +64,6 @@ export function registerPabxQueueReport(mcp, options = {}) {
     description: 'Consulta agregados anonimos de chamadas conectadas, tentativas sem resposta por agente e abandono por fila nos ultimos 7, 15 ou 30 dias.',
     inputSchema: { dias: z.enum(['7', '15', '30']) },
   }, createPabxQueueReportHandler(options));
+  // Separate additive v2 tool: never change the existing report contract.
+  registerAgentPerformanceV2(mcp, options);
 }
