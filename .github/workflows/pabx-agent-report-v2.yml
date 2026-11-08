@@ -19,7 +19,7 @@ jobs:
           node-version: '24'
       - name: Install MCP dependencies
         working-directory: mcp
-        run: npm ci
+        run: npm install --no-package-lock --ignore-scripts
       - name: Syntax validation
         working-directory: mcp
         run: |
