@@ -1,0 +1,32 @@
+name: PABX queue writes - checks
+
+on:
+  pull_request:
+    paths:
+      - 'mcp/integrations/pabx-queue-write.js'
+      - 'mcp/ops/enable-pabx-queue-write.py'
+      - 'mcp/ops/test_enable_pabx_queue_write.py'
+      - 'mcp/test/pabx-queue-write.test.js'
+      - '.github/workflows/pabx-queue-write-check.yml'
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install MCP dependencies
+        run: npm install --no-package-lock --ignore-scripts
+        working-directory: mcp
+      - name: JavaScript syntax
+        run: node --check mcp/integrations/pabx-queue-write.js
+      - name: Mock API tests - no writes to Issabel
+        run: node --test mcp/test/pabx-queue-write.test.js
+      - name: Python patch and isolation tests
+        run: python3 -m unittest discover -s mcp/ops -p 'test_enable_pabx_queue_write.py' -v
