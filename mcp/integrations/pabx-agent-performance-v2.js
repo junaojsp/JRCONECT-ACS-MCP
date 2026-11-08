@@ -9,10 +9,12 @@ const OUTCOMES = ['propria', 'colega', 'outro', 'encerrada_sem_connect_na_fila',
 const NUMBER_FIELDS = [
   'chamadas_unicas_conectadas', 'eventos_connect',
   'tentativas_sem_resposta_fora_almoco', 'chamadas_unicas_com_tentativa_sem_resposta',
-  'tentativas_excluidas_almoco', 'amostras_tempo_toque', 'amostras_espera_fila'
+  'tentativas_excluidas_almoco', 'amostras_tempo_toque', 'amostras_espera_fila',
+  'amostras_conversa'
 ];
 const OPTIONAL_METRICS = [
   'media_tempo_toque_ate_connect_seg', 'media_espera_fila_ate_connect_seg',
+  'media_tempo_conversa_seg',
   'disponibilidade_horas', 'chamadas_por_hora_disponivel',
   'ocupacao_durante_toques', 'resolucao_ixc', 'reincidencia'
 ];
@@ -70,6 +72,13 @@ export function projectAgentPerformanceV2(data) {
     const agent = {};
     for (const key of NUMBER_FIELDS) agent[key] = count(source[key]);
     for (const key of OPTIONAL_METRICS) agent[key] = optionalNumber(source[key]);
+    agent.conexoes_por_hora_local = {};
+    for (let hour = 0; hour < 24; hour++) {
+      const key = String(hour).padStart(2, "0");
+      agent.conexoes_por_hora_local[key] = count(source.conexoes_por_hora_local?.[key]);
+    }
+    if (Object.values(agent.conexoes_por_hora_local).reduce((a, b) => a + b, 0)
+        !== agent.chamadas_unicas_conectadas) throw new Error("invalid_hourly_distribution");
     agent.destino_das_tentativas = {};
     for (const key of OUTCOMES) agent.destino_das_tentativas[key] =
       count(source.destino_das_tentativas?.[key]);
