@@ -1,0 +1,32 @@
+name: MCP PABX agent report v2
+
+on:
+  pull_request:
+    paths:
+      - 'mcp/integrations/pabx-agent-performance-v2.js'
+      - 'mcp/integrations/pabx-agent-performance-v2.test.js'
+      - 'mcp/integrations/pabx-queue-report.js'
+      - '.github/workflows/pabx-agent-report-v2.yml'
+  workflow_dispatch:
+
+jobs:
+  v2-offline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install MCP dependencies
+        working-directory: mcp
+        run: npm ci
+      - name: Syntax validation
+        working-directory: mcp
+        run: |
+          node --check integrations/pabx-agent-performance-v2.js
+          node --check integrations/pabx-queue-report.js
+      - name: Readonly v1 + v2 tests
+        working-directory: mcp
+        run: |
+          node --test integrations/pabx-queue-report.test.js
+          node --test integrations/pabx-agent-performance-v2.test.js
