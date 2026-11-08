@@ -1,0 +1,12 @@
+# Optional admin capabilities for the existing JR Conect MCPv2.
+# Combine with the already deployed read-only PABX overlay and the current ACS compose.
+# This does NOT create/change any administrative tool or OAuth role.
+services:
+  jrconect-mcp:
+    environment:
+      PABX_ADMIN_MCP_ENABLED: "true"
+      PABX_ADMIN_AUTH_MODE: "single-subject"
+      PABX_ADMIN_ROLE: "jrconect-pabx-admin"
+      PABX_ADMIN_ALLOWED_SUB: "${PABX_ADMIN_ALLOWED_SUB:?Informe o UUID OAuth autorizado para administracao do PABX}"
+    volumes:
+      - "${PABX_ADMIN_TOKEN_PATH:?Informe o caminho do token administrativo no ACS}:/run/secrets/pabx-admin-token:ro"
