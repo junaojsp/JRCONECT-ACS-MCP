@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-11-09",
+  "source": "MCP Wiki JR Conect (catalog/list/read)",
+  "source_article_count": 62,
+  "mode": "review_only_no_auto_publish",
+  "production_changes_allowed": false,
+  "policies": {
+    "never_copy_sensitive_credentials": true,
+    "require_article_hash_precondition": true,
+    "backup_outside_public_repository": true,
+    "require_owner_review_for_commercial_changes": true,
+    "require_acl_review_before_publish": true
+  },
+  "groups": [
+    {
+      "name": "duplicacoes",
+      "items": [
+        {
+          "id": 23,
+          "path": "procedimentos-internos",
+          "issue": "conteudo integral duplicado",
+          "action": "propose_replace_with_department_index",
+          "owner": "responsaveis dos setores",
+          "needs_review": true
+        },
+        {
+          "id": 20,
+          "path": "painel-wiki-moderno",
+          "issue": "rascunho de home",
+          "action": "review_for_archive",
+          "needs_review": true
+        },
+        {
+          "id": 21,
+          "path": "painel-moderno-jrconect",
+          "issue": "previa de home",
+          "action": "review_for_archive",
+          "needs_review": true
+        },
+        {
+          "id": 22,
+          "path": "painel-moderno-jrconect-v2",
+          "issue": "previa v2",
+          "action": "review_for_archive",
+          "needs_review": true
+        },
+        {
+          "id": 24,
+          "path": "atendimento-suporte/atendimento",
+          "issue": "passagem redundante a guias de beneficios",
+          "action": "keep_general_rules_and_link_canonical_guides_only",
+          "needs_review": true
+        },
+        {
+          "id": 35,
+          "path": "comercial-financeiro/comercial",
+          "issue": "qualifica repetido; Indique e Ganhe possivelmente obsoleto",
+          "action": "retain_short_benefit_summary_link_64_and_review_indique",
+          "needs_review": true
+        }
+      ]
+    },
+    {
+      "name": "navegacao",
+      "items": [
+        {
+          "id": 1,
+          "path": "home",
+          "action": "canonical_root",
+          "needs_review": false
+        },
+        {
+          "id": 15,
+          "path": "atendimento-suporte",
+          "action": "validate_publication_acl_and_all_10_index_cards",
+          "children": [
+            24,
+            30,
+            31,
+            34,
+            43,
+            44,
+            54,
+            63,
+            64,
+            65
+          ],
+          "needs_review": true
+        },
+        {
+          "id": 18,
+          "path": "comercial-financeiro",
+          "action": "validate_index_links",
+          "needs_review": false
+        },
+        {
+          "id": 13,
+          "path": "infraestrutura-redes",
+          "action": "validate_index_links",
+          "needs_review": false
+        },
+        {
+          "id": 14,
+          "path": "servidores-sistemas",
+          "action": "validate_index_links",
+          "needs_review": false
+        },
+        {
+          "id": 16,
+          "path": "integracoes-automacoes",
+          "action": "validate_index_links",
+          "needs_review": false
+        },
+        {
+          "id": 17,
+          "path": "seguranca-acessos",
+          "action": "validate_index_links",
+          "needs_review": true
+        },
+        {
+          "id": 55,
+          "path": "central-de-consultas",
+          "action": "review_search_index_for_new_guides",
+          "children": [
+            63,
+            64,
+            65
+          ],
+          "needs_review": true
+        }
+      ]
+    },
+    {
+      "name": "conteudo_e_segurança",
+      "items": [
+        {
+          "id": 63,
+          "path": "atendimento-suporte/utilizacao-ramais",
+          "action": "validate_pabx_feature_codes",
+          "needs_review": true
+        },
+        {
+          "id": 64,
+          "path": "atendimento-suporte/livros-digitais-qualifica",
+          "action": "validate_actual_activation_flow",
+          "needs_review": true
+        },
+        {
+          "id": 65,
+          "path": "atendimento-suporte/clube-de-vantagens",
+          "action": "validate_app_navigation_and_benefits",
+          "needs_review": true
+        },
+        {
+          "id": 3,
+          "path": "tecnico/credenciais",
+          "action": "verify_restrictive_acl",
+          "needs_review": true
+        },
+        {
+          "id": 53,
+          "path": "infraestrutura-redes/equipamentos",
+          "action": "keep_operational_howto_separate_from_credentials",
+          "needs_review": false
+        }
+      ]
+    }
+  ]
+}
