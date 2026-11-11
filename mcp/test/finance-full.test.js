@@ -84,3 +84,21 @@ test('host SSH pins keys and sends JSON on stdin; arbitrary commands cannot run'
   assert.throws(() => host.run('exec', { command: 'id' }), /not allowed/);
   assert.throws(() => createFinanceHostClient({ host: '-oProxyCommand=id' }), /Invalid/);
 });
+
+
+test('existing suite adds only app tools even when host flag is enabled', async () => {
+  const { registerFinanceSuite } = await import('../integrations/finance-suite.js');
+  const original = process.env.FINANCE_MCP_HOST_ENABLED;
+  process.env.FINANCE_MCP_HOST_ENABLED = 'true';
+  try {
+    const names = [];
+    registerFinanceSuite({ registerTool(name) { names.push(name); } });
+    assert.equal(names.length, 14);
+    assert.ok(names.includes('financeiro_acesso_total_consultar'));
+    assert.ok(names.includes('financeiro_acesso_total_executar'));
+    assert.equal(names.some(name => name.startsWith('financeiro_servidor')), false);
+  } finally {
+    if (original === undefined) delete process.env.FINANCE_MCP_HOST_ENABLED;
+    else process.env.FINANCE_MCP_HOST_ENABLED = original;
+  }
+});
