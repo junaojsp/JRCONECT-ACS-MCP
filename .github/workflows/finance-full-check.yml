@@ -1,0 +1,22 @@
+name: Finance full MCP checks
+on:
+  pull_request:
+    paths: ['mcp/integrations/finance-full-*.js', 'mcp/integrations/finance-host-client.js', 'mcp/ops/*finance*', 'mcp/test/finance-full.test.js', '.github/workflows/finance-full-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  finance-full:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install validation dependency in isolation
+        run: |
+          mkdir -p /tmp/finance-full-deps
+          npm install --prefix /tmp/finance-full-deps --ignore-scripts --no-package-lock zod@4
+          ln -s /tmp/finance-full-deps/node_modules mcp/node_modules
+      - run: node --test mcp/test/finance-full.test.js
+      - run: python3 -m unittest discover -s mcp/ops -p 'test_finance*.py' -v
