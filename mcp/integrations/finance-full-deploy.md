@@ -52,11 +52,15 @@ server.js, Dockerfile ou compose pelos arquivos completos do repositorio.**
    arquivo ativo, compose, Dockerfile e ID da imagem antes de aplicar.
 7. Incluir `openssh-client` na imagem existente somente se for habilitar o host.
    Nao alterar as dependencias e ferramentas ja presentes.
-8. Aplicar o candidato revisado, habilitar a flag full e recriar apenas o servico
+8. Conferir o proxy Nginx existente: encaminhar tambem `/mcp-finance-full` e
+   `/.well-known/oauth-protected-resource/mcp-finance-full` para o mesmo upstream
+   MCP, preservando Authorization, streaming e timeouts. Validar `nginx -t` antes
+   de recarregar.
+9. Aplicar o candidato revisado, habilitar a flag full e recriar apenas o servico
    MCP existente. Confirmar `/health` 200 e o novo endpoint sem token 401,
    usuario sem papel/sub permitido 403 e proprietario autorizado com ferramentas
    corretas. Confirmar que Opa nao lista ferramentas full.
-9. Atualizar a conexao **JR Conect Financeiro** no ChatGPT para o novo endpoint
+10. Atualizar a conexao **JR Conect Financeiro** no ChatGPT para o novo endpoint
    e atualizar/reautorizar o catalogo de ferramentas. A conexao antiga nao muda
    automaticamente. Se o gerenciador nao permitir editar URL, criar a substituta
    e testa-la antes de remover a antiga.
