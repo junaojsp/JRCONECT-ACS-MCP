@@ -1,0 +1,50 @@
+--- a/server.js
++++ b/server.js
+@@ -90,7 +90,6 @@
+       registerShieldTools(mcp, createShieldClient());
+       registerShieldAdminTools(mcp, createShieldAdminClient());
+       if (includeFinance) registerFinanceSuite(mcp);
+-    if (includeIxc) registerIxcWebserviceTools(mcp, createIxcWebserviceClient());
+     if (includeOpa) {
+       registerOpaApiTools(mcp, createOpaApiClient());
+       // Writes are strictly disabled by default. Do not enable until API
+@@ -100,6 +99,9 @@
+       }
+     }
+     }
++  // IXC is independent of SHIELD authorization; its handler is OAuth-only.
++  if (includeIxc) registerIxcWebserviceTools(mcp, createIxcWebserviceClient());
++
+   // JRC_PABX_CENTRAL_OAUTH_V1
+     // Both read and admin PABX tools appear ONLY on the PABX-authorized
+     // OAuth handler; never on the shared Opa bearer MCP catalog.
+@@ -125,6 +127,9 @@
+ // Dedicated OAuth handlers: Opa bearer MUST never see these tools.
+ const opaCentralMcpHandler = toNodeHandler(makeMcpHandler(true, false, true));
+ const opaFinanceCentralMcpHandler = toNodeHandler(makeMcpHandler(true, true, true));
++
++const ixcIsolatedMcpHandler = toNodeHandler(makeMcpHandler(false, false, false, true));
++const ixcPabxReadIsolatedMcpHandler = toNodeHandler(makeMcpHandler(false, false, false, true, false, true));
+ 
+ const ixcCentralMcpHandler = toNodeHandler(makeMcpHandler(true, false, false, true));
+ const ixcFinanceCentralMcpHandler = toNodeHandler(makeMcpHandler(true, true, false, true));
+@@ -367,6 +372,10 @@
+       clientId,
+       authType: 'oauth',
+     });
++    // Do not grant SHIELD tools to IXC-only OAuth users.
++    if (ixcWebserviceAuthorized(payload)) {
++      return (pabxReadAuthorized(payload) ? ixcPabxReadIsolatedMcpHandler : ixcIsolatedMcpHandler)(req, res);
++    }
+     if (pabxReadAuthorized(payload)) return pabxReadFallbackHandler(req, res);
+     return mcpHandler(req, res);
+   } catch {
+--- a/integrations/ixc-webservice-auth.js
++++ b/integrations/ixc-webservice-auth.js
+@@ -5,5 +5,5 @@
+   const subs = String(env.IXC_WS_ALLOWED_SUB || '').split(',').map(x => x.trim()).filter(Boolean);
+   if (!subs.includes(payload.sub)) return false;
+   const roles = Array.isArray(payload.realm_access?.roles) ? payload.realm_access.roles : [];
+-  return roles.includes('ixc-mcp-admin');
++  return roles.includes('ixc-mcp-admin') || roles.includes('ixc-mcp-read');
+ }
