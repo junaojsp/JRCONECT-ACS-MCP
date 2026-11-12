@@ -79,6 +79,24 @@
     panel.className = 'jrc-mcp-hub';
     panel.innerHTML = `
       <style>
+
+        #jrc-mcp-connections-panel .jrc-mcp-integrations-grid > .jrc-mcp-managed-unified {
+          box-sizing: border-box;
+          width: 100%;
+          min-width: 0;
+          max-width: none;
+          height: 100%;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          grid-column: auto;
+        }
+        #jrc-mcp-connections-panel .jrc-mcp-managed-unified .jrc-mcp-instance-card__meta {
+          flex-wrap: wrap;
+          overflow-wrap: anywhere;
+        }
+
         /* JRC MCP: neutral dark inputs in all management dialogs. */
         #jrc-mcp-connections-panel .jrc-mcp-modal input:not([type="hidden"]),
         #jrc-mcp-connections-panel .jrc-mcp-modal select,
@@ -573,6 +591,27 @@
 
       renderPrimary(panel, statusData, financeData);
       renderAdditional(panel, instancesData.instances);
+
+      // Keep the existing PABX integration card in the main grid, with the
+      // same status/actions. Other additional instances remain below.
+      const mainGrid = panel.querySelector('.jrc-mcp-integrations-grid');
+      const extraGrid = panel.querySelector('[data-jrc-mcp-additional]');
+      const extraSection = panel.querySelector('[data-jrc-mcp-additional-section]');
+      const rows = Array.isArray(instancesData.instances) ? instancesData.instances : [];
+      if (mainGrid && extraGrid && extraSection) {
+        const cards = [...extraGrid.children];
+        rows.forEach((row, index) => {
+          if (row.type === 'managed' && row.service === 'pabx' && cards[index]) {
+            const card = cards[index];
+            card.classList.add('jrc-mcp-managed-unified');
+            mainGrid.appendChild(card);
+          }
+        });
+        extraSection.hidden = extraGrid.children.length === 0;
+        const count = panel.querySelector('.jrc-mcp-primary-card__integrations-head small');
+        if (count) count.textContent = mainGrid.children.length + ' integração(ões)';
+      }
+
     } catch (error) {
       primary.innerHTML =
         '<div class="jrc-mcp-hub__error">' +
