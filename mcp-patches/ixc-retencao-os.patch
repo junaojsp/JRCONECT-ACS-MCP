@@ -1,0 +1,43 @@
+--- a/integrations/ixc-os-support-tools.js
++++ b/integrations/ixc-os-support-tools.js
+@@ -68,4 +68,40 @@
+       return errorResult('Consulta de OS por assunto/status falhou. Verificar filtro grid_param e logs ACS.');
+     }
+   });
++  // Consulta limitada de OS para diagnostico de retencao. Nenhuma escrita no IXC.
++  mcp.registerTool('ixc_os_cancelamentos_recentes', {
++    description: 'Consulta uma pagina de OS de cancelamento para analise de motivos. Retorna apenas ID, assunto, status, data e texto de motivo higienizado. Paginas de ate 20; dados pessoais omitidos. Validar nomes dos campos na instalacao IXC.',
++    inputSchema: {
++      id_assunto: z.enum(['6', '27']),
++      pagina: z.number().int().min(1).max(10000).default(1),
++      limite: z.number().int().min(1).max(20).default(10),
++    },
++  }, async ({id_assunto, pagina = 1, limite = 10}) => {
++    try {
++      const r = await client.list('os', {id:'1',page:pagina,limit:limite,
++        filters:[{field:'id_assunto',oper:'=',value:id_assunto}]});
++      const rows = rowsOf(r);
++      // Fail closed if IXC ignores the server-side filter.
++      if (rows.some(row => String(row.id_assunto) !== id_assunto)) {
++        return errorResult('Filtro por assunto nao respeitado pelo IXC; consulta bloqueada.');
++      }
++      const clean = value => String(value ?? '').slice(0, 800)
++        .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, '[email]')
++        .replace(/\b\d{3}[. ]?\d{3}[. ]?\d{3}[- ]?\d{2}\b/g, '[cpf]')
++        .replace(/\b(?:\+?55\s?)?\(?\d{2}\)?\s?9?\d{4}[- ]?\d{4}\b/g, '[telefone]');
++      const safe = rows.map(row => ({
++        id: String(row.id ?? ''),
++        id_assunto: String(row.id_assunto),
++        status: String(row.status ?? ''),
++        data: String(row.data_abertura ?? row.data ?? '').slice(0, 25),
++        motivo: clean(row.motivo_cancelamento ?? row.descricao ?? row.mensagem ?? ''),
++      }));
++      return textResult({recurso:'su_oss_chamado',consulta:'somente leitura',
++        id_assunto,pagina,limite,total:total(r),registros:safe,
++        observacao:'Campos de data/motivo dependem da instalacao; vazio nao significa ausencia de motivo. Textos devem ser revisados antes de compartilhar.'});
++    } catch {
++      return errorResult('Consulta de OS de cancelamento indisponivel; verificar endpoint e logs no ACS.');
++    }
++  });
++
+ }
