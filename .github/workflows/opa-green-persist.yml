@@ -1,0 +1,26 @@
+name: Opa MCP persistent green safety
+on:
+  pull_request:
+    paths:
+      - 'scripts/opa-mcp-migrate-green-data.py'
+      - 'scripts/opa-mcp-bluegreen.py'
+      - 'tests/opa_mcp_green_persist_test.py'
+      - '.github/workflows/opa-green-persist.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/opa-mcp-migrate-green-data.py'
+      - 'scripts/opa-mcp-bluegreen.py'
+      - 'tests/opa_mcp_green_persist_test.py'
+      - '.github/workflows/opa-green-persist.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/opa-mcp-migrate-green-data.py scripts/opa-mcp-bluegreen.py tests/opa_mcp_green_persist_test.py
+      - run: python3 -m unittest discover -s tests -p 'opa_mcp_green_persist_test.py' -v
+      - run: python3 tests/opa-mcp-bluegreen-smoke.py
