@@ -156,11 +156,18 @@ PY
 docker compose -f docker-compose.yml -f docker-compose.ixc.yml \
   -f docker-compose.opa.yml config --format json > "$STAGE/proposed-compose.json" \
   || die "Compose proposto nao pode ser validado"
+docker inspect -f '{{range .Mounts}}{{println .Destination}}{{end}}' "$SERVICE" > "$STAGE/live-mounts.txt"
 
-python3 - "$STAGE/proposed-compose.json" <<'PY'
+python3 - "$STAGE/proposed-compose.json" "$STAGE/live-mounts.txt" <<'PY'
 import json,sys
 data=json.load(open(sys.argv[1]))
 svc=data.get("services",{}).get("jrconect-mcp",{})
+proposed_targets={v.get("target") for v in svc.get("volumes",[]) if isinstance(v,dict)}
+live_targets={p.strip() for p in open(sys.argv[2]) if p.strip()}
+missing=sorted(live_targets-proposed_targets)
+if missing:
+    sys.exit("STOP: o Compose proposto perderia montagens do MCP ativo: "+", ".join(missing))
+print("MONTAGENS: nenhuma montagem atual sera removida pelo Compose proposto")
 env=svc.get("environment",{})
 if isinstance(env,list):
     env=dict(x.split("=",1) for x in env if "=" in x)
