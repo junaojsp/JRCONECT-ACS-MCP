@@ -1,6 +1,18 @@
 import { z } from 'zod';
 import { createOpaReportClient } from './opa-api-report-client.js';
+import { createOpaQueueClient } from './opa-queue-summary.js';
 export function registerOpaApiTools(mcp, client) {
+  // Expose only in the existing Opa OAuth-authorized handler.
+  mcp.registerTool('opa_fila_resumo', {
+    description: 'Conta atendimentos em espera (status AG), por setor, sem dados de clientes. Somente leitura; falha se a API ignorar o filtro ou a paginacao ficar incompleta.',
+  }, async () => {
+    try {
+      const summary = await createOpaQueueClient().resumo();
+      return {content: [{type:'text',text:JSON.stringify(summary)}]};
+    } catch (e) {
+      return {isError:true,content:[{type:'text',text:String(e.message || e)}]};
+    }
+  });
   mcp.registerTool('opa_canais', {
     description: 'Lista canais de comunicacao da API Opa Suite; consulta somente leitura para operador autorizado.',
   }, async () => {
