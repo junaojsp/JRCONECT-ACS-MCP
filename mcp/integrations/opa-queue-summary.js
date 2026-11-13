@@ -21,6 +21,7 @@ export async function aggregateOpaQueue(fetchPage, {pageSize = PAGE_SIZE, maxPag
     throw new Error('Limites de paginacao invalidos');
   }
   const setores = new Map();
+  const seenIds = new Set();
   let total = 0;
   for (let pageNumber = 0; pageNumber < maxPages; pageNumber++) {
     const rows = await fetchPage({limit: pageSize, skip: pageNumber * pageSize});
@@ -29,14 +30,34 @@ export async function aggregateOpaQueue(fetchPage, {pageSize = PAGE_SIZE, maxPag
     }
     for (const row of rows) {
       // Never invent queue figures if the API ignores a filter or changes schema.
-      if (!row || typeof row !== 'object' || row.status !== 'AG') {
+      if (!row || typeof row !== 'object' || Array.isArray(row) || row.status !== 'AG') {
         throw new Error('Filtro AG nao confirmado na resposta do Opa; total indisponivel');
       }
+      // The ACS probe observed distinct Mongo _id values at skip=0 and skip=1.
+      // Keep these identifiers in memory ONLY to detect repeated pages.
+      const id = row._id ?? row.id;
+      if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) {
+        throw new Error('OPA_FILA_SEM_ID: nao e possivel validar unicidade de atendimentos');
+      }
+      if (seenIds.has(id)) {
+        throw new Error('OPA_FILA_PAGINA_REPETIDA: atendimento duplicado na paginacao');
+      }
+      seenIds.add(id);
       const setor = departmentKey(row);
       setores.set(setor, (setores.get(setor) || 0) + 1);
       total++;
     }
     if (rows.length < pageSize) {
+      // A short page is NOT proof of completion: some Opa resources ignore
+      // limit/skip. Verify the position immediately after the last row.
+      if (rows.length > 0) {
+        const next = await fetchPage({
+          limit: 1, skip: pageNumber * pageSize + rows.length,
+        });
+        if (!Array.isArray(next) || next.length !== 0) {
+          throw new Error('OPA_FILA_SKIP_NAO_CONFIRMADO: fim da fila nao comprovado');
+        }
+      }
       return {
         sistema: 'Opa Suite',
         criterio: 'status AG (aguardando)',
@@ -44,8 +65,8 @@ export async function aggregateOpaQueue(fetchPage, {pageSize = PAGE_SIZE, maxPag
         por_setor: [...setores].map(([setor, aguardando]) => ({setor, aguardando}))
           .sort((a, b) => b.aguardando - a.aguardando || a.setor.localeCompare(b.setor)),
         consultado_em: new Date().toISOString(),
-        auditoria: {paginas: pageNumber + 1, registros_analisados: total, paginacao_completa: true},
-        observacao: 'Contagem no instante da consulta; setores sao identificadores brutos da API. A paginacao nao e uma fotografia transacional.',
+        auditoria: {paginas: pageNumber + 1, registros_analisados: total, registros_unicos: seenIds.size, paginacao_completa: true, fim_verificado: rows.length ? 'skip' : 'pagina_vazia'},
+        observacao: 'Consulta paginada e nao transacional; alteracoes durante a leitura podem variar a contagem. Nenhum dado pessoal e retornado.',
       };
     }
   }
