@@ -107,6 +107,7 @@ def validate():
         stop("Port binding 3104 divergente")
     for dest,m in mounts.items():
         if dest=="/data": continue
+        if dest=="/tmp" and m["Type"]=="tmpfs": continue
         if not dest.startswith("/run/secrets/") or m["Type"]!="bind" or m["RW"]:
             stop("Montagem inesperada ou gravavel: "+dest)
     if not mounts.get("/run/secrets/opa-api-token"):
@@ -145,7 +146,7 @@ def run_green(green,mounts):
               "--mount","type=bind,src="+str(DATA_DIR)+",dst=/data",
               "--env-file",env_path]
         for dest,m in mounts.items():
-            if dest=="/data": continue
+            if dest=="/data" or (dest=="/tmp" and m["Type"]=="tmpfs"): continue
             args += ["--mount","type=bind,src="+m["Source"]+",dst="+dest+",readonly"]
         args.append(green["Image"])
         cmd(*args)
@@ -200,7 +201,7 @@ def apply():
         if newmount.get("/data",{}).get("Source")!=str(DATA_DIR) or not newmount["/data"]["RW"]:
             stop("Montagem persistente /data nao confirmada")
         for dest,m in mounts.items():
-            if dest=="/data": continue
+            if dest=="/data" or (dest=="/tmp" and m["Type"]=="tmpfs"): continue
             n=newmount.get(dest)
             if not n or n["RW"] or n["Source"]!=m["Source"]:
                 stop("Montagem de token alterada")
