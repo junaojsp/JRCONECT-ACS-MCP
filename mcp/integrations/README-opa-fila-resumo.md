@@ -24,3 +24,37 @@ Adicionar `opa_fila_resumo` ao catalogo Opa ja protegido por OAuth do MCP centra
 
 ## Sem deploy
 Esta PR altera somente o GitHub. Sem reinstalacao, sem reinicio, sem token no repositorio e sem chamadas de escrita.
+
+
+## Correcao de paginacao da fila (posterior a PR #143)
+
+O ACS validou em 13/11/2026 a rota GET /api/v1/atendimento:
+- status AG, options.limit=1, skip=0: 1 registro, HTTP 200
+- status AG, options.limit=1, skip=1: 1 registro DIFERENTE, HTTP 200
+- status EA, options.limit=1, skip=0: 1 registro, HTTP 200
+- status EA, options.limit=1, skip=1: nenhum registro, HTTP 200
+
+Isto confirma deslocamento apenas nas pequenas amostras vistas. Nao comprova a
+contagem total da fila, nem o comportamento sob 100 registros/pagina.
+
+A rotina aggregateOpaQueue foi fortalecida para:
+1. Exigir identificador estavel _id/id para cada atendimento AG; nao exibe IDs.
+2. Rejeitar qualquer ID repetido na mesma pagina ou em pagina posterior.
+3. Rejeitar retorno com mais registros do que options.limit.
+4. Em pagina final nao vazia, fazer uma verificacao GET adicional com
+   options.limit=1 e options.skip=<total lido>; se retornar dados,
+   bloquear o resultado ao inves de inventar total.
+5. Nao retornar total parcial ao exceder o numero maximo de paginas ou ao
+   encontrar formato inesperado.
+
+Essas verificacoes podem falhar com uma fila em movimento mesmo quando o
+servico esta saudavel; nesse caso a ferramenta informa erro e a operacao
+deve conferir a fila no painel do Opa. A consulta continua nao transacional.
+
+Implantacao: o codigo desta PR NAO altera o container, o server.js,
+segredos, Keycloak nem Docker Compose. Usar os arquivos do ACS em producao
+como fonte principal; o mcp/server.js do GitHub esta desatualizado.
+Antes de qualquer deploy: backup, imagem/Compose atuais documentados,
+homologacao isolada Node 24, validacao da API AG, protecao OAuth e
+regressao IXC/Wiki/Financeiro/PABX/SHIELD. Nao remover plugin Opa do GPT
+ate a ferramenta central estar disponivel e os totais validados.
