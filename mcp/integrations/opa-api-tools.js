@@ -14,7 +14,7 @@ export function registerOpaApiTools(mcp, client) {
   }));
 
   mcp.registerTool('opa_resumo_recurso', {
-    description: 'Consulta agregada e paginada de atendimentos ativos, mensagens por id_rota, canais, templates, usuarios ou contatos. Sem dados pessoais; limite de 4000 registros. Recursos nao validados retornam erro.',
+    description: 'Consulta agregada e paginada de atendimentos ativos, mensagens por id_rota, canais, templates e usuarios. Contatos temporariamente bloqueados por incompatibilidade no ACS. Sem dados pessoais; falha se limit/skip nao forem comprovados.',
     inputSchema:{
       recurso:z.enum(['atendimentos','mensagens','canais','templates','usuarios','contatos']),
       status:z.enum(['AG','EA','PS','A','I']).optional(),
