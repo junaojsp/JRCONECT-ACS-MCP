@@ -1,0 +1,49 @@
+--- a/integrations/ixc-os-support-tools.js
++++ b/integrations/ixc-os-support-tools.js
+@@ -68,4 +68,46 @@
+       return errorResult('Consulta de OS por assunto/status falhou. Verificar filtro grid_param e logs ACS.');
+     }
+   });
++  // Somente leitura. Exibe exclusivamente campos necessarios para analise de retencao.
++  mcp.registerTool('ixc_os_detalhes_cancelamento', {
++    description: 'Lista uma pagina de OS de cancelamento (assuntos 6 ou 27), com data, status e descricao quando presentes na resposta do IXC. Somente leitura; sem nomes, CPF, telefone ou endereco.',
++    inputSchema: {
++      id_assunto: z.enum(['6', '27']),
++      pagina: z.number().int().min(1).max(10000).default(1),
++      limite: z.number().int().min(1).max(20).default(10),
++    },
++  }, async ({ id_assunto, pagina = 1, limite = 10 }) => {
++    try {
++      const r = await client.list('os', {
++        id: '1', page: pagina, limit: limite,
++        filters: [{ field: 'id_assunto', oper: '=', value: id_assunto }],
++      });
++      const rows = rowsOf(r);
++      if (rows.some(row => String(row.id_assunto) !== id_assunto)) {
++        return errorResult('IXC nao respeitou o filtro de assunto; consulta interrompida.');
++      }
++      const redact = value => String(value ?? '').slice(0, 1000)
++        .replace(/[\w.+-]+@[\w.-]+\.[a-z]{2,}/gi, '[email]')
++        .replace(/\b\d{3}[. -]?\d{3}[. -]?\d{3}[- ]?\d{2}\b/g, '[cpf]')
++        .replace(/\b(?:\+?55\s?)?\(?\d{2}\)?\s?9?\d{4}[- ]?\d{4}\b/g, '[telefone]');
++      const pick = (row, fields) => {
++        const field = fields.find(key => typeof row[key] === 'string' && row[key].trim());
++        return field ? { campo: field, texto: redact(row[field]) } : null;
++      };
++      const registros = rows.map(row => ({
++        id: String(row.id ?? ''),
++        assunto_id: String(row.id_assunto),
++        status: String(row.status ?? ''),
++        data: pick(row, ['data_abertura', 'data', 'data_hora_abertura']),
++        descricao: pick(row, ['descricao', 'mensagem', 'descricao_os']),
++        diagnostico: pick(row, ['diagnostico', 'diagnostico_tecnico']),
++        observacao: pick(row, ['observacao', 'observacoes']),
++      }));
++      return textResult({ recurso: 'su_oss_chamado', modo: 'somente leitura',
++        id_assunto, pagina, limite, total: total(r), registros,
++        aviso: 'Campos ausentes nao sao recuperados automaticamente de mensagens ou diagnosticos relacionados. Textos livres podem conter dados pessoais residuais: uso interno restrito.' });
++    } catch {
++      return errorResult('Falha ao consultar detalhes de OS. Validar campos e endpoint IXC no ACS.');
++    }
++  });
+ }
