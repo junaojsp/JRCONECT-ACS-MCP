@@ -1,0 +1,29 @@
+name: Opa API read-only catalog checks
+on:
+  pull_request:
+    paths:
+      - 'mcp/integrations/opa-resource-summary.js'
+      - 'mcp/integrations/opa-api-tools.js'
+      - 'tests/opa-resource-summary.test.mjs'
+      - '.github/workflows/opa-readonly-resource-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mcp/integrations/opa-resource-summary.js'
+      - 'mcp/integrations/opa-api-tools.js'
+      - 'tests/opa-resource-summary.test.mjs'
+      - '.github/workflows/opa-readonly-resource-checks.yml'
+permissions:
+  contents: read
+jobs:
+  test-readonly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check mcp/integrations/opa-resource-summary.js
+      - run: node --check mcp/integrations/opa-api-tools.js
+      - run: node --test tests/opa-resource-summary.test.mjs
