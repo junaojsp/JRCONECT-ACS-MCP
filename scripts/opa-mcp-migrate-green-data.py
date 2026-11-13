@@ -94,8 +94,12 @@ def validate():
         stop("Rootfs da candidata nao e read-only")
     mounts={m["Destination"]:m for m in green.get("Mounts",[])}
     data=mounts.get("/data")
-    if not data or data.get("Type")!="tmpfs":
+    # Docker may expose tmpfs only in HostConfig.Tmpfs, not in Mounts.
+    tmpfs_paths=green.get("HostConfig",{}).get("Tmpfs") or {}
+    if not (data and data.get("Type")=="tmpfs") and "/data" not in tmpfs_paths:
         stop("Green nao usa /data tmpfs; nao recriar")
+    if data and data.get("Type")=="bind":
+        stop("Green ja usa bind /data; nao substituir")
     if green.get("HostConfig",{}).get("NetworkMode")!=BASE_NET:
         stop("NetworkMode da candidata divergente")
     port_binding=green["HostConfig"]["PortBindings"].get("3100/tcp",[])
