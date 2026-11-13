@@ -26,9 +26,9 @@ sample="""server {
 assert mod.upstream(sample)==3100
 a,b,block=mod.nginx_block(sample)
 modified=sample[:a]+block.replace("proxy_pass http://127.0.0.1:3100;",
-                                    "proxy_pass http://127.0.0.1:3102;")+sample[b:]
-assert mod.upstream(modified)==3102
-assert modified.count("proxy_pass http://127.0.0.1:3102;")==1
+                                    "proxy_pass http://127.0.0.1:3104;")+sample[b:]
+assert mod.upstream(modified)==3104
+assert modified.count("proxy_pass http://127.0.0.1:3104;")==1
 assert "location = /mcp-finance {\n        proxy_pass http://127.0.0.1:3100;" in modified
 assert "location = /mcp-admin {\n        proxy_pass http://127.0.0.1:3100;" in modified
 assert "proxy_pass http://127.0.0.1:3103/mcp;" in modified

@@ -10,11 +10,12 @@
 - Teste de OAuth real para ChatGPT **ainda nao foi executado**. Consultar tools/list autenticado apos ativacao, e reverter imediatamente se falhar.
 
 ## 1. Prepare: sem interrupcao e sem alterar Nginx
+A porta 3102 esta ocupada pelo container preexistente `jrconect-opa-teste`, com imagem diferente da candidata. A PR de compatibilidade escolhe a porta 3104, sem parar, substituir ou remover o container antigo. O script bloqueia a preparacao se a nova porta tambem estiver ocupada.
 Baixar o script pelo commit exato publicado apos revisao, validar com Python e executar:
 
     sudo python3 /tmp/opa-mcp-bluegreen.py prepare
 
-Este modo cria APENAS a instancia adicional jrconect-mcp-opa-ready em 127.0.0.1:3102.
+Este modo cria APENAS a instancia adicional jrconect-mcp-opa-ready em 127.0.0.1:3104.
 - Usa a imagem candidata ja aprovada e o ambiente do MCP em producao, com as quatro variaveis Opa do Compose proposto e os valores Keycloak homologados.
 - Preserva os nomes e valores de TODAS as variaveis do MCP original.
 - Monta as mesmas credenciais de producao somente leitura; adiciona o token Opa API somente leitura.
@@ -33,7 +34,7 @@ Apos prepare aprovado, planejar janela/observacao de conexoes e executar:
 
 - Recusa a operacao se a imagem do MCP original, a imagem da candidata, o arquivo Nginx ou o health mudaram desde prepare.
 - Faz backup Nginx em /root/jrc-opa-bluegreen/nginx-mcp-pre-switch.conf.
-- Troca exclusivamente o proxy_pass de location = /mcp de 3100 para 3102.
+- Troca exclusivamente o proxy_pass de location = /mcp de 3100 para 3104.
 - Preserva /mcp-finance e /mcp-admin em 3100, /mcp-acs em 3103 e o endpoint de metadata OAuth.
 - Valida nginx -t e faz nginx -s reload gracioso, sem parar o processo Nginx nem reiniciar o MCP.
 - Em erro de configuracao/health, restaura imediatamente o backup e recarrega Nginx.

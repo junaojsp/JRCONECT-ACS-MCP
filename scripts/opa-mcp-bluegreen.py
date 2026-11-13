@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Blue/green deployment of the ALREADY homologated Opa MCP candidate.
 
-prepare: create a second MCP on loopback port 3102; do not touch production.
+prepare: create a second MCP on loopback port 3104; do not touch production.
 activate: change only Nginx exact /mcp route, nginx -t and graceful reload.
 rollback: restore exact Nginx backup; original MCP on 3100 never stops.
 
@@ -24,7 +24,7 @@ ROOT=pathlib.Path("/opt/jrconect-mcp")
 SERVICE="jrconect-mcp"
 GREEN="jrconect-mcp-opa-ready"
 IMAGE="jrconect-mcp:opa-candidate-20261113T195425Z"
-PORT=3102
+PORT=3104
 STATE_DIR=pathlib.Path("/root/jrc-opa-bluegreen")
 STATE=STATE_DIR/"state.json"
 BACKUP=STATE_DIR/"nginx-mcp-pre-switch.conf"
@@ -160,7 +160,7 @@ def prepare():
     candidate=call("docker","image","inspect","-f","{{.Id}}",IMAGE,capture=True)
     with socket.socket() as s:
         try: s.bind(("127.0.0.1",PORT))
-        except OSError: fail("porta 3102 ocupada")
+        except OSError: fail("porta 3104 ocupada")
     current=varmap(live)
     hml=varmap(inspect("jrconect-mcp-opa-hml"))
     compose=api_config()
@@ -212,7 +212,7 @@ def prepare():
                     fail("formato de variavel de ambiente invalido")
                 stream.write(key+"="+value+"\n")
         run=["docker","run","-d","--name",GREEN,"--restart","no",
-             "--network","jrconect-mcp_default","-p","127.0.0.1:3102:3100",
+             "--network","jrconect-mcp_default","-p","127.0.0.1:3104:3100",
              "--read-only","--cap-drop","ALL","--security-opt","no-new-privileges",
              "--memory","384m","--cpus","0.5","--pids-limit","64",
              "--tmpfs","/tmp:rw,nosuid,nodev,size=32m,mode=1777",
@@ -260,7 +260,7 @@ def prepare():
            "production_image":live["Image"],"nginx_original_sha256":sha(original),
            "nginx_path":str(nginx_file),"activated":False}
     store_state(state)
-    print("PREPARACAO OK - nova instancia em 127.0.0.1:3102, todas as montagens protegidas")
+    print("PREPARACAO OK - nova instancia em 127.0.0.1:3104, todas as montagens protegidas")
     print("PRODUCAO 3100 PRESERVADA; NGINX SEM ALTERACAO")
     print("PENDENTE: ativacao seletiva da rota /mcp, com rollback automatico")
 
@@ -284,8 +284,8 @@ def activate():
     text=current.decode()
     if upstream(text)!=3100: fail("Nginx ja nao usa porta 3100")
     a,b,block=nginx_block(text)
-    changed=block.replace("proxy_pass http://127.0.0.1:3100;","proxy_pass http://127.0.0.1:3102;")
-    if changed==block or upstream(changed)!=3102:
+    changed=block.replace("proxy_pass http://127.0.0.1:3100;","proxy_pass http://127.0.0.1:3104;")
+    if changed==block or upstream(changed)!=3104:
         fail("nao foi possivel alterar exclusivamente o bloco /mcp")
     new=text[:a]+changed+text[b:]
     if new.replace(changed,block,1)!=text:
@@ -308,7 +308,7 @@ def activate():
     state["activated"]=True
     state["nginx_active_sha256"]=sha(new.encode())
     store_state(state)
-    print("ATIVADO: somente o endpoint Nginx /mcp aponta para a candidata na porta 3102")
+    print("ATIVADO: somente o endpoint Nginx /mcp aponta para a candidata na porta 3104")
     print("PRODUCAO ANTIGA SEGUE ATIVA NA PORTA 3100")
     print("ROTAS /mcp-finance, /mcp-admin e /mcp-acs: NAO ALTERADAS")
     print("SE O CHATGPT FALHAR: execute rollback IMEDIATAMENTE")
@@ -322,7 +322,7 @@ def rollback():
     text=path.read_bytes()
     if state.get("nginx_active_sha256")!=sha(text):
         fail("Nginx mudou desde a ativacao; nao sobrescrever mudancas de terceiros")
-    if upstream(text.decode())!=3102:
+    if upstream(text.decode())!=3104:
         fail("Nginx /mcp ja nao aponta para candidata; revisar")
     file_write_atomic(path,BACKUP.read_bytes())
     call("nginx","-t")
@@ -330,14 +330,14 @@ def rollback():
     state["activated"]=False
     store_state(state)
     print("ROLLBACK OK: /mcp voltou para 3100, MCP anterior permaneceu ativo")
-    print("A candidata continua disponivel em 3102 para auditoria")
+    print("A candidata continua disponivel em 3104 para auditoria")
 
 def status():
     live=ensure_live()
     if STATE.exists():
         state=load_state()
         green=inspect(GREEN)
-        print("GREEN:",green["State"]["Status"],"porta 3102 health:",health(PORT))
+        print("GREEN:",green["State"]["Status"],"porta 3104 health:",health(PORT))
         print("NGINX /mcp porta:",upstream(config_path().read_text()))
         print("IMAGEM PRODUCAO ORIGINAL:",live["Image"]==state["production_image"])
     else:
