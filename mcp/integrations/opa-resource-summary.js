@@ -15,7 +15,7 @@ export const OPA_RESOURCE_CATALOG = Object.freeze([
   {recurso:'templates',rotas_get_documentadas:['/api/v1/template'],consulta_resumida:true,observacao:'contagem, sem corpo dos templates'},
   {recurso:'clientes',rotas_get_documentadas:[],consulta_resumida:false,observacao:'grupo documentado; confirmar rota e permissao de leitura antes de ativar'},
   {recurso:'usuarios',rotas_get_documentadas:['/api/v1/usuario/'],consulta_resumida:true,observacao:'por status; sem nomes ou contatos'},
-  {recurso:'contatos',rotas_get_documentadas:['/api/v1/contato/'],consulta_resumida:true,observacao:'contagem; pode exceder limite de paginacao'},
+  {recurso:'contatos',rotas_get_documentadas:['/api/v1/contato/'],consulta_resumida:false,observacao:'pausado: consulta indisponivel no ACS em 13/11/2026; confirmar HTTP e permissao antes de habilitar'},
   {recurso:'etiquetas',rotas_get_documentadas:[],consulta_resumida:false,observacao:'grupo documentado; confirmar endpoint GET'},
   {recurso:'notificacoes',rotas_get_documentadas:[],consulta_resumida:false,observacao:'grupo documentado; confirmar se existe GET'},
   {recurso:'departamentos',rotas_get_documentadas:[],consulta_resumida:false,observacao:'grupo documentado; confirmar endpoint GET'},
@@ -35,6 +35,7 @@ const ROUTES = Object.freeze({
 export function querySpecification({recurso,status,id_rota} = {}) {
   if (!Object.hasOwn(ROUTES,recurso)) throw Error('Recurso ainda nao habilitado para consulta');
   if (id_rota !== undefined && recurso !== 'mensagens') throw Error('Filtro id_rota nao permitido neste recurso');
+  if (recurso==='contatos') throw Error('OPA_CONTATOS_PENDENTE: consulta suspensa ate diagnostico do HTTP e permissoes no ACS');
   if (status !== undefined && !['atendimentos','canais','usuarios'].includes(recurso)) {
     throw Error('Filtro status nao permitido neste recurso');
   }
@@ -80,27 +81,48 @@ export async function summarizeOpaResource(fetchPage, query, {pageSize=PAGE_SIZE
   }
   let total=0;
   const groups=new Map();
+  const seenIds=new Set();
   for(let p=0;p<maxPages;p++){
     const rows=await fetchPage({path:spec.url,filter:spec.filter,limit:pageSize,skip:p*pageSize});
-    if(!Array.isArray(rows) || rows.length>pageSize) throw Error('Resposta Opa fora do contrato de listagem');
+    if(!Array.isArray(rows)) throw Error('Resposta Opa fora do contrato de listagem');
+    if(rows.length>pageSize) throw Error('OPA_LIMITE_IGNORADO: API retornou mais registros que options.limit; contagem bloqueada');
     for(const row of rows){
       if(!row || typeof row!=='object' || Array.isArray(row)) throw Error('Registro Opa com estrutura invalida');
       if(spec.filter.status && row.status!==spec.filter.status) {
         throw Error('Filtro status nao aplicado; consulta cancelada');
       }
-      if(spec.filter.id_rota && row.id_rota!==undefined && row.id_rota!==spec.filter.id_rota) {
+      if(spec.filter.id_rota && row.id_rota!==spec.filter.id_rota) {
         throw Error('Filtro id_rota nao aplicado; consulta cancelada');
+      }
+      // Full pages must be uniquely identifiable; otherwise repeated pages
+      // could silently inflate totals even if the API ignores options.skip.
+      if(rows.length===pageSize || seenIds.size) {
+        const id=row._id ?? row.id;
+        if(typeof id!=='string' || !/^[A-Za-z0-9_-]{1,128}$/.test(id)) {
+          throw Error('OPA_PAGINACAO_SEM_ID: nao e possivel validar paginas completas');
+        }
+        if(seenIds.has(id)) throw Error('OPA_PAGINA_REPETIDA: registro repetido entre paginas');
+        seenIds.add(id);
       }
       total++;
       const key=groupFor(query.recurso,row);
       groups.set(key,(groups.get(key)||0)+1);
     }
     if(rows.length<pageSize){
+      // Some Opa endpoints returned 4/8 rows despite options.limit=1 on ACS.
+      // Independently verify that skip reaches past the last observed record.
+      // Never guess that a short first page means that the full table was read.
+      if(rows.length>0) {
+        const after=await fetchPage({path:spec.url,filter:spec.filter,limit:1,skip:p*pageSize+rows.length});
+        if(!Array.isArray(after) || after.length!==0) {
+          throw Error('OPA_SKIP_NAO_CONFIRMADO: API nao comprovou fim da listagem; total indisponivel');
+        }
+      }
       return {
         sistema:'Opa Suite',recurso:query.recurso,criterio:spec.filter,
         total,por_grupo:[...groups].map(([codigo,quantidade])=>({codigo,quantidade})).sort((a,b)=>b.quantidade-a.quantidade),
         consultado_em:new Date().toISOString(),
-        auditoria:{paginas:p+1,paginacao_completa:true,limite_registros:pageSize*maxPages},
+        auditoria:{paginas:p+1,paginacao_completa:true,skip_final_verificado:rows.length>0,limite_registros:pageSize*maxPages},
         observacao:'Dados agregados, sem dados pessoais. Leitura paginada nao e snapshot transacional.',
       };
     }
