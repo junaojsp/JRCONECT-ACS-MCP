@@ -1,0 +1,22 @@
+name: Opa MCP safe candidate script checks
+on:
+  pull_request:
+    paths:
+      - 'scripts/stage-opa-mcp-candidate-safe.sh'
+      - '.github/workflows/opa-safe-candidate-stage.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/stage-opa-mcp-candidate-safe.sh'
+      - '.github/workflows/opa-safe-candidate-stage.yml'
+permissions:
+  contents: read
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n scripts/stage-opa-mcp-candidate-safe.sh
+      - run: |
+          ! grep -Eq 'docker[[:space:]]+compose.*(up|down)|docker[[:space:]]+(restart|stop|rm)|systemctl[[:space:]]+(restart|stop)' scripts/stage-opa-mcp-candidate-safe.sh
