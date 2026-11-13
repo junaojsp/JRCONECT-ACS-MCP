@@ -1,7 +1,34 @@
 import { z } from 'zod';
 import { createOpaReportClient } from './opa-api-report-client.js';
 import { createOpaQueueClient } from './opa-queue-summary.js';
+import {OPA_RESOURCE_CATALOG, createOpaResourceClient} from './opa-resource-summary.js';
 export function registerOpaApiTools(mcp, client) {
+  // No raw customer records. Only available behind the existing Opa OAuth gate.
+  mcp.registerTool('opa_catalogo_recursos', {
+    description: 'Inventario das 12 categorias de API Opa. Distingue rotas GET documentadas e recursos ainda pendentes de validacao, sem acessar clientes.',
+  }, async () => ({
+    content:[{type:'text',text:JSON.stringify({
+      sistema:'Opa Suite',catalogo:OPA_RESOURCE_CATALOG,
+      aviso:'Rotas documentadas nao significam habilitadas ou testadas na instalacao JRConect. Sem consultas irrestritas.'
+    })}],
+  }));
+
+  mcp.registerTool('opa_resumo_recurso', {
+    description: 'Consulta agregada e paginada de atendimentos ativos, mensagens por id_rota, canais, templates, usuarios ou contatos. Sem dados pessoais; limite de 4000 registros. Recursos nao validados retornam erro.',
+    inputSchema:{
+      recurso:z.enum(['atendimentos','mensagens','canais','templates','usuarios','contatos']),
+      status:z.enum(['AG','EA','PS','A','I']).optional(),
+      id_rota:z.string().regex(/^[a-f0-9]{24}$/i).optional(),
+    }
+  }, async ({recurso,status,id_rota})=>{
+    try{
+      const resumo=await createOpaResourceClient().resumo({recurso,status,id_rota});
+      return {content:[{type:'text',text:JSON.stringify(resumo)}]};
+    }catch(e){
+      return {isError:true,content:[{type:'text',text:String(e.message||e)}]};
+    }
+  });
+
   // Expose only in the existing Opa OAuth-authorized handler.
   mcp.registerTool('opa_fila_resumo', {
     description: 'Conta atendimentos em espera (status AG), por setor, sem dados de clientes. Somente leitura; falha se a API ignorar o filtro ou a paginacao ficar incompleta.',
