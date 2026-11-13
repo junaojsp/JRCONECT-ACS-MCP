@@ -12,7 +12,10 @@ services:
       - /tmp
     volumes:
       - ./opa-token.secret:/run/secrets/opa-token:ro
+      - ./opa-api-token.secret:/run/secrets/opa-api-token:ro
     environment:
+      OPA_READ_ENABLED: "false"
+      OPA_ALLOWED_SUBS: ""
       KEYCLOAK_JWKS_URL: "http://jrconect-keycloak:8080/realms/jrconect/protocol/openid-connect/certs"
       KEYCLOAK_ISSUER: "https://auth.jrconect.com/realms/jrconect"
       KEYCLOAK_AUDIENCE: "jrconect-mcp"
