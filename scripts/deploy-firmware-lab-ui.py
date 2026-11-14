@@ -46,13 +46,12 @@ def main():
     # anchor by id, on its own source line, without HTML regex parsing of ?>.
     lines = src.splitlines(keepends=True)
     indexes = [i for i, line in enumerate(lines)
-               if re.search(r'<a\\s+id=["\\']nav-firmware["\\']', line)]
+               if '<a ' in line and 'id="nav-firmware"' in line]
     if len(indexes) != 1:
         die("esperada uma unica ancora nav-firmware")
     idx = indexes[0]
     line = lines[idx]
-    if not any(re.search(r'<span>\\s*Firmware\\s*</span>', x, re.I)
-               for x in lines[idx+1:idx+5]):
+    if not any('<span>Firmware</span>' in x for x in lines[idx+1:idx+5]):
         die("rotulo Firmware nao corresponde ao id")
     expected = 'href="<?php echo htmlspecialchars($firmwareHref, ENT_QUOTES, \'UTF-8\'); ?>"'
     if line.count(expected) == 1:
