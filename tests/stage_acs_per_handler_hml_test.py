@@ -10,13 +10,11 @@ spec.loader.exec_module(stage)
 # Synthetic excerpt of the known already-staged V1 HML server.js.
 SOURCE = """import { AsyncLocalStorage } from 'node:async_hooks';
 const acsRequestContext = new AsyncLocalStorage();
-function makeMcpHandler(includeShield, includeFinance = false,
- includeOpa = false, includeIxc = false, includePabx = false,
- includePabxRead = false, includeAcs = false) {
+const makeMcpHandler = (includeShield, includeFinance = false, includeOpa = false, includeIxc = false, includePabx = false, includePabxRead = false, includeAcs = false) => createMcpHandler(() => {
   const mcp = new McpServer({});
   if (includeAcs) registerAcsMonitorTools(mcp, () => acsRequestContext.getStore());
   return mcp;
-}
+});
 const handler = createMcpHandler(() => {
   const mcp = new McpServer({});
   return mcp;
@@ -34,6 +32,7 @@ const combinedHandlers = [
   toNodeHandler(makeMcpHandler(true, false, false, true, false, false)),
 ];
 const pabxCentralMcpHandlers = [
+  toNodeHandler(makeMcpHandler(true, false, false, false, true)),
   toNodeHandler(makeMcpHandler(true, true, true, true, true, false)),
   toNodeHandler(makeMcpHandler(true, true, true, true, false, true)),
 ];
@@ -71,8 +70,9 @@ async function route(req, res, match) {
 
 class PerHandlerPatchTests(unittest.TestCase):
     def test_preserves_original_dispatch_and_six_permission_flags(self):
-        updated, count = stage.patch_server(SOURCE)
-        self.assertEqual(count, 10)
+        updated, count, defaults_used = stage.patch_server(SOURCE)
+        self.assertEqual(count, 11)
+        self.assertEqual(defaults_used, 1)
         self.assertEqual(updated.count("acsAwareNodeHandler("), count)
         self.assertNotIn("acsCentralReadHandler", updated)
         self.assertNotIn("only all-scopes admins", updated)
@@ -81,6 +81,7 @@ class PerHandlerPatchTests(unittest.TestCase):
         self.assertIn("const opaHandler = acsAwareNodeHandler(false, false, true, false, false, false);", updated)
         self.assertIn("const ixHandler = acsAwareNodeHandler(false, false, false, true, false, false);", updated)
         self.assertIn("const shieldHandler = acsAwareNodeHandler(true, false, false, false, false, false);", updated)
+        self.assertIn("acsAwareNodeHandler(true, false, false, false, true, false)", updated)
         self.assertIn("if (process.env.SHIELD_MCP_ALLOWED_SUB === payload.sub &&", updated)
         self.assertIn("return pabxCentralMcpHandlers[permissions](req, res);", updated)
         self.assertIn("return opaHandler(req,res);", updated)
@@ -96,7 +97,7 @@ class PerHandlerPatchTests(unittest.TestCase):
         self.assertNotIn("toNodeHandler(makeMcpHandler(true", updated)
 
     def test_fails_on_second_patch(self):
-        updated, _ = stage.patch_server(SOURCE)
+        updated, _, _ = stage.patch_server(SOURCE)
         with self.assertRaisesRegex(stage.Blocked, "OVERLAY_V2_JA_APLICADO"):
             stage.patch_server(updated)
 
@@ -113,11 +114,32 @@ class PerHandlerPatchTests(unittest.TestCase):
         with self.assertRaises(stage.Blocked):
             stage.patch_server(altered)
 
-    def test_fails_if_original_handler_signature_diverged(self):
-        altered = SOURCE.replace("toNodeHandler(makeMcpHandler(true, false, false, false, false, false))",
-                                 "toNodeHandler(makeMcpHandler(true, false, false, false, false))")
-        with self.assertRaisesRegex(stage.Blocked, "HANDLER_ASSINATURA_NAO_SUPORTADA"):
-            stage.patch_server(altered)
+    def test_accepts_shortened_legacy_signatures_with_default_false(self):
+        # Caller explicitly sets first five flags; last omitted flag has default=false.
+        updated, count, defaults_used = stage.patch_server(SOURCE)
+        self.assertEqual(defaults_used, 1)
+        self.assertIn("acsAwareNodeHandler(true, false, false, false, true, false)", updated)
+        self.assertEqual(count, 11)
+
+    def test_rejects_empty_or_seven_legacy_arguments(self):
+        old = "toNodeHandler(makeMcpHandler(true, false, false, false, false, false))"
+        for bad in ["toNodeHandler(makeMcpHandler())",
+                    "toNodeHandler(makeMcpHandler(true, false, false, false, false, false, false))"]:
+            with self.subTest(bad=bad):
+                altered = SOURCE.replace(old, bad)
+                with self.assertRaisesRegex(stage.Blocked, "HANDLER_ASSINATURA_NAO_SUPORTADA"):
+                    stage.patch_server(altered)
+
+    def test_rejects_factory_default_or_order_drift(self):
+        for old, bad in [
+            ("includePabxRead = false", "includePabxRead = true"),
+            ("includePabx = false, includePabxRead = false",
+             "includePabxRead = false, includePabx = false"),
+        ]:
+            with self.subTest(old=old):
+                altered = SOURCE.replace(old, bad)
+                with self.assertRaisesRegex(stage.Blocked, "ESTRUTURA_DIVERGENTE_FACTORY_DEFAULTS"):
+                    stage.patch_server(altered)
 
     def test_no_prod_modification_in_script(self):
         s = script.read_text()
