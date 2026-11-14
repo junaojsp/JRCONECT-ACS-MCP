@@ -1,0 +1,27 @@
+name: ACS monitor central safe module
+on:
+  pull_request:
+    paths:
+      - 'mcp/integrations/acs-monitor-central-tools.js'
+      - 'tests/acs-monitor-central.test.mjs'
+      - 'scripts/README-acs-monitor-central.md'
+      - '.github/workflows/acs-monitor-central.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mcp/integrations/acs-monitor-central-tools.js'
+      - 'tests/acs-monitor-central.test.mjs'
+      - '.github/workflows/acs-monitor-central.yml'
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check mcp/integrations/acs-monitor-central-tools.js
+      - run: node --test tests/acs-monitor-central.test.mjs
