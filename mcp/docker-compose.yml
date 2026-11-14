@@ -12,7 +12,12 @@ services:
       - /tmp
     volumes:
       - ./opa-token.secret:/run/secrets/opa-token:ro
+      - /proc/uptime:/host/proc/uptime:ro
+      - /proc/loadavg:/host/proc/loadavg:ro
+      - /proc/meminfo:/host/proc/meminfo:ro
     environment:
+      ACS_MONITOR_ENABLED: "false"
+      ACS_MONITOR_ALLOWED_SUBS: ""
       KEYCLOAK_JWKS_URL: "http://jrconect-keycloak:8080/realms/jrconect/protocol/openid-connect/certs"
       KEYCLOAK_ISSUER: "https://auth.jrconect.com/realms/jrconect"
       KEYCLOAK_AUDIENCE: "jrconect-mcp"

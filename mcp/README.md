@@ -46,3 +46,23 @@ Esperado para ambos: `401`. Testar o token valido de maneira que ele nao apareca
 ## Seguranca
 
 Nao armazenar `opa-token.secret`, `.env`, codigos de autorizacao, access tokens, refresh tokens ou senhas no GitHub. Tokens estaticos devem ser rotacionados quando houver suspeita de vazamento. O caminho `/health` so deve ser acessivel localmente. Use permissao minima e TLS; `status_servidor` e uma ferramenta sem efeitos colaterais.
+
+## Monitoramento do proprio ACS (PR de homologacao)
+
+Duas ferramentas adicionais sao disponibilizadas apenas com `ACS_MONITOR_ENABLED=true` e `ACS_MONITOR_ALLOWED_SUBS` contendo o ID `sub` de usuarios Keycloak explicitamente autorizados:
+
+- `acs_recursos_host`: uptime, carga media do Linux, memoria e swap do host. O container monta **somente** os arquivos `/proc/uptime`, `/proc/loadavg` e `/proc/meminfo` do host como leitura; nao possui acesso a outras partes do /proc.
+- `acs_status_integracoes`: verifica o HTTP dos endpoints fixos e confiaveis do MCP e Keycloak. Nao verifica o estado interno dos processos nem faz operacoes de escrita.
+
+**Producao:** ambos ficam DESABILITADOS por padrao. O token estatico do Opa nunca autoriza essas ferramentas; somente JWT Keycloak emitido para `chatgpt-mcp` com `sub` listado em `ACS_MONITOR_ALLOWED_SUBS`. Nunca versionar UUIDs de usuarios ou tokens reais. Nao conceder Docker socket, SSH, execucao shell, acesso root, mount do filesystem ou `/proc` completo ao MCP.
+
+**Testes exigidos antes do deploy:**
+1. `node --check server.js && node --check acs-monitor.js`.
+2. Build de homologacao, com volume apenas dos 3 arquivos /proc descritos acima.
+3. Sem `ACS_MONITOR_ALLOWED_SUBS`, uma chamada autenticada deve resultar em erro de autorizacao.
+4. Bearer do Opa deve ser negado mesmo com allowlist presente.
+5. JWT com `sub` autorizado deve retornar metricas, sem identificadores ou informacoes privadas.
+6. `status_servidor`, HTTP 401 para acesso nao autenticado e metadados OAuth devem continuar operacionais.
+7. Revisar diffs com os arquivos locais no servidor ACS antes de qualquer substituicao em producao.
+
+**Nao implementado:** status de contêiner Docker, Nginx, PHP, MongoDB e uso de disco, nem reinicios e atualizacoes. Esses recursos exigem um agente administrativo local com API estritamente limitada e politicas de autorizacao proprias; nao expor socket Docker.
