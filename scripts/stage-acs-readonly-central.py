@@ -56,27 +56,47 @@ def patch_server(source):
         if anchor not in source:
             fail("ESTRUTURA_DIVERGENTE: falta ancora "+anchor)
 
-    pattern=r'(?m)^((?:export\s+)?(?:function\s+makeMcpHandler\s*\(|const\s+makeMcpHandler\s*=\s*\())([^)]*)(\)\s*(?:=>\s*)?\{)'
-    found=list(re.finditer(pattern,source))
-    if len(found)!=1:
-        fail("ESTRUTURA_DIVERGENTE: assinatura makeMcpHandler")
-    m=found[0]
-    args=[a.strip() for a in m.group(2).split(",")]
-    if len(args)!=6:
-        fail("ESTRUTURA_DIVERGENTE: assinatura de makeMcpHandler tem "+str(len(args))+" argumentos, esperado 6")
-    source=source[:m.start()]+m.group(1)+m.group(2)+", includeAcs = false"+m.group(3)+source[m.end():]
-
-    # The factory must contain exactly one server return before its existing
-    # generic handler. This does not change any of the old handler selections.
-    mcp_handler_marker="const mcpHandler = toNodeHandler(handler);"
-    factory_region=source.split(mcp_handler_marker,1)[0]
-    if factory_region.count("return mcp;")!=1:
-        fail("ESTRUTURA_DIVERGENTE: return mcp da factory")
-    prefix,suffix=source.split(mcp_handler_marker,1)
-    prefix=prefix.replace("return mcp;", """// JRC_ACS_READONLY_OVERLAY_V1: call-time role enforcement, no admin actions.
+    # Real active ACS (2026-11-14) uses a six-argument arrow factory:
+    # const makeMcpHandler = (includeShield, includeFinance = false, ...)
+    #   => createMcpHandler(() => { ... return mcp; });
+    # Do not accept other forms because arg-order changes could grant scopes.
+    pattern = (r'(?m)^([ \t]*)(const[ \t]+makeMcpHandler[ \t]*=[ \t]*\()'
+               r'([^)]*)(\)[ \t]*=>[ \t]*createMcpHandler[ \t]*\([ \t]*'
+               r'\([ \t]*\)[ \t]*=>[ \t]*\{)')
+    found = list(re.finditer(pattern, source))
+    if len(found) != 1:
+        fail("ESTRUTURA_DIVERGENTE: assinatura makeMcpHandler (arrow) "
+             + "(" + str(len(found)) + " encontrados)")
+    m = found[0]
+    args = [a.strip() for a in m.group(3).split(",")]
+    expected = ("includeShield", "includeFinance", "includeOpa",
+                "includeIxc", "includePabx", "includePabxRead")
+    if len(args) != len(expected):
+        fail("ESTRUTURA_DIVERGENTE: assinatura de makeMcpHandler tem "
+             + str(len(args)) + " argumentos, esperado 6")
+    actual_names = tuple(a.split("=", 1)[0].strip() for a in args)
+    if actual_names != expected:
+        fail("ESTRUTURA_DIVERGENTE: ordem ou nome de permissao diferente")
+    # Never inject before/into the original generic handler. Only the
+    # exact six-scope factory's return statement can receive ACS registration.
+    source = (source[:m.start()] + m.group(1) + m.group(2)
+              + m.group(3) + ", includeAcs = false" + m.group(4)
+              + source[m.end():])
+    marker = "const mcpHandler = toNodeHandler(handler);"
+    factory_start = source.index("=> createMcpHandler(() => {", m.start())
+    factory_end = source.find(marker, factory_start)
+    if factory_end < 0:
+        fail("ESTRUTURA_DIVERGENTE: fim do registro de handlers")
+    factory_body = source[factory_start:factory_end]
+    if factory_body.count("return mcp;") != 1:
+        fail("ESTRUTURA_DIVERGENTE: return mcp da factory ("
+             + str(factory_body.count("return mcp;")) + " encontrados)")
+    replacement = """// JRC_ACS_READONLY_OVERLAY_V1: role verified per call; no admin actions.
     if (includeAcs) registerAcsMonitorTools(mcp, () => acsRequestContext.getStore());
-    return mcp;""",1)
-    source=prefix+mcp_handler_marker+suffix
+    return mcp;"""
+    source = (source[:factory_start]
+              + factory_body.replace("return mcp;", replacement, 1)
+              + source[factory_end:])
 
     # ACS overlay is selected ONLY if ALL existing permissions are positively
     # verified: the 6 booleans in makeMcpHandler correspond to these scopes.
@@ -158,8 +178,12 @@ def main():
         patch_file=stage/"server-candidate.js"
         patch_file.write_text(candidate)
         os.chmod(patch_file,0o600)
+        # The candidate copy is mode 0600, so check it in an ephemeral,
+        # unprivileged-network, capability-less container as UID 0 only here.
+        # It does not start or change the running MCP.
         call("docker","run","--rm","--network","none","--read-only",
-             "--cap-drop","ALL","--entrypoint","node",
+             "--cap-drop","ALL","--security-opt","no-new-privileges",
+             "--user","0","--entrypoint","node",
              "--mount","type=bind,src="+str(patch_file)+",dst=/tmp/server.js,readonly",
              image_id,"--check","/tmp/server.js")
         old_sha=hashlib.sha256(original.encode()).hexdigest()
