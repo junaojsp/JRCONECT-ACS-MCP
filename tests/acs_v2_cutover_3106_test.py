@@ -162,20 +162,20 @@ class ACSPromoteTests(unittest.TestCase):
             "container_image":"sha256:new",
             "verified_at":int(time.time()),
         }
-        with patch.object(app.NEGATIVE_GATE, "is_symlink", return_value=False), \
-             patch.object(app.NEGATIVE_GATE, "is_file", return_value=True), \
-             patch.object(app.NEGATIVE_GATE, "read_text", return_value=json.dumps(receipt)):
+        with patch.object(app.Path, "is_symlink", return_value=False), \
+             patch.object(app.Path, "is_file", return_value=True), \
+             patch.object(app.Path, "read_text", return_value=json.dumps(receipt)):
             self.assertTrue(app.verify_negative_gate("sha256:new"))
             with self.assertRaisesRegex(app.Blocked,"IMAGEM"):
                 app.verify_negative_gate("sha256:outro")
             receipt["verified_at"]=int(time.time())-50000
-            with patch.object(app.NEGATIVE_GATE, "read_text", return_value=json.dumps(receipt)):
+            with patch.object(app.Path, "read_text", return_value=json.dumps(receipt)):
                 with self.assertRaisesRegex(app.Blocked,"EXPIRADO"):
                     app.verify_negative_gate("sha256:new")
 
     def test_cutover_requires_real_negative_gate_receipt(self):
-        with patch.object(app.NEGATIVE_GATE,"is_symlink",return_value=False), \
-             patch.object(app.NEGATIVE_GATE,"is_file",return_value=False):
+        with patch.object(app.Path,"is_symlink",return_value=False), \
+             patch.object(app.Path,"is_file",return_value=False):
             with self.assertRaisesRegex(app.Blocked,"TESTE_NEGATIVO"):
                 app.verify_negative_gate("sha256:new")
 
