@@ -4,12 +4,14 @@ on:
     paths:
       - 'scripts/opa-mcp-bluegreen.py'
       - 'tests/opa-mcp-bluegreen-smoke.py'
+      - 'tests/opa_mcp_reactivate_test.py'
       - '.github/workflows/opa-mcp-bluegreen.yml'
   push:
     branches: [main]
     paths:
       - 'scripts/opa-mcp-bluegreen.py'
       - 'tests/opa-mcp-bluegreen-smoke.py'
+      - 'tests/opa_mcp_reactivate_test.py'
       - '.github/workflows/opa-mcp-bluegreen.yml'
 permissions:
   contents: read
@@ -19,5 +21,6 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - run: python3 -m py_compile scripts/opa-mcp-bluegreen.py tests/opa-mcp-bluegreen-smoke.py
+      - run: python3 -m py_compile scripts/opa-mcp-bluegreen.py tests/opa-mcp-bluegreen-smoke.py tests/opa_mcp_reactivate_test.py
       - run: python3 tests/opa-mcp-bluegreen-smoke.py
+      - run: python3 -m unittest discover -s tests -p 'opa_mcp_reactivate_test.py' -v
