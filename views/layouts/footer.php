@@ -27,6 +27,25 @@
     <script src="/assets/js/wifi-network-groups.js?v=20261022-onu4"></script>
     <link rel="stylesheet" href="/assets/css/scout-device.css?v=20261022-onu9">
     <?php endif; ?>
-    <link rel="stylesheet" href="/assets/css/command-center.css?v=20261114-cc1">
+    <link rel="stylesheet" href="/assets/css/command-center.css?v=20261114-cc2">
+    <link rel="stylesheet" href="/assets/css/command-center.css?v=20261114-cc2">
+    <script>
+    (function () {
+        function mountCommandCenter() {
+            var link = document.getElementById('jrc-command-center');
+            if (link) link.remove();
+            link = document.createElement('link');
+            link.id = 'jrc-command-center';
+            link.rel = 'stylesheet';
+            link.href = '/assets/css/command-center.css?v=20261114-cc2';
+            document.head.appendChild(link);
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', mountCommandCenter);
+        } else {
+            mountCommandCenter();
+        }
+    })();
+    </script>
 </body>
 </html>

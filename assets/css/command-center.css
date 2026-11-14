@@ -147,3 +147,208 @@ html body .fb-device #deviceTabs .nav-link.active {
     color: #5ad0ff !important;
     border-bottom-color: #1565c0 !important;
 }
+
+html.jrc-config-page body,
+html.jrc-neutro-page body,
+html.jrc-alertas-page body,
+html.jrc-ipam-page body,
+html.jrc-config-page .main-content,
+html.jrc-neutro-page .main-content,
+html.jrc-alertas-page .main-content,
+html.jrc-ipam-page .main-content,
+html.jrc-config-page .content-wrapper,
+html.jrc-neutro-page .content-wrapper,
+html.jrc-alertas-page .content-wrapper,
+html.jrc-ipam-page .content-wrapper,
+html.jrc-config-page .page-content,
+html.jrc-neutro-page .page-content,
+html.jrc-alertas-page .page-content,
+html.jrc-ipam-page .page-content,
+html.jrc-config-page .topbar,
+html.jrc-neutro-page .topbar,
+html.jrc-alertas-page .topbar,
+html.jrc-ipam-page .topbar,
+html.jrc-config-page .container,
+html.jrc-neutro-page .container,
+html.jrc-config-page .container-fluid,
+html.jrc-neutro-page .container-fluid {
+    background: #071422 !important;
+    background-image: none !important;
+    color: #e7f2fb !important;
+    border-bottom-color: #143049 !important;
+}
+
+html.jrc-config-page .card,
+html.jrc-config-page .card-header,
+html.jrc-config-page .card-body,
+html.jrc-config-page .list-group-item,
+html.jrc-config-page .tab-content,
+html.jrc-config-page .alert-info,
+html.jrc-neutro-page .card,
+html.jrc-neutro-page .card-header,
+html.jrc-neutro-page .card-body,
+html.jrc-neutro-page .list-group-item,
+html.jrc-neutro-page .tab-content,
+html.jrc-neutro-page .alert-info,
+html body .jrc-al-stat,
+html body .jrc-al-card,
+html body .jrc-ip-card,
+html body .onu-stats article,
+html body .onu-panel,
+html body .voip-page .voip-card,
+html body .jrc-mcp-page,
+html body #mcp-config,
+html body #mcp-config .card,
+html body #mcp-config .card-header,
+html body #mcp-config .card-body,
+html body .fb-device .acs-overview-card,
+html body .fb-device .fb-ind,
+html body .fb-device .fb-action-menu,
+html body .fb-device .fb-action-stage {
+    background: #0c1e33 !important;
+    background-color: #0c1e33 !important;
+    border-color: #1c4668 !important;
+    color: #e7f2fb !important;
+}
+
+html.jrc-config-page .nav-tabs .nav-link.active,
+html.jrc-neutro-page .nav-tabs .nav-link.active,
+html body .jrc-ip-tabs button.is-on {
+    background: #0c1e33 !important;
+    color: #fff !important;
+    border-color: #1c4668 #1c4668 #1565c0 !important;
+    box-shadow: inset 0 -2px 0 #1565c0 !important;
+}
+
+html.jrc-config-page .btn-primary,
+html.jrc-config-page .btn-info,
+html.jrc-neutro-page .btn-primary,
+html.jrc-neutro-page .btn-info,
+html.jrc-neutro-page .users-submit,
+html.jrc-neutro-page .btn-edit,
+html body .jrc-ip-btn,
+html body .onu-filters .btn-primary {
+    background: #1565c0 !important;
+    border-color: #1565c0 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+}
+
+html.jrc-config-page .btn-primary:hover,
+html.jrc-config-page .btn-info:hover,
+html.jrc-neutro-page .btn-primary:hover,
+html.jrc-neutro-page .btn-info:hover,
+html body .jrc-ip-btn:hover,
+html body .onu-filters .btn-primary:hover {
+    background: #1d74d6 !important;
+    border-color: #1d74d6 !important;
+}
+
+html body button.jrc-al-stat.is-on {
+    background: #10283f !important;
+    border-color: #1565c0 !important;
+    box-shadow: inset 0 0 0 1px #1565c0 !important;
+}
+
+html.jrc-neutro-page #logs-container {
+    background: #0c1e33 !important;
+    border-color: #1c4668 !important;
+    color: #d5e6f2 !important;
+}
+
+html body .jrc-inventory-page #devices-table-wrap,
+html body .jrc-dashboard #recent-devices .table-responsive {
+    background: #0c1e33 !important;
+    border-color: #1c4668 !important;
+}
+
+html body .jrc-inventory-page #devices-table thead th,
+html body .jrc-dashboard #recent-devices thead th,
+html body .jrc-inventory-page #devices-table tbody tr,
+html body .jrc-dashboard #recent-devices tbody tr,
+html.jrc-config-page .table thead th,
+html.jrc-config-page .table tbody td,
+html.jrc-neutro-page .table thead th,
+html.jrc-neutro-page .table tbody td,
+html body .voip-page .voip-table th,
+html body .voip-page .voip-table td {
+    background: #0c1e33 !important;
+    color: #d5e6f2 !important;
+    border-color: #1c4668 !important;
+}
+
+html body .jrc-inventory-page #devices-table thead th,
+html body .jrc-dashboard #recent-devices thead th,
+html body .voip-page .voip-table th {
+    color: #8eabc2 !important;
+}
+
+html body .jrc-inventory-page #devices-table tbody tr:hover,
+html body .jrc-dashboard #recent-devices tbody tr:hover,
+html.jrc-config-page .table-hover tbody tr:hover td {
+    background: #12324d !important;
+}
+
+html body .jrc-inventory-page #devices-table tbody td a,
+html body .jrc-dashboard #recent-devices tbody td a {
+    color: #d5e6f2 !important;
+}
+
+html body .jrc-inventory-page #devices-table tbody td a:hover,
+html body .jrc-dashboard #recent-devices tbody td a:hover {
+    color: #5ad0ff !important;
+}
+
+html body .fb-devices .fb-metric strong,
+html body .onu-stats strong,
+html body .voip-page .voip-number,
+html body .jrc-al-stat strong,
+html body .jrc-ip h1 {
+    color: #5ad0ff !important;
+}
+
+html body .fb-devices .fb-metric.is-warn strong { color: #f5b942 !important; }
+html body .fb-devices .fb-metric.is-bad strong { color: #ff6b6b !important; }
+
+html body .onu-stats i,
+html body .onu-panel h2 i,
+html body .voip-page .voip-grid .voip-card {
+    color: #5ad0ff !important;
+    border-top-color: #1565c0 !important;
+}
+
+html body .jrc-ip-mark,
+html body .jrc-ip-ico {
+    background: #12324d !important;
+    color: #5ad0ff !important;
+}
+
+html.jrc-config-page .form-control,
+html.jrc-config-page .form-select,
+html.jrc-neutro-page .form-control,
+html.jrc-neutro-page .form-select,
+html.jrc-neutro-page .users-form-grid input,
+html.jrc-neutro-page .users-form-grid select,
+html body .voip-page textarea,
+html body #mcp-config .form-control,
+html body #mcp-config input,
+html body #mcp-config select,
+html body #mcp-config textarea {
+    background: #10283f !important;
+    color: #e7f2fb !important;
+    border-color: #1c4668 !important;
+}
+
+html body .fb-device,
+html body .fb-device .acs-device-shell {
+    background: transparent !important;
+}
+
+html body .fb-device .acs-overview-card,
+html body .fb-device .table,
+html body .fb-device .table thead th,
+html body .fb-device .table tbody td {
+    background: #0c1e33 !important;
+    border-color: #1c4668 !important;
+    color: #d5e6f2 !important;
+}
