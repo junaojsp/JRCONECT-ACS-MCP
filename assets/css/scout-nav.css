@@ -5,8 +5,8 @@
     width: 248px !important;
     min-width: 248px !important;
     max-width: 248px !important;
-    background: #101114 !important;
-    border-right: 1px solid #1c1e24 !important;
+    background: #081624 !important;
+    border-right: 1px solid #143049 !important;
     display: flex !important;
     flex-direction: column !important;
     padding: 14px 12px 12px !important;
@@ -36,7 +36,7 @@
     width: 34px !important;
     height: 34px !important;
     border-radius: 10px !important;
-    background: #e10600 !important;
+    background: #1565c0 !important;
     color: #fff !important;
     display: grid !important;
     place-items: center !important;
@@ -126,13 +126,13 @@
 }
 
 #sidebar .fb-nav a:hover {
-    background: #1a1d24 !important;
+    background: #10283f !important;
     color: #fff !important;
 }
 
 #sidebar .fb-nav a.active,
 #sidebar .fb-nav a.active:hover {
-    background: #e10600 !important;
+    background: #1565c0 !important;
     color: #fff !important;
     border: 0 !important;
 }

@@ -1,0 +1,149 @@
+/* Command center: paleta do Shield sobre o ACS. Sinal bom, fraco e crítico mantêm as cores de estado. */
+
+html body,
+html body .main-content,
+html body #mainContent,
+html body .content-wrapper,
+html body .page-content,
+html body .dashboard-content,
+html body .container-fluid,
+html body .container,
+html body main {
+    background: #071422 !important;
+    background-image: none !important;
+    color: #e7f2fb !important;
+}
+
+html body #sidebar,
+html body #sidebar.collapsed,
+html body .sidebar,
+html body .sidebar-header {
+    background: #081624 !important;
+    border-color: #143049 !important;
+}
+
+html body #sidebar .fb-mark,
+html body .fb-mark {
+    background: #1565c0 !important;
+    color: #fff !important;
+}
+
+html body #sidebar .fb-nav a:hover {
+    background: #10283f !important;
+    color: #fff !important;
+}
+
+html body #sidebar .fb-nav a.active,
+html body #sidebar .fb-nav a.active:hover {
+    background: #1565c0 !important;
+    color: #fff !important;
+}
+
+html body .topbar,
+html body .navbar,
+html body header.topbar {
+    background: #071422 !important;
+    border-bottom: 1px solid #143049 !important;
+    color: #e7f2fb !important;
+}
+
+html body .fb-overview h1,
+html body .fb-overview .fb-panel-head h2,
+html body .fb-overview .fb-equip strong {
+    color: #f4fbff !important;
+}
+
+html body .fb-overview .fb-page-head p,
+html body .fb-overview .fb-stat span,
+html body .fb-overview .fb-panel-head a,
+html body .fb-overview .fb-muted,
+html body .fb-overview .fb-equip small,
+html body .fb-overview .fb-side-row small {
+    color: #8eabc2 !important;
+}
+
+html body .fb-overview .fb-stat,
+html body .fb-overview .fb-panel,
+html body #jrc-tr069-apto,
+html body .jrc-tr069-fallback {
+    background: #0c1e33 !important;
+    border-color: #1c4668 !important;
+}
+
+html body .fb-overview .fb-stat strong,
+html body .fb-overview .fb-side-row strong,
+html body .jrc-tr069-fallback .jrc-tr069-num {
+    color: #5ad0ff !important;
+}
+
+html body .fb-overview .fb-stat-icon,
+html body .fb-overview .fb-equip-icon {
+    background: #12324d !important;
+    color: #5ad0ff !important;
+}
+
+html body .fb-overview .fb-stat-icon.is-amber {
+    background: #3a2c14 !important;
+    color: #f5b942 !important;
+}
+
+html body .fb-overview .fb-stat-icon.is-red {
+    background: #3a1820 !important;
+    color: #ff6b6b !important;
+}
+
+html body .fb-overview .fb-panel-head,
+html body .fb-overview .fb-side-row {
+    border-color: #1c4668 !important;
+}
+
+html body .fb-overview #recent-devices .table {
+    --bs-table-bg: #0c1e33;
+    --bs-table-color: #d5e6f2;
+    --bs-table-border-color: #1c4668;
+    --bs-table-hover-bg: #12324d;
+    --bs-table-hover-color: #fff;
+}
+
+html body .fb-overview #recent-devices .table thead,
+html body .fb-overview #recent-devices .table thead tr,
+html body .fb-overview #recent-devices .table thead th,
+html body .fb-overview #recent-devices .table tbody td {
+    background: #0c1e33 !important;
+    background-color: #0c1e33 !important;
+    border-color: #1c4668 !important;
+    color: #d5e6f2 !important;
+}
+
+html body .fb-overview #recent-devices .table thead th {
+    color: #8eabc2 !important;
+}
+
+html body .fb-overview #recent-devices .table tbody tr:hover td {
+    background: #12324d !important;
+    background-color: #12324d !important;
+}
+
+html body .fb-overview #recent-devices a,
+html body .fb-overview #recent-devices a:link,
+html body .fb-overview #recent-devices a:visited,
+html body .fb-overview #recent-devices .table a {
+    color: #d5e6f2 !important;
+}
+
+html body .fb-devices .nav-tabs .nav-link.active {
+    border-bottom-color: #1565c0 !important;
+}
+
+html body .fb-device .acs-toolbar-action.fb-primary,
+html body .fb-device .fb-action-run,
+html body .fb-device #wifi .acs-toolbar-action.fb-primary {
+    background: #1565c0 !important;
+    border-color: #1565c0 !important;
+    color: #fff !important;
+}
+
+html body .fb-device #deviceTabs .nav-link.active {
+    color: #5ad0ff !important;
+    border-bottom-color: #1565c0 !important;
+}

@@ -27,5 +27,6 @@
     <script src="/assets/js/wifi-network-groups.js?v=20261022-onu4"></script>
     <link rel="stylesheet" href="/assets/css/scout-device.css?v=20261022-onu9">
     <?php endif; ?>
+    <link rel="stylesheet" href="/assets/css/command-center.css?v=20261114-cc1">
 </body>
 </html>
