@@ -28,6 +28,11 @@ include __DIR__ . '/views/layouts/header.php';
 .jrc-fw .fw-step{padding:12px;border:1px dashed #3f6279;border-radius:9px;color:#bcd3e5;font-size:12px}
 @media(max-width:850px){.jrc-fw .fw-grid,.jrc-fw .fw-steps{grid-template-columns:1fr 1fr}}
 @media(max-width:540px){.jrc-fw .fw-grid,.jrc-fw .fw-steps{grid-template-columns:1fr}}
+
+/* JRC_FW_DARK_BARS_FIX_V1: isolated to firmware pages */
+.jrc-fw tbody tr,.jrc-fw tbody td,.jrc-fw-lib tbody tr,.jrc-fw-lib tbody td{background:#0c2136!important;color:#d9e8f5!important}
+.jrc-fw a.btn,.jrc-fw-lib a.btn{background:#112a43!important;color:#e7f3fc!important;border:1px solid #31516d!important}
+body:has(.jrc-fw) footer,body:has(.jrc-fw-lib) footer{background:#071827!important;border-color:#1c4b70!important;color:#9db5c9!important}
 </style>
 <section class="jrc-fw" aria-label="Gerenciador de firmware para bancada">
   <header>
