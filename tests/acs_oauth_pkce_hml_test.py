@@ -94,4 +94,24 @@ class TestOAuthPkce(unittest.TestCase):
             self.assertEqual(a.run_smoke('secret'),0)
             self.assertEqual(calls,list(a.TEST_TOOLS))
 
+    def test_v2_port_3106_reuses_same_authorized_pkce_checks(self):
+        calls=[]
+        class FakeMCP:
+            def __init__(self,port,token):
+                calls.append(port)
+                self.port=port
+            def initialize(self):pass
+            def tools(self):
+                return {'legacy'} if self.port==3104 else {'legacy',*a.TEST_TOOLS}
+            def call_readonly(self,tool):
+                self.assert_hml()
+                return True
+            def assert_hml(self):
+                if self.port!=3106:raise AssertionError("read request reached wrong port")
+        with patch.object(a,'MCP',FakeMCP):
+            self.assertEqual(a.run_smoke('secret',3106),0)
+        self.assertEqual(calls,[3104,3106])
+        with self.assertRaisesRegex(a.SafeFailure,"PORTA_HML_NAO_AUTORIZADA"):
+            a.run_smoke('secret',3100)
+
 if __name__=='__main__':unittest.main()
