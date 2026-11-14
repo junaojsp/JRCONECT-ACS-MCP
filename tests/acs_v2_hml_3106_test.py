@@ -79,7 +79,7 @@ class HmlV2SafetyTests(unittest.TestCase):
         item=inspect_fake()
         with patch.object(hml,"new_exists",return_value=False),\
              patch.object(hml,"available_port",return_value=True),\
-             patch.object(hml.ROOT,"exists",return_value=False),\
+             patch.object(hml.Path,"exists",return_value=False),\
              patch.object(hml,"health",return_value=True),\
              patch.object(hml,"inspect",return_value=item),\
              patch.object(hml,"call",side_effect=lambda argv,**kw:
