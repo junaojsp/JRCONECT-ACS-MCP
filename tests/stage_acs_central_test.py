@@ -30,6 +30,7 @@ function route(req, res, match) {
     if (process.env.SHIELD_MCP_ALLOWED_SUB === payload.sub) {
       return shieldMcpHandler(req, res);
     }
+    if (pabxReadAuthorized(payload)) return pabxReadMcpHandler(req,res);
     if (pabxAdminAuthorized(payload)) return pabxAdminMcpHandler(req,res);
     if (financeMcpAuthorized(payload)) return financeMcpHandler(req,res);
     if (opaApiAuthorized(payload)) return opaCentralMcpHandler(req,res);
@@ -49,6 +50,7 @@ class StagingTests(unittest.TestCase):
         self.assertIn("financeMcpAuthorized(payload)",result)
         self.assertIn("opaApiAuthorized(payload)",result)
         self.assertIn("pabxAdminAuthorized(payload)",result)
+        self.assertIn("pabxReadAuthorized(payload)",result)
         self.assertIn("process.env.SHIELD_MCP_ALLOWED_SUB === payload.sub",result)
         self.assertIn("return shieldMcpHandler(req, res)",result)
         self.assertIn("return opaCentralMcpHandler(req,res)",result)
