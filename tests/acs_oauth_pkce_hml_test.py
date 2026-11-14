@@ -114,4 +114,56 @@ class TestOAuthPkce(unittest.TestCase):
         with self.assertRaisesRegex(a.SafeFailure,"PORTA_HML_NAO_AUTORIZADA"):
             a.run_smoke('secret',3100)
 
+    def test_negative_real_roleless_jwt_and_no_acs_catalogue(self):
+        import base64
+        import json
+        claims={
+            "iss":a.ISSUER,
+            "azp":a.CLIENT,
+            "sub":"fake-test-sub-not-a-real-user",
+            "realm_access":{"roles":["some-basic-role"]}
+        }
+        def token(roles):
+            claims["realm_access"]["roles"]=roles
+            payload=base64.urlsafe_b64encode(json.dumps(claims).encode()).decode().rstrip("=")
+            return "header."+payload+".signature"
+
+        valid=token(["some-basic-role"])
+        allowed=token(["some-basic-role","acs-mcp-admin"])
+        self.assertTrue(a.token_claims_for_negative_gate(valid))
+        with self.assertRaisesRegex(a.SafeFailure,"CONTA_POSSUI_ROLE"):
+            a.token_claims_for_negative_gate(allowed)
+        calls=[]
+        class FakeMCP:
+            def __init__(self,port,jwt):
+                self.port=port
+            def initialize(self):
+                calls.append(("initialize",self.port))
+            def tools(self):
+                calls.append(("list",self.port))
+                return {"status_servidor","wiki_listar_artigos"}
+            def call_readonly(self,tool):
+                raise AssertionError("No tools/call allowed during negative test")
+        with patch.object(a,"MCP",FakeMCP):
+            self.assertEqual(a.run_negative(valid,3106),0)
+            self.assertEqual([p for action,p in calls if action=="list"],[3104,3106])
+        with self.assertRaisesRegex(a.SafeFailure,"NEGATIVO_SOMENTE_HML"):
+            a.run_negative(valid,3105)
+
+    def test_negative_detects_unwanted_acs_tools(self):
+        import base64
+        import json
+        claims={"iss":a.ISSUER,"azp":a.CLIENT,"sub":"synthetic",
+                "realm_access":{"roles":[]}}
+        jwt="h."+base64.urlsafe_b64encode(json.dumps(claims).encode()).decode().rstrip("=")+".sig"
+        class FakeMCP:
+            def __init__(self,port,token):self.port=port
+            def initialize(self):pass
+            def tools(self):
+                return {"status_servidor"} if self.port==3104 else {"status_servidor","acs_recursos_host"}
+            def call_readonly(self,tool):
+                raise AssertionError("No tools/call allowed")
+        with patch.object(a,"MCP",FakeMCP):
+            self.assertEqual(a.run_negative(jwt,3106),2)
+
 if __name__=='__main__':unittest.main()
