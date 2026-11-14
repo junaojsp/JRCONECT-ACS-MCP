@@ -73,7 +73,7 @@ class PerHandlerPatchTests(unittest.TestCase):
     def test_preserves_original_dispatch_and_six_permission_flags(self):
         updated, count = stage.patch_server(SOURCE)
         self.assertEqual(count, 10)
-        self.assertEqual(updated.count("acsAwareNodeHandler("), count + 1)
+        self.assertEqual(updated.count("acsAwareNodeHandler("), count)
         self.assertNotIn("acsCentralReadHandler", updated)
         self.assertNotIn("only all-scopes admins", updated)
         self.assertIn("const mcpHandler = toNodeHandler(handler);", updated)
