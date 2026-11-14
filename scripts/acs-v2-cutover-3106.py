@@ -336,6 +336,85 @@ def activate():
     finally:
         os.close(fd)
 
+def reactivate():
+    if os.environ.get("JRC_APPROVE_ACS_V2_CUTOVER") != "YES":
+        fail("APROVACAO_OPERADOR_AUSENTE")
+    if not STATE.is_file() or not BACKUP.is_file():
+        fail("ESTADO_ANTERIOR_NAO_ENCONTRADO")
+    path, old, changed, old_image, new_image = preflight()
+    verify_negative_gate(new_image)
+    fd = guarded_lock()
+    try:
+        previous, saved = load_state()
+        if previous.get("phase") != "rolled_back":
+            fail("FASE_NAO_E_ROLLED_BACK")
+        if saved != old or sha(old) != previous.get("nginx_original_sha256"):
+            fail("BACKUP_NAO_CORRESPONDE_A_CONFIG_ATUAL")
+        if sha(changed) != previous.get("nginx_active_sha256"):
+            fail("CANDIDATA_DIVERGE_DO_BACKUP")
+        if previous.get("old_image") != old_image or previous.get("new_image") != new_image:
+            fail("IMAGENS_MUDARAM_DESDE_ROLLBACK")
+        if path.read_bytes() != old:
+            fail("ALTERACAO_CONCORRENTE_DETECTADA")
+        st = path.stat()
+        info = {
+            "phase": "prepared",
+            "created_at": int(time.time()),
+            "nginx_path": str(path),
+            "nginx_original_sha256": sha(old),
+            "nginx_active_sha256": sha(changed),
+            "old_image": old_image,
+            "new_image": new_image,
+            "old_port": OLD_PORT,
+            "new_port": NEW_PORT,
+        }
+        info["reactivated_from_rollback"] = True
+        atomic_write(STATE, json.dumps(info, sort_keys=True).encode(), mode=0o600)
+        try:
+            # Read after prepared state, fail if anyone else touched config.
+            if path.read_bytes() != old:
+                fail("NGINX_MUDOU_APOS_BACKUP")
+            atomic_write(path, changed, mode=st.st_mode & 0o777,
+                         owner=st)
+            run(["nginx", "-t"])
+            run(["nginx", "-s", "reload"])
+            if path.read_bytes() != changed:
+                fail("NGINX_MUDOU_DURANTE_ATIVACAO")
+            for port in (OLD_PORT, NEW_PORT):
+                health(port)
+            # Verify public TLS virtual host still enforces Bearer auth.
+            status = run([
+                "curl", "--silent", "--show-error", "--max-time", "8",
+                "--noproxy", "*",
+                "--resolve", "mcp.jrconect.com:443:127.0.0.1",
+                "-o", "/dev/null", "-w", "%{http_code}",
+                "-X", "POST",
+                "-H", "Content-Type: application/json",
+                "-H", "Accept: application/json, text/event-stream",
+                "--data-binary", '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}',
+                "https://mcp.jrconect.com/mcp"
+            ], output=True, timeout=12)
+            if status != "401":
+                fail("ROTA_PUBLICA_NAO_401")
+        except Exception:
+            # Fail back only if file is exactly our newly written config;
+            # never overwrite unexpected third-party modifications.
+            if path.read_bytes() == changed:
+                atomic_write(path, old, mode=st.st_mode & 0o777, owner=st)
+                run(["nginx", "-t"])
+                run(["nginx", "-s", "reload"])
+            raise
+        info["phase"] = "active"
+        atomic_write(STATE, json.dumps(info, sort_keys=True).encode(), mode=0o600)
+        print("ATIVACAO_OK: NGINX LOCATION = /mcp APONTA PARA 3106")
+        print("MCP ANTIGO 3104: PRESERVADO PARA ROLLBACK")
+        print("NGINX PUBLICO SEM TOKEN: HTTP 401")
+        print("OUTRAS ROTAS, CONTAINERS, KEYCLOAK E SEGREDOS: NAO ALTERADOS")
+        print("PENDENTE: atualizar o catalogo do plugin JR Conect MCPv2 no ChatGPT")
+        print("EM CASO DE FALHA DE FERRAMENTA, EXECUTE rollback")
+    finally:
+        os.close(fd)
+
 def rollback():
     if os.geteuid() != 0:
         fail("EXECUTE_COM_SUDO")
@@ -409,9 +488,9 @@ def plan():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=("plan", "activate", "rollback", "status"))
+    parser.add_argument("action", choices=("plan", "activate", "reactivate", "rollback", "status"))
     args = parser.parse_args()
-    {"plan": plan, "activate": activate,
+    {"plan": plan, "activate": activate, "reactivate": reactivate,
      "rollback": rollback, "status": status}[args.action]()
 
 if __name__ == "__main__":
