@@ -130,6 +130,11 @@ include __DIR__ . '/views/layouts/header.php';
 .jrc-fw-lib .fw-error{border-left-color:#fb7185}
 .jrc-fw-lib .fw-tag{color:#ffdb9c}
 @media(max-width:800px){.jrc-fw-lib .fw-grid{grid-template-columns:1fr}}
+
+/* JRC_FW_DARK_BARS_FIX_V1: isolated to firmware pages */
+.jrc-fw tbody tr,.jrc-fw tbody td,.jrc-fw-lib tbody tr,.jrc-fw-lib tbody td{background:#0c2136!important;color:#d9e8f5!important}
+.jrc-fw a.btn,.jrc-fw-lib a.btn{background:#112a43!important;color:#e7f3fc!important;border:1px solid #31516d!important}
+body:has(.jrc-fw) footer,body:has(.jrc-fw-lib) footer{background:#071827!important;border-color:#1c4b70!important;color:#9db5c9!important}
 </style>
 <section class="jrc-fw-lib">
 <h2>Repositorio Central de Firmwares</h2>
