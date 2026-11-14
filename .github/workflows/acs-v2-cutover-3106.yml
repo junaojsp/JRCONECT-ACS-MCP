@@ -1,0 +1,29 @@
+name: ACS V2 controlled MCP cutover 3104 to 3106
+on:
+  pull_request:
+    paths:
+      - 'scripts/acs-v2-cutover-3106.py'
+      - 'scripts/acs-oauth-pkce-hml.py'
+      - 'tests/acs_oauth_pkce_hml_test.py'
+      - 'tests/acs_v2_cutover_3106_test.py'
+      - 'scripts/README-acs-v2-cutover-3106.md'
+      - '.github/workflows/acs-v2-cutover-3106.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/acs-v2-cutover-3106.py'
+      - 'scripts/acs-oauth-pkce-hml.py'
+      - 'tests/acs_oauth_pkce_hml_test.py'
+      - 'tests/acs_v2_cutover_3106_test.py'
+      - '.github/workflows/acs-v2-cutover-3106.yml'
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/acs-v2-cutover-3106.py tests/acs_v2_cutover_3106_test.py scripts/acs-oauth-pkce-hml.py tests/acs_oauth_pkce_hml_test.py
+      - run: python3 -m unittest discover -s tests -p 'acs_v2_cutover_3106_test.py' -v
+      - run: python3 -m unittest discover -s tests -p 'acs_oauth_pkce_hml_test.py' -v

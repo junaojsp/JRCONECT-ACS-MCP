@@ -10,6 +10,11 @@ are logged, saved or sent to the assistant. Only whitelisted local MCP ports.
 import argparse
 import base64
 import getpass
+import os
+import re
+import subprocess
+import tempfile
+from pathlib import Path
 import hashlib
 import hmac
 import json
@@ -39,7 +44,7 @@ def b64url(raw):
     return base64.urlsafe_b64encode(raw).rstrip(b"=").decode("ascii")
 
 
-def new_login():
+def new_login(login_hint="mcp-teste"):
     verifier = b64url(secrets.token_bytes(48))
     state = b64url(secrets.token_bytes(32))
     challenge = b64url(hashlib.sha256(verifier.encode("ascii")).digest())
@@ -52,7 +57,7 @@ def new_login():
         "code_challenge_method": "S256",
         "state": state,
         "prompt": "login",
-        "login_hint": "mcp-teste",
+        "login_hint": login_hint,
     }
     return AUTH + "?" + urlencode(params), verifier, state
 
@@ -292,12 +297,109 @@ def run_smoke(token, hml_port=3105):
     return 0
 
 
+def token_claims_for_negative_gate(token):
+    # Token from Keycloak over HTTPS; the MCP servers validate its signature.
+    try:
+        parts = token.split(".")
+        if len(parts) != 3 or len(parts[1]) > 30000:
+            raise ValueError()
+        raw = base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4))
+        claims = json.loads(raw)
+    except (ValueError, UnicodeError, TypeError):
+        raise SafeFailure("NEGATIVO_JWT_FORMATO_INVALIDO") from None
+    roles = claims.get("realm_access", {}).get("roles", [])
+    if (claims.get("iss") != ISSUER or claims.get("azp") != CLIENT
+        or not isinstance(claims.get("sub"), str)
+        or not isinstance(roles, list)):
+        raise SafeFailure("NEGATIVO_JWT_ISSUER_OU_ROLE_INVALIDA")
+    if "acs-mcp-admin" in roles:
+        raise SafeFailure("NEGATIVO_CONTA_POSSUI_ROLE_ACS")
+    return True
+
+
+def run_negative(token, hml_port=3106):
+    if hml_port != 3106:
+        raise SafeFailure("NEGATIVO_SOMENTE_HML_3106")
+    token_claims_for_negative_gate(token)
+    print("=== ACS V2 - TESTE NEGATIVO COM JWT REAL SEM ROLE ===")
+    prod = MCP(3104, token)
+    hml = MCP(3106, token)
+    prod.initialize()
+    hml.initialize()
+    old = prod.tools()
+    new = hml.tools()
+    missing = old - new
+    acs = set(TEST_TOOLS) & new
+    print("OAUTH REAL NAS PORTAS 3104 E 3106: OK")
+    print("JWT REAL SEM acs-mcp-admin: CONFIRMADO")
+    print("TOOLS LEGADAS AUSENTES NA 3106:", len(missing))
+    print("TOOLS ACS EXPOSTAS SEM ROLE:", len(acs))
+    if missing or acs:
+        print("NEGATIVO: BLOQUEADO - catalogo indevido")
+        return 2
+    print("NEGATIVO: OK - nenhuma ferramenta ACS exposta sem role")
+    return 0
+
+
+def save_negative_gate():
+    # Only a non-secret validation receipt, tied to the image being promoted.
+    if os.geteuid() != 0:
+        raise SafeFailure("NEGATIVO_RECIBO_EXIGE_ROOT")
+    try:
+        cp = subprocess.run(
+            ["docker", "inspect", "-f", "{{.Image}}", "jrconect-mcp-acs-hml-v2"],
+            check=True, capture_output=True, text=True, timeout=8,
+        )
+        image = cp.stdout.strip()
+        if not image.startswith("sha256:"):
+            raise ValueError()
+        dirname = Path("/root/jrc-acs-v2-cutover-3106")
+        if dirname.is_symlink():
+            raise ValueError()
+        dirname.mkdir(parents=True, mode=0o700, exist_ok=True)
+        os.chmod(dirname, 0o700)
+        receipt = dirname / "negative-auth-gate-3106.json"
+        if receipt.is_symlink():
+            raise ValueError()
+        data = {
+            "result": "verified-denied",
+            "mode": "oauth-valid-token-without-acs-role",
+            "container_image": image,
+            "verified_at": int(time.time()),
+            "port": 3106,
+        }
+        fd, temp = tempfile.mkstemp(prefix=".negative-", dir=str(dirname))
+        try:
+            with os.fdopen(fd, "w", encoding="utf8") as file:
+                os.fchmod(file.fileno(), 0o600)
+                json.dump(data, file, sort_keys=True)
+                file.flush()
+                os.fsync(file.fileno())
+            os.replace(temp, receipt)
+        finally:
+            if os.path.exists(temp):
+                os.unlink(temp)
+    except (OSError, subprocess.SubprocessError, ValueError):
+        raise SafeFailure("NEGATIVO_NAO_FOI_POSSIVEL_GRAVAR_RECIBO") from None
+    print("RECIBO NEGATIVO: GRAVADO SEM TOKEN, SEM USUARIO E SEM SEGREDOS")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Smoke test OAuth PKCE + MCP ACS HML")
     parser.add_argument("--check", action="store_true", help="Verify localhost services only; no OAuth")
     parser.add_argument("--hml-port", type=int, choices=(3105, 3106), default=3105,
                         help="ACS homologacao alvo (padrao 3105; V2 3106)")
+    parser.add_argument("--expect-no-acs", action="store_true",
+                        help="Real OAuth negative test with an account WITHOUT ACS role")
+    parser.add_argument("--login-hint", default="mcp-teste",
+                        help="Keycloak username hint (never a password)")
     args = parser.parse_args()
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,64}", args.login_hint):
+        raise SafeFailure("LOGIN_HINT_INVALIDO")
+    if args.expect_no_acs and args.hml_port != 3106:
+        raise SafeFailure("NEGATIVO_SOMENTE_HML_3106")
+    if args.expect_no_acs and args.login_hint == "mcp-teste":
+        raise SafeFailure("NEGATIVO_NAO_USAR_CONTA_MCP_TESTE")
     # This script only runs on the ACS host, never opens ports.
     for port in (3104, args.hml_port):
         req = Request("http://127.0.0.1:"+str(port)+"/health", method="GET")
@@ -308,8 +410,8 @@ def main():
     if args.check:
         print("DRY_RUN: sem login, sem token, sem alteracoes")
         return 0
-    url, verifier, state = new_login()
-    print("\n1) Abra no seu navegador o endereco OAuth abaixo e faca login como mcp-teste:")
+    url, verifier, state = new_login(args.login_hint)
+    print("\n1) Abra no seu navegador o endereco OAuth abaixo e faca login como "+args.login_hint+":")
     print(url)
     print("\n2) O navegador pode mostrar 'site indisponivel' ao abrir 127.0.0.1:8765.")
     print("   Isso e esperado: copie o URL COMPLETO da barra de enderecos (com code e state).")
@@ -325,6 +427,11 @@ def main():
     token = exchange_code(code, verifier)
     del code, verifier
     try:
+        if args.expect_no_acs:
+            outcome = run_negative(token, args.hml_port)
+            if outcome == 0:
+                save_negative_gate()
+            return outcome
         return run_smoke(token, args.hml_port)
     finally:
         del token
