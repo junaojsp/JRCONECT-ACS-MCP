@@ -3062,3 +3062,31 @@ canvas {
     }
 
 }
+/* JRC - barra de abas da pagina Configuracoes: neutra, sem azul */
+#configTabs {
+    background: #17191e !important;
+    border: 1px solid #30343b !important;
+    border-radius: 8px;
+    padding: 6px !important;
+    gap: 4px;
+}
+#configTabs .nav-link {
+    color: #d9dce2 !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px;
+    font-size: 14px !important;
+    font-weight: 500;
+    line-height: 1.45;
+    padding: 9px 12px;
+}
+#configTabs .nav-link:hover {
+    background: #252932 !important;
+    color: #fff !important;
+}
+#configTabs .nav-link.active {
+    background: #24272e !important;
+    color: #fff !important;
+    border-color: #3b404a !important;
+    box-shadow: inset 0 -2px 0 #e11919;
+}
