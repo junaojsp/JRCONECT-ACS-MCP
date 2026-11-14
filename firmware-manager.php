@@ -40,6 +40,7 @@ include __DIR__ . '/views/layouts/header.php';
     <div class="fw-card"><div class="fw-label">ONUs de bancada vinculadas</div><div class="fw-num">0</div><div class="fw-label">Aguardando escolha do equipamento</div></div>
     <div class="fw-card"><div class="fw-label">Campanhas ativas</div><div class="fw-num">0</div><div class="fw-label">Execução desabilitada nesta fase</div></div>
   </div>
+  <!-- JRC_FIRMWARE_LEGACY_LINK -->
   <div class="fw-note" role="status">Esta primeira versão é apenas a interface. Os valores acima pertencem ao novo módulo, não ao inventário geral. Nenhum firmware será enviado nem será executada qualquer tarefa no GenieACS.</div>
   <nav class="fw-tabs" aria-label="Abas do firmware">
     <button type="button" role="tab" id="fw-tab-catalogo" aria-controls="fw-panel-catalogo" aria-selected="true" data-fw-tab="catalogo">Catálogo</button>
