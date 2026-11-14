@@ -58,18 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Usuário ou senha inválidos.';
                 usleep(250000);
             } else {
-                $role = strtolower(trim((string)($user['role'] ?? '')));
-                $twoFactorEnabled = $securityReady && (int)($user['two_factor_enabled'] ?? 0) === 1;
-                $mustUseTwoFactor = $securityReady && (securityTwoFactorRequired($role) || $twoFactorEnabled);
-
-                if ($mustUseTwoFactor) {
-                    session_regenerate_id(true);
-                    $_SESSION['pending_2fa_user_id'] = (int)$user['id'];
-                    $_SESSION['pending_2fa_started_at'] = time();
-                    $_SESSION['pending_2fa_setup'] = !$twoFactorEnabled;
-                    redirect('/two-factor.php');
-                }
-
                 securityLoginComplete($conn, $user);
                 redirect('/dashboard.php');
             }
@@ -81,7 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="pt-BR">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>JRC-ACS • Acesso</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260921">
-<link rel="stylesheet" href="/assets/css/login-acs.css?v=20261008"></head>
+<link rel="stylesheet" href="/assets/css/login-acs.css?v=20261008-animado"><!-- JRC NOC SHARED THEME -->
+<link rel="stylesheet" href="/assets/css/jrc-theme.css?v=1">
+<script src="/assets/js/jrc-theme.js?v=1" defer></script>
+<!-- /JRC NOC SHARED THEME -->
+</head>
 <body><main class="login" id="login">
 <section class="visual" aria-label="JRC-ACS, plataforma de gestão de equipamentos">
 <img class="art" src="/assets/img/acs-login-hero.webp" alt="Roteador com globo holográfico ciano e conexões digitais">
@@ -97,5 +89,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <form id="login-form" method="POST" action="" autocomplete="on"><input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>"><label class="field" for="username">Usuário</label><input class="text" id="username" name="username" autocomplete="username" autofocus value="<?php echo htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Seu usuário" required>
 <label class="field" for="password">Senha</label><div class="password"><input class="text" id="password" name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required><button class="show" type="button" aria-controls="password" aria-pressed="false">Mostrar</button></div>
 <button class="submit" type="submit">Acessar plataforma <span aria-hidden="true">→</span></button></form>
-<p style="text-align:center;margin:16px 0 0"><a href="/recover-two-factor.php" style="color:#087f9a;font-size:12px;text-decoration:none">Perdi acesso ao autenticador</a></p><div class="foot">JR CONECT Telecom · Uso interno<br>Gestão centralizada de equipamentos</div></div></section></main>
+<div class="foot">JR CONECT Telecom · Uso interno<br>Gestão centralizada de equipamentos</div></div></section></main>
 <script src="/assets/js/login-acs.js?v=20261008" defer></script></body></html>

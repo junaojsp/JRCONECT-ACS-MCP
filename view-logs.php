@@ -7,6 +7,13 @@ $currentPage = 'logs';
 
 include __DIR__ . '/views/layouts/header.php';
 ?>
+<link rel="stylesheet" href="/assets/css/jrc-sinal.css?v=3e6ba9b0ae">
+<!-- JRC_SINAL_CONSULTA_V1 -->
+
+<script>document.documentElement.classList.add('jrc-neutro-page')</script>
+<link rel="stylesheet" href="/assets/css/jrc-neutro.css?v=8d5503daf8">
+<!-- JRC_NEUTRO_V1 -->
+
 
 <div class="row mb-3">
     <div class="col-12">
@@ -169,7 +176,7 @@ function autoRefresh() {
         btn.previousElementSibling.className = 'bi bi-play-fill';
     } else {
         // Start auto-refresh
-        autoRefreshInterval = setInterval(loadLogs, 3000); // Refresh every 3 seconds
+        autoRefreshInterval = setInterval(() => { if (!document.hidden) loadLogs(); }, 10000); // Refresh every 3 seconds
         btn.textContent = 'Stop Auto-Refresh';
         btn.parentElement.classList.remove('btn-success');
         btn.parentElement.classList.add('btn-danger');

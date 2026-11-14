@@ -5,7 +5,7 @@
  * Checks webhook status every 5 minutes and auto-resets if empty
  *
  * Add to crontab:
- * */5 * * * * /usr/bin/php /path/to/your/project/cron/webhook-monitor.php
+ * 0-59/5 * * * * /usr/bin/php /path/to/your/project/cron/webhook-monitor.php
  */
 
 require_once __DIR__ . '/../config/config.php';

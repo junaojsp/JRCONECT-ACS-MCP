@@ -100,11 +100,33 @@
                 </a>
             </li>
             <li>
+                <a
+                    href="/voip-central.php"
+                    class="<?php echo ($currentPage ?? '') === 'voip-central' ? 'active' : ''; ?>"
+                    data-tooltip="Central VoIP"
+                >
+                    <i class="bi bi-telephone"></i>
+                    <span>Central VoIP</span>
+                </a>
+            </li>
+
+            <li>
                 <a href="/configuration.php" class="<?php echo $nav === 'configuration' ? 'active' : ''; ?>">
                     <i class="bi bi-gear"></i>
                     <span>Configuração</span>
                 </a>
             </li>
+
+<li class="jrc-sidebar-mcp-shortcut">
+    <a
+        href="/mcp-server.php"
+        data-tooltip="MCP Server"
+     class="<?php echo ($currentPage ?? '') === 'mcp-server' ? 'active' : ''; ?>">
+        <i class="bi bi-stack"></i>
+        <span>MCP Server</span>
+    </a>
+</li>
+
             <li>
                 <a id="nav-firmware" href="<?php echo htmlspecialchars($firmwareHref, ENT_QUOTES, 'UTF-8'); ?>" class="<?php echo $nav === 'firmware' ? 'active' : ''; ?>">
                     <i class="bi bi-cpu"></i>

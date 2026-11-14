@@ -139,11 +139,21 @@ function jrOpticalNumber(
 
 
     if (!is_numeric($value)) {
-        return null;
+        if (!preg_match('/-?\d+(?:\.\d+)?/', $value, $match)) {
+            return null;
+        }
+        $value = $match[0];
     }
 
 
-    return (float)$value;
+    $number = (float)$value;
+
+    // Alguns firmwares entregam centésimos de dBm, por exemplo -2432.
+    if ($number > 1000 || $number < -1000) {
+        $number = $number / 100;
+    }
+
+    return $number;
 }
 
 
@@ -1165,9 +1175,13 @@ try {
         );
 
     // Completa campos ausentes do IXC com o perfil TR-069 do equipamento.
-    if ($rx === null) $rx = $profileOptical['rx_power'] ?? null;
-    if ($tx === null) $tx = $profileOptical['tx_power'] ?? null;
-    if ($temperature === null) $temperature = $profileOptical['temperature'] ?? null;
+    // Zero exato no IXC não é uma leitura óptica; o valor do CPE entra no lugar.
+    $profileRx = $profileOptical['rx_power'] ?? null;
+    $profileTx = $profileOptical['tx_power'] ?? null;
+    $profileTemperature = $profileOptical['temperature'] ?? null;
+    if ($rx === null || ($rx == 0.0 && $profileRx !== null && (float)$profileRx != 0.0)) $rx = $profileRx;
+    if ($tx === null || ($tx == 0.0 && $profileTx !== null && (float)$profileTx != 0.0)) $tx = $profileTx;
+    if ($temperature === null || ($temperature == 0.0 && $profileTemperature !== null && (float)$profileTemperature != 0.0)) $temperature = $profileTemperature;
     if ($voltage !== null && $voltage <= 0) $voltage = null;
     if ($voltage === null) $voltage = $profileOptical['voltage'] ?? null;
     if ($voltage !== null && $voltage <= 0) $voltage = null;

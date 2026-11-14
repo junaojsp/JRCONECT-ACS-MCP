@@ -27,6 +27,10 @@ $cpeProfiles = \App\CPEProfiles::profiles();
 
 include __DIR__ . '/views/layouts/header.php';
 ?>
+<script>document.documentElement.classList.add('jrc-config-page')</script>
+<link rel="stylesheet" href="/assets/css/jrc-config.css?v=33a2842710">
+<!-- JRC_CONFIG_BG_V1 -->
+
 
 <div class="row">
     <div class="col-12">
@@ -140,7 +144,9 @@ include __DIR__ . '/views/layouts/header.php';
                 </button>
             </li>
 
-        </ul>
+        
+            
+</ul>
 
         <!-- Conteúdo das abas -->
         <div class="tab-content" id="configTabsContent">
@@ -1156,12 +1162,14 @@ include __DIR__ . '/views/layouts/header.php';
                 </div>
             </div>
 
+            
+
+
         </div>
 
     </div>
 
 </div>
-
 <!-- Carregar JavaScript externo -->
 <script>
 window.AI_PROVIDER_CONFIG = <?php echo json_encode($aiProviders, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;

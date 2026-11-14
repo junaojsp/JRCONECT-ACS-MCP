@@ -6613,3 +6613,510 @@ body:has(.dashboard-container) .table tbody tr:last-child {
     border-color: #3b404a !important;
     box-shadow: inset 0 -2px 0 #e11919;
 }
+
+/* JRC_GLOBAL_DARK_SURFACES_V1_START */
+
+/*
+ * JR Conect ACS - normalizacao global de superficies.
+ * Objetivo: remover fundos azul/ciano herdados de Bootstrap/temas antigos
+ * e manter o padrao visual preto/cinza com vermelho como destaque.
+ * Nao altera logica, layout estrutural ou links operacionais.
+ */
+
+:root {
+    --jrc-dark-bg: #090b0f;
+    --jrc-dark-panel: #111419;
+    --jrc-dark-panel-2: #15191f;
+    --jrc-dark-panel-3: #1a1e25;
+    --jrc-dark-border: #2a3039;
+    --jrc-dark-border-soft: #22272f;
+    --jrc-dark-text: #eef1f5;
+    --jrc-dark-muted: #98a2b1;
+    --jrc-accent-red: #ef171f;
+    --jrc-accent-red-hover: #ff2a31;
+}
+
+/* Estrutura principal */
+html,
+body,
+.main-content,
+.content-wrapper,
+.page-content,
+.tab-content,
+.tab-pane {
+    background-color: var(--jrc-dark-bg) !important;
+    color: var(--jrc-dark-text) !important;
+}
+
+.topbar,
+.page-header,
+footer,
+.footer,
+.main-content > footer {
+    background: #0c0f13 !important;
+    border-color: var(--jrc-dark-border-soft) !important;
+}
+
+/* Cards / paineis / containers */
+.card,
+.card-body,
+.card-header,
+.card-footer,
+.panel,
+.panel-body,
+.panel-heading,
+.accordion-item,
+.accordion-body,
+.accordion-header,
+.accordion-button,
+.accordion-button:not(.collapsed),
+.list-group,
+.list-group-item,
+.dropdown-menu,
+.offcanvas,
+.popover,
+.toast,
+.table-responsive {
+    background: var(--jrc-dark-panel) !important;
+    color: var(--jrc-dark-text) !important;
+    border-color: var(--jrc-dark-border) !important;
+}
+
+.card-header,
+.card-footer,
+.panel-heading,
+.accordion-button,
+.accordion-button:not(.collapsed),
+.modal-header,
+.modal-footer {
+    background: #0f1216 !important;
+}
+
+/* Tabelas - remove azul do Bootstrap e estilos legados */
+.table,
+.table-primary,
+.table-info,
+.table-light,
+.table-secondary,
+.table-dark,
+#connected-devices-table {
+    --bs-table-bg: var(--jrc-dark-panel) !important;
+    --bs-table-color: var(--jrc-dark-text) !important;
+    --bs-table-border-color: var(--jrc-dark-border) !important;
+    --bs-table-striped-bg: #14181e !important;
+    --bs-table-striped-color: var(--jrc-dark-text) !important;
+    --bs-table-active-bg: #191d24 !important;
+    --bs-table-active-color: var(--jrc-dark-text) !important;
+    --bs-table-hover-bg: #1a1f26 !important;
+    --bs-table-hover-color: #ffffff !important;
+    color: var(--jrc-dark-text) !important;
+    border-color: var(--jrc-dark-border) !important;
+}
+
+.table > :not(caption) > * > *,
+.table-primary > :not(caption) > * > *,
+.table-info > :not(caption) > * > *,
+.table-light > :not(caption) > * > *,
+.table-secondary > :not(caption) > * > *,
+#connected-devices-table > :not(caption) > * > * {
+    background-color: var(--jrc-dark-panel) !important;
+    color: var(--jrc-dark-text) !important;
+    border-color: var(--jrc-dark-border) !important;
+    box-shadow: none !important;
+}
+
+.table > thead > tr > th,
+.table thead th,
+#connected-devices-table thead th {
+    background: #0f1216 !important;
+    color: #aeb6c2 !important;
+    border-color: var(--jrc-dark-border) !important;
+}
+
+.table > tbody > tr:hover > *,
+.table-hover > tbody > tr:hover > *,
+#connected-devices-table tbody tr:hover > * {
+    background: var(--jrc-dark-panel-3) !important;
+    color: #ffffff !important;
+}
+
+/* Area de dispositivos conectados */
+#devices-content,
+#devices-content .table-responsive,
+#devices-content .table,
+#connected-devices-table {
+    background: var(--jrc-dark-panel) !important;
+}
+
+#hotspot-status,
+.hotspot-user,
+.hotspot-traffic {
+    background: transparent !important;
+}
+
+/* Formularios */
+.form-control,
+.form-select,
+.form-control[readonly],
+.form-control:disabled,
+.form-select:disabled,
+.input-group-text,
+textarea,
+select,
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="url"] {
+    background: #0f1216 !important;
+    color: var(--jrc-dark-text) !important;
+    border-color: var(--jrc-dark-border) !important;
+}
+
+.form-control::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: #737d8a !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus,
+input:focus,
+select:focus {
+    background: #12161b !important;
+    color: #ffffff !important;
+    border-color: var(--jrc-accent-red) !important;
+    box-shadow: 0 0 0 .18rem rgba(239, 23, 31, .10) !important;
+}
+
+.form-check-input {
+    background-color: #0f1216 !important;
+    border-color: #3a414b !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--jrc-accent-red) !important;
+    border-color: var(--jrc-accent-red) !important;
+}
+
+/* Abas e navegacao interna */
+.nav-tabs,
+.nav-pills,
+#deviceTabs,
+.device-tabs {
+    background: #0d1014 !important;
+    border-color: var(--jrc-dark-border-soft) !important;
+}
+
+.nav-tabs .nav-link,
+.nav-pills .nav-link,
+#deviceTabs .nav-link,
+.device-tabs .nav-link {
+    background: transparent !important;
+    color: #9ba5b3 !important;
+    border-color: transparent !important;
+}
+
+.nav-tabs .nav-link:hover,
+.nav-pills .nav-link:hover,
+#deviceTabs .nav-link:hover,
+.device-tabs .nav-link:hover {
+    background: #15191f !important;
+    color: #ffffff !important;
+}
+
+.nav-tabs .nav-link.active,
+.nav-pills .nav-link.active,
+#deviceTabs .nav-link.active,
+.device-tabs .nav-link.active {
+    background: #15191f !important;
+    color: #ffffff !important;
+    border-color: #303640 !important;
+    box-shadow: inset 0 -2px 0 var(--jrc-accent-red) !important;
+}
+
+.nav-tabs .badge,
+.nav-pills .badge,
+#deviceTabs .badge,
+.device-tabs .badge {
+    background: #1b1f25 !important;
+    color: #d7dce4 !important;
+    border-color: #363c46 !important;
+}
+
+/* Modais - sobrepoe inclusive fundos azuis inline sem !important */
+.modal-content {
+    background: var(--jrc-dark-panel) !important;
+    color: var(--jrc-dark-text) !important;
+    border: 1px solid var(--jrc-dark-border) !important;
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .58) !important;
+}
+
+.modal-header,
+.modal-footer {
+    background: #0f1216 !important;
+    border-color: var(--jrc-dark-border) !important;
+}
+
+.modal-body {
+    background: var(--jrc-dark-panel) !important;
+    color: var(--jrc-dark-text) !important;
+}
+
+.modal .alert-info,
+.modal .bg-primary,
+.modal .bg-info {
+    background: #171b21 !important;
+    color: var(--jrc-dark-text) !important;
+    border-color: #333a44 !important;
+}
+
+/* Botoes Bootstrap que ainda aparecerem azuis */
+.btn-primary {
+    background: var(--jrc-accent-red) !important;
+    border-color: var(--jrc-accent-red) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background: var(--jrc-accent-red-hover) !important;
+    border-color: var(--jrc-accent-red-hover) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-primary,
+.btn-outline-info {
+    background: #15191f !important;
+    border-color: #39404a !important;
+    color: #e5e9ef !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-info:hover,
+.btn-outline-primary:focus,
+.btn-outline-info:focus {
+    background: #1b2027 !important;
+    border-color: var(--jrc-accent-red) !important;
+    color: #ffffff !important;
+}
+
+/* Alerts informativos sem bloco azul */
+.alert-info {
+    background: #15191f !important;
+    color: #dce1e8 !important;
+    border-color: #303640 !important;
+}
+
+/* Badges Bootstrap azuis */
+.badge.bg-primary,
+.badge.bg-info,
+.text-bg-primary,
+.text-bg-info {
+    background: #1b2026 !important;
+    color: #e5e9ef !important;
+    border: 1px solid #343b45 !important;
+}
+
+/* Paginacao */
+.page-link {
+    background: #111419 !important;
+    color: #d8dde5 !important;
+    border-color: var(--jrc-dark-border) !important;
+}
+
+.page-link:hover {
+    background: #1a1f26 !important;
+    color: #ffffff !important;
+    border-color: #3a414b !important;
+}
+
+.page-item.active .page-link {
+    background: var(--jrc-accent-red) !important;
+    border-color: var(--jrc-accent-red) !important;
+    color: #ffffff !important;
+}
+
+/* Menus e popups */
+.dropdown-item {
+    color: #d8dde5 !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item.active {
+    background: #1a1f26 !important;
+    color: #ffffff !important;
+}
+
+/* Mantem status operacionais sem interferencia */
+.badge.online,
+.text-success,
+.bg-success {
+    /* preserva verde funcional */
+}
+
+/* JRC_GLOBAL_DARK_SURFACES_V1_END */
+
+/* JRC_WIFI_MODAL_DARK_V1_START */
+
+/* Neutraliza os componentes Wi-Fi que ainda usam o tema azul legado. */
+#jrDeviceControlModal .modal-content,
+.jr-control-modal .modal-content {
+    background: #111419 !important;
+    color: #eef1f5 !important;
+    border: 1px solid #2a3039 !important;
+    box-shadow: 0 28px 80px rgba(0,0,0,.62) !important;
+}
+
+#jrDeviceControlModal .modal-header,
+#jrDeviceControlModal .modal-body,
+#jrDeviceControlModal .modal-footer,
+.jr-control-modal .modal-header,
+.jr-control-modal .modal-body,
+.jr-control-modal .modal-footer {
+    background: #111419 !important;
+    color: #eef1f5 !important;
+    border-color: #2a3039 !important;
+}
+
+#jrDeviceControlModal .modal-header,
+.jr-control-modal .modal-header {
+    background: #0f1216 !important;
+}
+
+#jrDeviceControlModal .modal-footer,
+.jr-control-modal .modal-footer {
+    background: #0f1216 !important;
+}
+
+#jrDeviceControlModal .form-control,
+#jrDeviceControlModal .form-select,
+#jrDeviceControlModal input,
+#jrDeviceControlModal select,
+.jr-control-modal .form-control,
+.jr-control-modal .form-select,
+.jr-control-modal input,
+.jr-control-modal select {
+    background: #0d1014 !important;
+    color: #eef1f5 !important;
+    border-color: #303640 !important;
+    box-shadow: none !important;
+}
+
+#jrDeviceControlModal .form-control:focus,
+#jrDeviceControlModal .form-select:focus,
+.jr-control-modal .form-control:focus,
+.jr-control-modal .form-select:focus {
+    background: #11151a !important;
+    color: #fff !important;
+    border-color: #ef171f !important;
+    box-shadow: 0 0 0 .18rem rgba(239,23,31,.10) !important;
+}
+
+#jrDeviceControlModal .jr-target,
+#jrDeviceControlModal .jr-control-note,
+#jrDeviceControlModal .jr-selection-meta,
+#jrDeviceControlModal .jr-manager-note,
+.jr-control-modal .jr-target,
+.jr-control-modal .jr-control-note,
+.jr-control-modal .jr-selection-meta,
+.jr-control-modal .jr-manager-note {
+    background: #15191f !important;
+    color: #cfd5dd !important;
+    border-color: #303640 !important;
+}
+
+#jrDeviceControlModal .jr-password-input button,
+.jr-control-modal .jr-password-input button,
+#jrDeviceControlModal .acs-eye-btn,
+.jr-control-modal .acs-eye-btn {
+    background: #15191f !important;
+    color: #e6eaf0 !important;
+    border-color: #303640 !important;
+}
+
+#jrDeviceControlModal .acs-soft-btn,
+.jr-control-modal .acs-soft-btn,
+.acs-wifi-edit-btn,
+.acs-wifi-health-footer button,
+.jr-wifi-band-switch .acs-soft-btn,
+.jr-manager-actions .acs-soft-btn,
+.acs-icon-btn,
+.acs-eye-btn {
+    background: #15191f !important;
+    color: #e1e6ed !important;
+    border-color: #343b45 !important;
+    box-shadow: none !important;
+}
+
+#jrDeviceControlModal .acs-soft-btn:hover,
+.jr-control-modal .acs-soft-btn:hover,
+.acs-wifi-edit-btn:hover,
+.acs-wifi-health-footer button:hover,
+.jr-wifi-band-switch .acs-soft-btn:hover,
+.jr-manager-actions .acs-soft-btn:hover,
+.acs-icon-btn:hover,
+.acs-eye-btn:hover {
+    background: #1b2027 !important;
+    color: #fff !important;
+    border-color: #ef171f !important;
+}
+
+#jrDeviceControlModal .acs-soft-btn.primary,
+.jr-control-modal .acs-soft-btn.primary,
+.jr-wifi-band-switch .acs-soft-btn.primary,
+.jr-manager-actions .acs-soft-btn.primary {
+    background: #ef171f !important;
+    color: #fff !important;
+    border-color: #ef171f !important;
+}
+
+#jrDeviceControlModal .acs-soft-btn.primary:hover,
+.jr-control-modal .acs-soft-btn.primary:hover,
+.jr-wifi-band-switch .acs-soft-btn.primary:hover,
+.jr-manager-actions .acs-soft-btn.primary:hover {
+    background: #ff2a31 !important;
+    border-color: #ff2a31 !important;
+}
+
+#jrDeviceControlModal .modal-title,
+.jr-control-modal .modal-title,
+#jrDeviceControlModal label,
+.jr-control-modal label {
+    color: #eef1f5 !important;
+}
+
+#jrDeviceControlModal small,
+.jr-control-modal small {
+    color: #98a2b1 !important;
+}
+
+.jr-manager,
+.jr-wifi-bands-shell,
+.jr-wifi-selected,
+.jr-empty-control,
+.jr-wifi-discover,
+.jr-selection-meta,
+.jr-manager-values > div {
+    background: #111419 !important;
+    color: #eef1f5 !important;
+    border-color: #2a3039 !important;
+}
+
+/* Remove o ciano legado dos controles Wi-Fi sem afetar status verdes. */
+.acs-wifi-edit-btn,
+.acs-wifi-health-footer button,
+.acs-soft-btn,
+.acs-icon-btn,
+.acs-eye-btn {
+    --bs-btn-bg: #15191f !important;
+    --bs-btn-border-color: #343b45 !important;
+    --bs-btn-color: #e1e6ed !important;
+}
+
+/* JRC_WIFI_MODAL_DARK_V1_END */

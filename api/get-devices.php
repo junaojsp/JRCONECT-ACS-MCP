@@ -4,6 +4,16 @@ require_once __DIR__ . '/../config/config.php';
 header('Content-Type: application/json');
 requireLogin();
 
+// Prefer local inventory cache when available; fall back to GenieACS otherwise.
+$cacheShim = __DIR__ . '/get-devices-cache-shim.php';
+if (is_file($cacheShim)) {
+    $cacheHandled = require $cacheShim;
+    if ($cacheHandled === true) {
+        exit;
+    }
+}
+
+
 // Liberar a sessão autenticada antes de consultas ou bloqueios de arquivo.
 // Os dados de $_SESSION continuam disponíveis para leitura nesta requisição.
 if (session_status() === PHP_SESSION_ACTIVE) {

@@ -264,6 +264,29 @@ final class JrOnuSpeedtestV2
         }
     }
 
+
+    private function revealSpeedDiag(string $id, array $dev, string $suffix): string
+    {
+        if (isset($dev['InternetGatewayDevice']) && is_array($dev['InternetGatewayDevice'])) {
+            $root = 'InternetGatewayDevice.' . $suffix;
+        } elseif (isset($dev['Device']) && is_array($dev['Device'])) {
+            $root = 'Device.IP.Diagnostics.' . $suffix;
+        } else {
+            throw new RuntimeException('O equipamento ainda nao tem o modelo de dados coletado. Use Atualizar coleta e tente de novo.');
+        }
+        foreach ($this->collection('tasks', ['device' => $id]) as $task) {
+            if (($task['name'] ?? '') !== 'refreshObject') {
+                continue;
+            }
+            $obj = (string)($task['objectName'] ?? '');
+            if ($obj === $root || str_starts_with($root, rtrim($obj, '.') . '.')) {
+                throw new RuntimeException('A leitura desta etapa ja foi pedida. Aguarde uns 20 segundos e execute de novo.');
+            }
+        }
+        $this->enqueue($id, ['name' => 'refreshObject', 'objectName' => $root], 8000);
+        return $root;
+    }
+
     private function start(string $id, string $phase, array $state, string $file): array
     {
         $previous = $state['job'] ?? [];
@@ -283,7 +306,12 @@ final class JrOnuSpeedtestV2
             }
         }
         if ($root === '') {
-            throw new RuntimeException('Os parametros desta etapa ainda nao foram descobertos no GenieACS.');
+            /* JRC_SPEED_REVEAL_V1 — a ONU FiberHome so publica o teste depois que o objeto e relido. */
+            $root = $this->revealSpeedDiag($id, $dev, $suffix);
+            $diag = self::path($this->device($id), $root);
+            if (!isset($diag['DiagnosticsState'])) {
+                throw new RuntimeException('Pedi a leitura desta etapa ao equipamento, mas ele ainda nao informou o teste de velocidade. Aguarde uns 20 segundos e execute de novo. Se repetir, este modelo nao faz esta etapa.');
+            }
         }
         // Impede sobrepor comandos de testes anteriores; nao apaga tarefas de terceiros.
         foreach ($this->collection('tasks', ['device' => $id]) as $task) {

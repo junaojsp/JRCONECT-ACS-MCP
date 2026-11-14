@@ -2,8 +2,9 @@
 require_once __DIR__ . '/config/config.php';
 requireLogin();
 
-$pageTitle = 'Detalhes do Equipamento';
-$currentPage = 'devices';
+$deviceAba = isset($_GET['aba']) ? (string) $_GET['aba'] : '';
+$pageTitle = $deviceAba === 'firmware' ? 'Firmware' : 'Dispositivos';
+$currentPage = $deviceAba === 'firmware' ? 'firmware' : 'devices';
 
 $genieacsConfigured = isGenieACSConfigured();
 
@@ -34,15 +35,16 @@ include __DIR__ . '/views/layouts/header.php';
 
     <link rel="stylesheet" href="/assets/css/device-readability.css?v=20261005-6">
     <script src="/assets/js/device-readability.js?v=20261005-3"></script>
-    <div class="acs-device-shell">
+    <div class="acs-device-shell fb-device">
+
+        <a href="/devices.php" class="fb-device-back" title="Voltar para equipamentos">
+            <i class="bi bi-arrow-left"></i>
+            Dispositivos
+        </a>
 
         <div class="acs-device-toolbar">
 
             <div class="acs-device-toolbar-left">
-                <a href="/devices.php" class="acs-back-btn" title="Voltar para equipamentos">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-
                 <div class="acs-device-avatar">
                     <i class="bi bi-router"></i>
                 </div>
@@ -63,29 +65,39 @@ include __DIR__ . '/views/layouts/header.php';
             </div>
 
             <div class="acs-device-toolbar-actions">
-                <label class="acs-text-size-control" for="acs-text-size">
+                <label class="acs-text-size-control fb-header-extra" for="acs-text-size">
                     <span>Tamanho do texto</span>
                     <select id="acs-text-size">
                         <option value="standard">Padrão</option>
                         <option value="large">Grande</option>
                     </select>
                 </label>
-                <button class="acs-toolbar-action" type="button" onclick="summonDevice()" title="Solicitar comunicação">
+                <button class="acs-toolbar-action fb-header-extra" type="button" onclick="runDeviceAISummary()" title="Resumo técnico">
+                    <i class="bi bi-clipboard2-pulse"></i>
+                    <span>Resumo</span>
+                </button>
+
+                <button class="acs-toolbar-action fb-primary fb-header-extra" type="button" onclick="openDeviceAIDrawer()" title="Abrir o assistente">
+                    <i class="bi bi-stars"></i>
+                    <span>Assistente</span>
+                </button>
+
+                <button class="acs-toolbar-action fb-header-extra" type="button" onclick="summonDevice()" title="Solicitar comunicação">
                     <i class="bi bi-lightning-charge"></i>
                     <span>Comunicar</span>
                 </button>
 
-                <button class="acs-toolbar-action" type="button" onclick="startONUSpeedtest()" id="onu-speedtest-btn" title="Teste de velocidade">
+                <button class="acs-toolbar-action fb-header-extra" type="button" onclick="startONUSpeedtest()" id="onu-speedtest-btn" title="Teste de velocidade">
                     <i class="bi bi-speedometer2"></i>
                     <span>Speedtest</span>
                 </button>
 
-                <button class="acs-toolbar-action" type="button" onclick="showAddTagModal()" title="Adicionar etiqueta">
+                <button class="acs-toolbar-action fb-header-extra" type="button" onclick="showAddTagModal()" title="Adicionar etiqueta">
                     <i class="bi bi-tag"></i>
                     <span>Etiqueta</span>
                 </button>
 
-                <button class="acs-toolbar-action" type="button" onclick="openWebManagement()" title="Abrir gerenciamento web do equipamento">
+                <button class="acs-toolbar-action fb-header-extra" type="button" onclick="openWebManagement()" title="Abrir gerenciamento web do equipamento">
                     <i class="bi bi-box-arrow-up-right"></i>
                     <span>Web</span>
                 </button>
@@ -94,7 +106,7 @@ include __DIR__ . '/views/layouts/header.php';
                     <i class="bi bi-arrow-clockwise"></i>
                 </button>
 
-                <div class="dropdown">
+                <div class="dropdown fb-header-extra">
                     <button class="acs-toolbar-action acs-toolbar-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Mais ações">
                         <i class="bi bi-three-dots-vertical"></i>
                     </button>
@@ -155,124 +167,51 @@ include __DIR__ . '/views/layouts/header.php';
                 role="tablist"
                 style="display:none;"
             >
-
-                <li class="nav-item" role="presentation">
-
-                    <button
-                        class="nav-link active"
-                        id="overview-tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#overview"
-                        type="button"
-                        role="tab"
-                    >
-                        <i class="bi bi-info-circle"></i>
-                        Visão Geral
-                    </button>
-
+                <li class="nav-item" role="presentation" style="order:1">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">Visão geral</button>
                 </li>
-
-
-                
-
-
-                <li class="nav-item" role="presentation">
-
-                    <button
-                        class="nav-link"
-                        id="wan-tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#wan"
-                        type="button"
-                        role="tab"
-                    >
-                        <i class="bi bi-globe"></i>
-                        Conexões WAN
-
-                        <span
-                            id="wan-count-badge"
-                            class="badge bg-primary ms-1"
-                        >
-                            0
-                        </span>
-                    </button>
-
+                <li class="nav-item" role="presentation" style="order:2">
+                    <button class="nav-link" id="diagnostics-tab" data-bs-toggle="tab" data-bs-target="#diagnostics" type="button" role="tab" aria-controls="diagnostics" aria-selected="false">Ações</button>
                 </li>
-
-
-                <li class="nav-item" role="presentation">
-
-                    <button
-                        class="nav-link"
-                        id="dhcp-tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#dhcp"
-                        type="button"
-                        role="tab"
-                    >
-                        <i class="bi bi-router"></i>
-                        Servidor DHCP
-                    </button>
-
+                <li class="nav-item" role="presentation" style="order:3">
+                    <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">Histórico</button>
                 </li>
-
-
-                <li class="nav-item" role="presentation">
-
-                    <button
-                        class="nav-link"
-                        id="firmware-tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#firmware"
-                        type="button"
-                        role="tab"
-                    >
-                        <i class="bi bi-cloud-arrow-up"></i>
-                        Firmware
-                    </button>
-
+                <li class="nav-item" role="presentation" style="order:4">
+                    <button class="nav-link" id="optical-tab" data-bs-toggle="tab" data-bs-target="#optical" type="button" role="tab">Óptico</button>
                 </li>
-
-
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="monitoring-tab" data-bs-toggle="tab" data-bs-target="#monitoring" type="button" role="tab">
-                        <i class="bi bi-graph-up-arrow"></i>
-                        Monitoramento
+                <li class="nav-item" role="presentation" style="order:5">
+                    <button class="nav-link" id="wifi-tab" data-bs-toggle="tab" data-bs-target="#wifi" type="button" role="tab">Wi-Fi</button>
+                </li>
+                <li class="nav-item" role="presentation" style="order:6">
+                    <button class="nav-link" id="wan-tab" data-bs-toggle="tab" data-bs-target="#wan" type="button" role="tab">
+                        WAN / PPPoE
+                        <span id="wan-count-badge" class="badge bg-primary ms-1">0</span>
                     </button>
                 </li>
-
-                <li class="nav-item" role="presentation">
-
-                    <button
-                        class="nav-link"
-                        id="devices-tab"
-                        data-bs-toggle="tab"
-                        data-bs-target="#devices"
-                        type="button"
-                        role="tab"
-                    >
-                        <i class="bi bi-hdd-network"></i>
-                        Dispositivos Conectados
-
-                        <span
-                            id="devices-count-badge"
-                            class="badge bg-primary ms-1"
-                        >
-                            0
-                        </span>
-                    </button>
-
+                <li class="nav-item fb-nav-retired" role="presentation">
+                    <button class="nav-link" id="firmware-tab" data-bs-toggle="tab" data-bs-target="#firmware" type="button" role="tab">Firmware</button>
                 </li>
-
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="diagnostics-tab" data-bs-toggle="tab"
-                        data-bs-target="#diagnostics" type="button" role="tab"
-                        aria-controls="diagnostics" aria-selected="false">
-                        <i class="bi bi-tools"></i> Diagnósticos
+                <li class="nav-item" role="presentation" style="order:8">
+                    <button class="nav-link" id="voice-tab" data-bs-toggle="tab" data-bs-target="#voice" type="button" role="tab">Voz</button>
+                </li>
+                <li class="nav-item" role="presentation" style="order:9">
+                    <button class="nav-link" id="devices-tab" data-bs-toggle="tab" data-bs-target="#devices" type="button" role="tab">
+                        Rede / Hosts
+                        <span id="devices-count-badge" class="badge bg-primary ms-1">0</span>
                     </button>
                 </li>
-
+                <li class="nav-item fb-nav-retired" role="presentation">
+                    <button class="nav-link" id="dhcp-tab" data-bs-toggle="tab" data-bs-target="#dhcp" type="button" role="tab">DHCP</button>
+                </li>
+                <li class="nav-item fb-nav-retired" role="presentation">
+                    <button class="nav-link" id="monitoring-tab" data-bs-toggle="tab" data-bs-target="#monitoring" type="button" role="tab">Monitoramento</button>
+                </li>
             </ul>
+
+            <div class="fb-source-line" id="fb-source-line">
+                <span class="is-on">Coletados</span>
+                <span id="fb-discovery-chip">Descoberta completa</span>
+            </div>
 
 
             <!-- =================================================
@@ -332,61 +271,116 @@ include __DIR__ . '/views/layouts/header.php';
                     <div id="devices-content"></div>
                 </div>
 
+                <div class="tab-pane fade" id="history" role="tabpanel" aria-labelledby="history-tab">
+                    <div id="history-content"></div>
+                </div>
+
+                <div class="tab-pane fade" id="optical" role="tabpanel" aria-labelledby="optical-tab">
+                    <div id="optical-chart-mount"></div>
+                    <div class="fb-ind-grid fb-optical-metrics">
+                        <article class="fb-ind"><span>Sinal RX</span><strong data-optical="rx_power">Consultando...</strong><em class="fb-pill" data-optical-pill="rx_power">—</em><small>Potência recebida da OLT. Abaixo de −25 dBm o enlace começa a oscilar.</small></article>
+                        <article class="fb-ind"><span>Sinal TX</span><strong data-optical="tx_power">Consultando...</strong><em class="fb-pill" data-optical-pill="tx_power">—</em><small>Potência que a ONU envia de volta para a OLT.</small></article>
+                        <article class="fb-ind"><span>Temperatura</span><strong data-optical="temperature">Consultando...</strong><em class="fb-pill" data-optical-pill="temperature">—</em><small>Temperatura do módulo óptico.</small></article>
+                        <article class="fb-ind"><span>Voltagem</span><strong data-optical="voltage">Consultando...</strong><em class="fb-pill" data-optical-pill="voltage">—</em><small>Tensão de alimentação do módulo óptico.</small></article>
+                    </div>
+                    <section class="acs-overview-card fb-optical-meta-card">
+                        <div class="acs-reference-list">
+                            <div><span>OLT / PON</span><strong id="fb-optical-pon">Consultando...</strong></div>
+                            <div><span>Última leitura</span><strong id="fb-optical-seen">Consultando...</strong></div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="tab-pane fade" id="wifi" role="tabpanel" aria-labelledby="wifi-tab">
+                    <section class="acs-overview-card acs-card-wifi acs-approved-wifi">
+                        <div class="acs-overview-card-header">
+                            <div>
+                                <span class="acs-kicker">Wi-Fi</span>
+                                <small class="d-block text-muted">SSID e senha das redes deste equipamento.</small>
+                            </div>
+                            <button class="acs-toolbar-action fb-primary" type="button" onclick="fbOpenLegacyWifi()">Alterar SSID e senha</button>
+                        </div>
+                        <div class="acs-wifi-reference-grid"></div>
+                    </section>
+                </div>
+
+                <div class="tab-pane fade" id="voice" role="tabpanel" aria-labelledby="voice-tab">
+                    <section class="acs-overview-card">
+                        <h2 class="fb-section-title">Voz</h2>
+                        <p class="fb-alert-empty">Este CPE não informou linhas de voz nesta coleta.</p>
+                    </section>
+                </div>
+
                 <div class="tab-pane fade" id="diagnostics" role="tabpanel" aria-labelledby="diagnostics-tab">
-                    <div id="acs-diagnostics-content">
-                <section class="acs-overview-card acs-card-diagnostics acs-approved-diagnostics">
-                    <div class="acs-overview-card-header">
-                        <div><span class="acs-kicker"><i class="bi bi-tools"></i> Diagnósticos</span></div>
-                    </div>
+                    <div id="acs-diagnostics-content" class="fb-actions">
+                        <aside class="fb-action-menu">
+                            <label class="fb-action-search">
+                                <i class="bi bi-search"></i>
+                                <input id="fb-action-search" type="search" placeholder="buscar ação..." autocomplete="off">
+                            </label>
 
-                    <div class="acs-diagnostic-list">
-                        <button type="button" class="acs-diagnostic-item" onclick="runNetworkDiagnostic('ping')">
-                            <span class="acs-diagnostic-icon"><i class="bi bi-geo-alt"></i></span>
-                            <span class="acs-diagnostic-copy">
-                                <strong>Teste de ping</strong>
-                                <small class="acs-diagnostic-services">
-                                    <i class="bi bi-instagram"></i>
-                                    <i class="bi bi-google"></i>
-                                    <i class="bi bi-facebook"></i>
-                                    <i class="bi bi-youtube"></i>
-                                </small>
-                            </span>
-                            <span class="acs-diagnostic-play"><i class="bi bi-play-fill"></i></span>
-                        </button>
+                            <div class="fb-action-group" data-fb-group="favoritas">
+                                <p>Favoritas</p>
+                                <div class="fb-fav-row">
+        <button type="button" class="fb-fav-chip is-on" data-fb-action="ping">Ping</button>
+        <button type="button" class="fb-fav-chip" data-fb-action="speedtest">Velocidade</button>
+        <button type="button" class="fb-fav-chip" data-fb-action="traceroute">TraceRoute</button>
+        <button type="button" class="fb-fav-chip" data-fb-action="wifi-ssid">Trocar SSID</button>
+      </div>
+                            </div>
 
-                        <button type="button" class="acs-diagnostic-item" onclick="runNetworkDiagnostic('traceroute')">
-                            <span class="acs-diagnostic-icon"><i class="bi bi-bezier2"></i></span>
-                            <span class="acs-diagnostic-copy">
-                                <strong>Traceroute</strong>
-                                <small class="acs-diagnostic-services">
-                                    <i class="bi bi-instagram"></i>
-                                    <i class="bi bi-google"></i>
-                                    <i class="bi bi-facebook"></i>
-                                    <i class="bi bi-youtube"></i>
-                                </small>
-                            </span>
-                            <span class="acs-diagnostic-play"><i class="bi bi-play-fill"></i></span>
-                        </button>
+                            <div class="fb-action-group" data-fb-group="diagnostico">
+                                <p>Diagnóstico</p>
+                                <button type="button" class="fb-action-item is-on" data-fb-action="ping"><i class="bi bi-activity"></i><span>Ping</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="traceroute"><i class="bi bi-signpost-split"></i><span>TraceRoute</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="speedtest"><i class="bi bi-speedometer2"></i><span>Velocidade</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="nearby"><i class="bi bi-broadcast"></i><span>Redes próximas</span></button>
+                            </div>
 
-                        <button type="button" class="acs-diagnostic-item" onclick="runNetworkDiagnostic('nearby')">
-                            <span class="acs-diagnostic-icon"><i class="bi bi-broadcast-pin"></i></span>
-                            <span class="acs-diagnostic-copy">
-                                <strong>Redes próximas</strong>
-                                <small>Wi-Fi · canal · sinal · interferência</small>
-                            </span>
-                            <span class="acs-diagnostic-play"><i class="bi bi-play-fill"></i></span>
-                        </button>
+                            <div class="fb-action-group" data-fb-group="wifi">
+                                <p>Wi-Fi</p>
+                                <button type="button" class="fb-action-item" data-fb-action="wifi-ssid"><i class="bi bi-wifi"></i><span>Trocar SSID</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="wifi-pass"><i class="bi bi-key"></i><span>Trocar senha</span></button>
+                            </div>
 
-                        <button type="button" class="acs-diagnostic-item" onclick="runNetworkDiagnostic('speedtest')">
-                            <span class="acs-diagnostic-icon"><i class="bi bi-speedometer2"></i></span>
-                            <span class="acs-diagnostic-copy">
-                                <strong>Teste de velocidade</strong>
-                                <small>Download · Upload · Ping</small>
-                            </span>
-                            <span class="acs-diagnostic-play"><i class="bi bi-play-fill"></i></span>
-                        </button>
-                    </div>
-                </section>
+                            <div class="fb-action-group" data-fb-group="conexao">
+                                <p>Conexão</p>
+                                <button type="button" class="fb-action-item" data-fb-action="summon"><i class="bi bi-arrow-repeat"></i><span>Comunicar</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="web"><i class="bi bi-box-arrow-up-right"></i><span>Acesso web</span></button>
+                            </div>
+
+                            <div class="fb-action-group" data-fb-group="manutencao">
+                                <p>Manutenção</p>
+                                <button type="button" class="fb-action-item" data-fb-action="tag"><i class="bi bi-tag"></i><span>Etiqueta</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="untag"><i class="bi bi-tag-fill"></i><span>Remover etiqueta</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="refresh"><i class="bi bi-arrow-clockwise"></i><span>Atualizar coleta</span></button>
+                            <button type="button" class="fb-action-item" data-fb-action="reboot"><i class="bi bi-power"></i><span>Reiniciar equipamento</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="summary"><i class="bi bi-clipboard2-pulse"></i><span>Resumo</span></button>
+                                <button type="button" class="fb-action-item" data-fb-action="assistant"><i class="bi bi-stars"></i><span>Assistente</span></button>
+                            </div>
+                        </aside>
+
+                        <section class="fb-action-stage" aria-live="polite">
+                            <header class="fb-action-head">
+                                <div>
+                                    <i id="fb-action-icon" class="bi bi-activity"></i>
+                                    <h2 id="fb-action-title">Ping</h2>
+                                </div>
+                                <span id="fb-action-safe" class="fb-action-safe">Seguro</span>
+                            </header>
+                            <p id="fb-action-desc">Testa conectividade e latência até um host. O teste precisa sair do próprio CPE.</p>
+                            <label class="fb-action-host" id="fb-action-host-wrap">
+                                <span>Host de destino</span>
+                                <input id="fb-action-host" type="text" value="8.8.8.8" autocomplete="off" spellcheck="false">
+                            </label>
+                            <button type="button" class="fb-action-run" id="fb-action-run"><i class="bi bi-play-fill"></i> Executar</button>
+                            <div class="fb-action-results">
+                                <span>Resultado</span>
+                                <div id="fb-action-result">
+                                    <p class="fb-alert-empty">Nenhum resultado nesta sessão. Escolha a ação e execute.</p>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
 
@@ -2332,14 +2326,23 @@ function restoreSpeedtestButton() {
 
 <link rel="stylesheet" href="/assets/css/device-control-fix.css?v=<?php echo time(); ?>">
 <link rel="stylesheet" href="/assets/css/optical-history.css?v=20261005-1">
-<script src="/assets/js/optical-history.js?v=20261005-1"></script>
+<script src="/assets/js/optical-history.js?v=20261022-onu8"></script>
 <link rel="stylesheet" href="/assets/css/device-action-history.css?v=20261005-1">
 <script src="/assets/js/device-action-history.js?v=20261005-2"></script>
 <script src="/assets/js/device-detail.js?v=<?php echo time(); ?>"></script>
+<script src="/assets/js/jrc-rede-hosts.js?v=JRC_REDE_HOSTS_V9"></script>
 <script src="/assets/js/device-control-fix.js?v=<?php echo time(); ?>"></script>
+<script src="/assets/js/jrc-acoes-width.js?v=2"></script>
 <link rel="stylesheet" href="/assets/css/device-readability.css?v=20261005-6">
+<link rel="stylesheet" href="/assets/css/scout-device.css?v=20261022-onu9">
 
 
 <?php
 include __DIR__ . '/views/layouts/footer.php';
 ?>
+
+<style id="fb-fav-grid-ref">
+  #acs-diagnostics-content .fb-fav-row { display: grid !important; grid-template-columns: 1fr 1fr; gap: 6px; }
+  #acs-diagnostics-content .fb-fav-chip.is-on { border: 1px solid #e11d2e !important; background: transparent !important; color: #fff !important; box-shadow: none !important; }
+  #acs-diagnostics-content .fb-action-item.is-on { background: #e11d2e !important; color: #fff !important; }
+</style>

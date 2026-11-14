@@ -592,7 +592,7 @@ async function loadDeviceDetail(isAutoRefresh = false) {
             : (device.connected_devices_count ?? '—');
         const escOverview = (value) => String(value ?? '—').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
         const ssid24 = device.wifi_ssid_24ghz || device.wifi_ssid_2g || device.wifi_ssid || '—';
-        const ssid5 = device.wifi_ssid_5ghz || device.wifi_ssid_5g || device.wifi_ssid_5g_name || device.wifi_ssid || '—';
+        const ssid5 = device.wifi_ssid_5ghz || device.wifi_ssid_5g || device.wifi_ssid_5g_name || '—';
         const discoveryChip = document.getElementById('fb-discovery-chip');
         if (discoveryChip) {
             const auto = /auto/i.test(String(device.cpe_profile_source || ''));
@@ -741,6 +741,8 @@ async function loadDeviceDetail(isAutoRefresh = false) {
         if (typeof paintActiveAlerts === 'function') paintActiveAlerts();
 
         renderWifiHealthCard(device);
+        jrcApplyWifiClientCounters(device);
+        jrEnhanceWifiClientCounters(device);
         loadOpticalHistory(device.serial_number);
         loadDeviceActionHistory(device.device_id, deviceActionHistoryBefore);
 
@@ -774,6 +776,7 @@ async function loadDeviceDetail(isAutoRefresh = false) {
 
         // Populate Connected Devices Tab
         document.getElementById('devices-content').innerHTML = renderConnectedDevicesTab(device.connected_devices);
+        jrcEnhanceConnectedClientsTable(device.connected_devices);
 
         // Populate Monitoring tab
         document.getElementById('monitoring-content').innerHTML = renderMonitoringTab(device);
@@ -1536,6 +1539,189 @@ function renderDHCPServer(dhcpServer) {
     html += '</div></div>';
     return html;
 }
+
+// JRC_CONNECTED_CLIENTS_UI_V2
+function jrcClientIsActive(client) {
+    if (!client) return false;
+    const value = client.active;
+    return ![false, 0, '0', 'false', 'False', 'FALSE'].includes(value);
+}
+
+function jrcClientBandList(device, band) {
+    if (!device || !Array.isArray(device.connected_devices)) return [];
+    return device.connected_devices.filter(function (client) {
+        return jrcClientIsActive(client) &&
+            String(client.interface_type || '').toLowerCase() === 'wifi' &&
+            String(client.wifi_band || '') === band;
+    });
+}
+
+function jrcEscapeClientHtml(value) {
+    return String(value == null ? '' : value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+function jrcConnectionText(client) {
+    const type = String((client && client.interface_type) || '').toLowerCase();
+
+    if (type === 'wifi') {
+        if (String(client.wifi_band || '') === '5') return 'Wi-Fi · 5 GHz';
+        if (String(client.wifi_band || '') === '2.4') return 'Wi-Fi · 2,4 GHz';
+        return 'Wi-Fi';
+    }
+
+    if (type === 'ethernet') {
+        const port = Number(client.lan_port || 0);
+        return port > 0 ? 'Cabo · LAN ' + port : 'Cabo';
+    }
+
+    return (client && client.interface_type) || 'Rede';
+}
+
+function jrcEnhanceConnectedClientsTable(connectedDevices) {
+    const table = document.getElementById('connected-devices-table');
+    if (!table || !Array.isArray(connectedDevices)) return;
+
+    const byMac = new Map();
+    connectedDevices.forEach(function (client) {
+        const mac = String((client && client.mac_address) || '').trim().toLowerCase();
+        if (mac) byMac.set(mac, client);
+    });
+
+    table.querySelectorAll('tbody tr[data-mac]').forEach(function (row) {
+        const mac = String(row.getAttribute('data-mac') || '').trim().toLowerCase();
+        const client = byMac.get(mac);
+        if (!client) return;
+
+        const cell = row.querySelector('td:nth-child(5)');
+        if (!cell) return;
+
+        const isWifi = String(client.interface_type || '').toLowerCase() === 'wifi';
+        cell.innerHTML =
+            '<span class="badge ' + (isWifi ? 'bg-secondary' : 'bg-success') + '">' +
+            '<i class="bi ' + (isWifi ? 'bi-wifi' : 'bi-ethernet') + '"></i> ' +
+            jrcEscapeClientHtml(jrcConnectionText(client)) +
+            '</span>';
+    });
+}
+
+function jrcApplyWifiClientCounters(device) {
+    const root = document.querySelector('.acs-wifi-reference-grid');
+    if (!root) return;
+
+    const rows = Array.from(
+        root.querySelectorAll('.acs-wifi-health-row:not(.acs-wifi-unified-row)')
+    );
+
+    [
+        { row: rows[0], band: '2.4', label: '2,4 GHz' },
+        { row: rows[1], band: '5', label: '5 GHz' }
+    ].forEach(function (spec) {
+        if (!spec.row) return;
+
+        const clients = jrcClientBandList(device, spec.band);
+        const detail = Array.from(
+            spec.row.querySelectorAll('.acs-wifi-health-detail')
+        ).find(function (item) {
+            const small = item.querySelector('small');
+            return small && small.textContent.trim().toLowerCase() === 'clientes';
+        });
+
+        if (!detail) return;
+        const strong = detail.querySelector('strong');
+        if (!strong) return;
+
+        const label = clients.length === 1
+            ? '1 conectado'
+            : String(clients.length) + ' conectados';
+
+        if (!clients.length) {
+            strong.textContent = label;
+            return;
+        }
+
+        strong.innerHTML =
+            '<button type="button" class="btn btn-link p-0 text-decoration-none" ' +
+            'style="color:inherit;font-size:inherit;font-weight:700" ' +
+            'onclick="jrcOpenWifiClients(\'' + spec.band + '\', \'' + spec.label + '\')" ' +
+            'title="Ver clientes desta banda">' +
+            jrcEscapeClientHtml(label) +
+            '</button>';
+    });
+}
+
+function jrcOpenWifiClients(band, bandLabel) {
+    const device = (typeof currentDeviceData === 'object' && currentDeviceData)
+        ? currentDeviceData
+        : {};
+    const clients = jrcClientBandList(device, band);
+
+    let modal = document.getElementById('jrcWifiClientsModalV2');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'jrcWifiClientsModalV2';
+        modal.tabIndex = -1;
+        modal.innerHTML =
+            '<div class="modal-dialog modal-lg modal-dialog-centered">' +
+                '<div class="modal-content">' +
+                    '<div class="modal-header">' +
+                        '<div>' +
+                            '<small class="text-danger fw-bold">JR CONECT · WI-FI</small>' +
+                            '<h5 class="modal-title mt-1" id="jrcWifiClientsTitleV2">Clientes conectados</h5>' +
+                        '</div>' +
+                        '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>' +
+                    '</div>' +
+                    '<div class="modal-body" id="jrcWifiClientsBodyV2"></div>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(modal);
+    }
+
+    const title = modal.querySelector('#jrcWifiClientsTitleV2');
+    const body = modal.querySelector('#jrcWifiClientsBodyV2');
+
+    if (title) title.textContent = 'Clientes conectados · ' + bandLabel;
+
+    if (body) {
+        if (!clients.length) {
+            body.innerHTML = '<div class="alert alert-info mb-0">Nenhum cliente conectado nesta banda.</div>';
+        } else {
+            let rows = '';
+            clients.forEach(function (client) {
+                const name = client.hostname || client.vendor || 'Dispositivo';
+                const vendor = client.vendor && client.vendor !== client.hostname
+                    ? '<br><small class="text-muted">' + jrcEscapeClientHtml(client.vendor) + '</small>'
+                    : '';
+
+                rows +=
+                    '<tr>' +
+                        '<td><strong>' + jrcEscapeClientHtml(name) + '</strong>' + vendor + '</td>' +
+                        '<td>' + jrcEscapeClientHtml(client.ip_address || '-') + '</td>' +
+                        '<td><code>' + jrcEscapeClientHtml(client.mac_address || '-') + '</code></td>' +
+                    '</tr>';
+            });
+
+            body.innerHTML =
+                '<div class="table-responsive">' +
+                    '<table class="table table-sm table-hover align-middle mb-0">' +
+                        '<thead><tr><th>Dispositivo</th><th>IP</th><th>MAC</th></tr></thead>' +
+                        '<tbody>' + rows + '</tbody>' +
+                    '</table>' +
+                '</div>';
+        }
+    }
+
+    if (window.bootstrap && bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modal).show();
+    }
+}
+
+window.jrcOpenWifiClients = jrcOpenWifiClients;
 
 function renderConnectedDevicesTab(connectedDevices) {
     if (!connectedDevices || connectedDevices.length === 0) {
@@ -4015,6 +4201,177 @@ function runNetworkDiagnostic(tool) {
     openPendingNetworkDiagnostic(tool);
 }
 
+// JRC_WIFI_CLIENTS_BY_BAND_UI_V1
+function jrWifiClientIsActive(client) {
+    if (!client) return false;
+    return ![false, 0, '0', 'false', 'False', 'FALSE'].includes(client.active);
+}
+
+function jrWifiBandClients(device, band) {
+    if (!device) return null;
+
+    const direct = band === '2.4'
+        ? device.wifi_clients_24ghz_devices
+        : band === '5'
+            ? device.wifi_clients_5ghz_devices
+            : null;
+
+    if (Array.isArray(direct)) {
+        return direct.filter(jrWifiClientIsActive);
+    }
+
+    if (!Array.isArray(device.connected_devices)) {
+        return null;
+    }
+
+    return device.connected_devices.filter(client => {
+        if (!jrWifiClientIsActive(client)) return false;
+        if (String(client.interface_type || '').toLowerCase() !== 'wifi') return false;
+        return String(client.wifi_band || '') === band;
+    });
+}
+
+function jrWifiClientCountLabel(count) {
+    if (count === 1) return '1 conectado';
+    return String(count) + ' conectados';
+}
+
+function jrWifiEscape(value) {
+    return String(value == null ? '' : value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+}
+
+function jrEnhanceWifiClientCounters(device) {
+    const container = document.querySelector('.acs-wifi-reference-grid');
+    if (!container) return;
+
+    const rows = Array.from(
+        container.querySelectorAll('.acs-wifi-health-row:not(.acs-wifi-unified-row)')
+    );
+
+    const specs = [
+        { band: '2.4', label: '2,4 GHz', row: rows[0] || null },
+        { band: '5', label: '5 GHz', row: rows[1] || null }
+    ];
+
+    specs.forEach(spec => {
+        if (!spec.row) return;
+
+        const details = Array.from(spec.row.querySelectorAll('.acs-wifi-health-detail'));
+        const target = details.find(detail => {
+            const small = detail.querySelector('small');
+            return small && small.textContent.trim().toLowerCase() === 'clientes';
+        });
+        if (!target) return;
+
+        const strong = target.querySelector('strong');
+        if (!strong) return;
+
+        const clients = jrWifiBandClients(device, spec.band);
+        if (clients === null) {
+            strong.textContent = 'Não informado';
+            return;
+        }
+
+        const label = jrWifiClientCountLabel(clients.length);
+
+        if (clients.length === 0) {
+            strong.textContent = label;
+            return;
+        }
+
+        strong.innerHTML =
+            '<button type="button" ' +
+            'style="background:none;border:0;padding:0;color:inherit;font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;text-decoration-color:#ef1b22;text-underline-offset:3px" ' +
+            'onclick="jrOpenWifiClientsModal(\'' + spec.band + '\', \'' + spec.label + '\')" ' +
+            'title="Ver clientes conectados">' +
+            jrWifiEscape(label) +
+            '</button>';
+    });
+}
+
+function jrOpenWifiClientsModal(band, bandLabel) {
+    const device = typeof currentDeviceData === 'object' && currentDeviceData
+        ? currentDeviceData
+        : null;
+    const clients = jrWifiBandClients(device, band) || [];
+
+    let modalEl = document.getElementById('jrWifiClientsModal');
+    if (!modalEl) {
+        modalEl = document.createElement('div');
+        modalEl.className = 'modal fade';
+        modalEl.id = 'jrWifiClientsModal';
+        modalEl.tabIndex = -1;
+        modalEl.setAttribute('aria-hidden', 'true');
+        modalEl.innerHTML =
+            '<div class="modal-dialog modal-lg modal-dialog-centered">' +
+              '<div class="modal-content" style="background:#111419;color:#f4f6f8;border:1px solid #2b3038">' +
+                '<div class="modal-header" style="border-color:#2b3038">' +
+                  '<div>' +
+                    '<small style="color:#ef1b22;font-weight:700">JR CONECT · WI-FI</small>' +
+                    '<h5 class="modal-title" id="jrWifiClientsTitle" style="margin-top:3px">Clientes conectados</h5>' +
+                  '</div>' +
+                  '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>' +
+                '</div>' +
+                '<div class="modal-body" id="jrWifiClientsBody"></div>' +
+              '</div>' +
+            '</div>';
+        document.body.appendChild(modalEl);
+    }
+
+    const title = modalEl.querySelector('#jrWifiClientsTitle');
+    const body = modalEl.querySelector('#jrWifiClientsBody');
+
+    if (title) {
+        title.textContent = 'Clientes conectados · ' + bandLabel;
+    }
+
+    if (body) {
+        if (!clients.length) {
+            body.innerHTML =
+                '<div style="padding:18px;border:1px solid #2b3038;border-radius:10px;color:#aeb6c2">' +
+                'Nenhum cliente conectado nesta banda.' +
+                '</div>';
+        } else {
+            const header =
+                '<div style="display:grid;grid-template-columns:minmax(180px,1.3fr) minmax(120px,.8fr) minmax(160px,1fr);gap:12px;padding:0 12px 9px;color:#8f9aaa;font-size:11px;font-weight:700;text-transform:uppercase">' +
+                  '<span>Dispositivo</span><span>IP</span><span>MAC</span>' +
+                '</div>';
+
+            const rows = clients.map(client => {
+                const name = client.hostname || client.vendor || 'Dispositivo';
+                const vendor = client.vendor && client.vendor !== name ? client.vendor : '';
+                const ip = client.ip_address || '-';
+                const mac = client.mac_address || '-';
+                const path = client.interface_path || '';
+
+                return (
+                    '<div style="display:grid;grid-template-columns:minmax(180px,1.3fr) minmax(120px,.8fr) minmax(160px,1fr);gap:12px;align-items:center;padding:12px;border:1px solid #2b3038;border-radius:10px;margin-bottom:8px;background:#15191f">' +
+                      '<div><strong>' + jrWifiEscape(name) + '</strong>' +
+                        (vendor ? '<small style="display:block;color:#8f9aaa;margin-top:3px">' + jrWifiEscape(vendor) + '</small>' : '') +
+                        (path ? '<small style="display:block;color:#6f7885;margin-top:3px;word-break:break-all">' + jrWifiEscape(path) + '</small>' : '') +
+                      '</div>' +
+                      '<div>' + jrWifiEscape(ip) + '</div>' +
+                      '<div><code style="color:#f4f6f8">' + jrWifiEscape(mac) + '</code></div>' +
+                    '</div>'
+                );
+            }).join('');
+
+            body.innerHTML = header + rows;
+        }
+    }
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+}
+
+window.jrOpenWifiClientsModal = jrOpenWifiClientsModal;
+
 function renderWifiHealthCard(device) {
     const container = document.querySelector('.acs-wifi-reference-grid');
     if (!container) return;
@@ -4030,7 +4387,7 @@ function renderWifiHealthCard(device) {
     };
 
     const ssid24 = valueOf(device.wifi_ssid_24ghz, device.wifi_ssid_2g, device.wifi_ssid);
-    const ssid5 = valueOf(device.wifi_ssid_5ghz, device.wifi_ssid_5g, device.wifi_ssid_5g_name, device.wifi_ssid);
+    const ssid5 = valueOf(device.wifi_ssid_5ghz, device.wifi_ssid_5g, device.wifi_ssid_5g_name);
     const connectedDevices = Array.isArray(device.connected_devices) ? device.connected_devices.length : null;
     const clientText = connectedDevices === null ? 'Não informado' : String(connectedDevices);
     const lastInform = valueOf(device.last_inform, device.last_update, device.last_seen);

@@ -12,19 +12,19 @@
  *   crontab -e
  *
  * Add this line (replace /path/to/project with your actual project path):
- *   */5 * * * * /usr/bin/php /path/to/project/cron/device-monitor.php >> /var/log/gacs-monitor.log 2>&1
+ *   0-59/5 * * * * /usr/bin/php /path/to/project/cron/device-monitor.php >> /var/log/gacs-monitor.log 2>&1
  *
  * Example:
- *   */5 * * * * /usr/bin/php /var/www/html/gacs-dashboard/cron/device-monitor.php >> /var/log/gacs-monitor.log 2>&1
+ *   0-59/5 * * * * /usr/bin/php /var/www/html/gacs-dashboard/cron/device-monitor.php >> /var/log/gacs-monitor.log 2>&1
  *
  * To find your project path, run this command from project root:
  *   pwd
  *
  * Alternative intervals:
- *   */1 * * * *  - Every 1 minute (not recommended, too frequent)
- *   */5 * * * *  - Every 5 minutes (recommended)
- *   */10 * * * * - Every 10 minutes
- *   */15 * * * * - Every 15 minutes
+ *   0-59/1 * * * *  - Every 1 minute (not recommended, too frequent)
+ *   0-59/5 * * * *  - Every 5 minutes (recommended)
+ *   0-59/10 * * * * - Every 10 minutes
+ *   0-59/15 * * * * - Every 15 minutes
  *   0 * * * *    - Every hour
  */
 

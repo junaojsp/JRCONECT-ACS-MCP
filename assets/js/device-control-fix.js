@@ -220,6 +220,18 @@
     function renderWifi() {
         const box=document.querySelector('.acs-approved-wifi .acs-wifi-reference-grid');
         if(!box)return;
+        // JRC_WIFI_SINGLE_RENDER_OWNER_V1
+        // O card oficial (.acs-wifi-health-list) pertence ao device-detail.js.
+        // Este modulo continua mantendo estado, refresh e modal de edicao,
+        // mas nao deve substituir novamente a grade principal.
+        const jrcOfficialWifiHealth = box.querySelector('.acs-wifi-health-list');
+        if (jrcOfficialWifiHealth) {
+            if (typeof window.jrcApplyWifiClientCounters === 'function' && window.currentDeviceData) {
+                window.jrcApplyWifiClientCounters(window.currentDeviceData);
+            }
+            return;
+        }
+
         syncWifiSelection();
         box.innerHTML=`<div class="jr-wifi-summary-shell">
             <div class="jr-wifi-summary-list">

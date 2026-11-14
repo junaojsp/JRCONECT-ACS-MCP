@@ -566,6 +566,10 @@ foreach ($checks as $check) {
             transform: translateY(-2px);
         }
     </style>
+<!-- JRC NOC SHARED THEME -->
+<link rel="stylesheet" href="/assets/css/jrc-theme.css?v=1">
+<script src="/assets/js/jrc-theme.js?v=1" defer></script>
+<!-- /JRC NOC SHARED THEME -->
 </head>
 <body>
     <div class="container">

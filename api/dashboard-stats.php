@@ -1,39 +1,31 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+declare(strict_types=1);
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../lib/DeviceInventoryCache.php';
+
+use App\DeviceInventoryCache;
+
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: private, max-age=10');
+
 requireLogin();
 
-// Check if GenieACS is configured
-if (!isGenieACSConfigured()) {
-    jsonResponse(['success' => false, 'message' => 'GenieACS belum dikonfigurasi']);
-}
+try {
+    $db = getDBConnection();
 
-// Get GenieACS credentials
-$conn = getDBConnection();
-$result = $conn->query("SELECT * FROM genieacs_credentials WHERE is_connected = 1 ORDER BY id DESC LIMIT 1");
-$credentials = $result->fetch_assoc();
+    if (!DeviceInventoryCache::isReady($db)) {
+        require __DIR__ . '/dashboard-stats-precache.php';
+        exit;
+    }
 
-if (!$credentials) {
-    jsonResponse(['success' => false, 'message' => 'GenieACS tidak terhubung']);
-}
-
-use App\GenieACS;
-
-$genieacs = new GenieACS(
-    $credentials['host'],
-    $credentials['port'],
-    $credentials['username'],
-    $credentials['password']
-);
-
-$stats = $genieacs->getDeviceStats();
-
-if ($stats['success']) {
     jsonResponse([
         'success' => true,
-        'stats' => $stats['data']
+        'source' => 'local_inventory',
+        'stats' => DeviceInventoryCache::stats($db),
+        'cache' => DeviceInventoryCache::meta($db),
     ]);
-} else {
-    jsonResponse(['success' => false, 'message' => 'Gagal mengambil statistik']);
+} catch (Throwable $e) {
+    error_log('[JRC DASHBOARD CACHE] ' . $e->getMessage());
+    require __DIR__ . '/dashboard-stats-precache.php';
 }

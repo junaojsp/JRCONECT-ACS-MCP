@@ -1,0 +1,456 @@
+/* JR CONECT ACS - Provisionamento padrao visual v2 */
+body {
+  background: #0b0d10;
+}
+
+.onu-shell,
+.onu-page,
+.onu-wrap,
+.onu-content {
+  background: transparent !important;
+}
+
+.onu-title {
+  background: transparent !important;
+  border-bottom-color: #262a31 !important;
+}
+
+.onu-title h1,
+.onu-title h2,
+.onu-title h3 {
+  color: #f5f7fa !important;
+}
+
+.onu-title p,
+.onu-note,
+.onu-help,
+.onu-muted {
+  color: #8f98a8 !important;
+}
+
+.onu-grid {
+  gap: 12px !important;
+}
+
+.onu-card,
+.onu-filters,
+.onu-panel,
+.onu-scroll,
+.onu-table-wrap {
+  background: #14161b !important;
+  border: 1px solid #2a2e36 !important;
+  box-shadow: none !important;
+}
+
+.onu-card {
+  border-radius: 12px !important;
+}
+
+.onu-card strong,
+.onu-card .value,
+.onu-card .onu-value {
+  color: #f3f5f7 !important;
+}
+
+.onu-card small,
+.onu-card .label,
+.onu-card .onu-label {
+  color: #98a1b1 !important;
+}
+
+.onu-card i,
+.onu-card svg {
+  color: #ef151e !important;
+}
+
+.onu-filters {
+  border-radius: 12px !important;
+}
+
+.onu-filters label,
+.onu-filters .form-label {
+  color: #aeb6c4 !important;
+}
+
+.onu-filters input,
+.onu-filters select,
+.onu-filters .form-control,
+.onu-filters .form-select {
+  background: #0f1115 !important;
+  border: 1px solid #303540 !important;
+  color: #e8ebef !important;
+  box-shadow: none !important;
+}
+
+.onu-filters input::placeholder {
+  color: #697384 !important;
+}
+
+.onu-filters input:focus,
+.onu-filters select:focus,
+.onu-filters .form-control:focus,
+.onu-filters .form-select:focus {
+  background: #101217 !important;
+  border-color: #555d69 !important;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.04) !important;
+}
+
+.onu-primary,
+#onu-refresh,
+.onu-search,
+.onu-filters .btn-primary,
+.onu-filters button[type="submit"] {
+  background: #ef111b !important;
+  border-color: #ef111b !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+.onu-primary:hover,
+#onu-refresh:hover,
+.onu-search:hover {
+  background: #d80e17 !important;
+  border-color: #d80e17 !important;
+}
+
+.onu-secondary,
+.onu-clear,
+.onu-filters .btn-secondary {
+  background: #252931 !important;
+  border: 1px solid #343943 !important;
+  color: #eceff3 !important;
+}
+
+.onu-tabs {
+  border-color: #2a2e36 !important;
+}
+
+.onu-tabs button,
+.onu-tab {
+  background: #171a20 !important;
+  border: 1px solid #30343d !important;
+  color: #c6ccd6 !important;
+  box-shadow: none !important;
+}
+
+.onu-tabs button:hover,
+.onu-tab:hover {
+  background: #1d2027 !important;
+  color: #fff !important;
+}
+
+.onu-tabs button.active,
+.onu-tabs button[aria-selected="true"],
+.onu-tab.active {
+  background: #231316 !important;
+  border-color: #ef111b !important;
+  color: #ff3a43 !important;
+}
+
+.onu-scroll {
+  overflow: auto;
+}
+
+.onu-scroll table,
+.onu-table {
+  background: #14161b !important;
+  color: #e9edf2 !important;
+  border-collapse: collapse !important;
+}
+
+.onu-scroll thead,
+.onu-scroll thead tr,
+.onu-scroll thead th,
+.onu-table thead,
+.onu-table thead tr,
+.onu-table thead th {
+  background: #111318 !important;
+  color: #9ea8b8 !important;
+  border-color: #2c3038 !important;
+}
+
+.onu-scroll tbody,
+.onu-scroll tbody tr,
+.onu-scroll tbody td,
+.onu-table tbody,
+.onu-table tbody tr,
+.onu-table tbody td {
+  background: #15181d !important;
+  color: #e7eaf0 !important;
+  border-color: #2a2e35 !important;
+}
+
+.onu-scroll tbody tr:nth-child(even) td,
+.onu-table tbody tr:nth-child(even) td {
+  background: #12151a !important;
+}
+
+.onu-scroll tbody tr:hover td,
+.onu-table tbody tr:hover td {
+  background: #1b1f25 !important;
+}
+
+.onu-scroll a,
+.onu-table a {
+  color: #ff343d !important;
+  text-decoration: none !important;
+}
+
+.onu-scroll a:hover,
+.onu-table a:hover {
+  color: #ff6168 !important;
+}
+
+.onu-empty {
+  background: #14161b !important;
+  color: #8d96a5 !important;
+}
+
+.onu-scroll .badge,
+.onu-table .badge {
+  box-shadow: none !important;
+}
+
+.onu-scroll .badge-success,
+.onu-scroll .bg-success,
+.onu-table .badge-success,
+.onu-table .bg-success {
+  background: #0d5a31 !important;
+  color: #5df0a0 !important;
+}
+
+.onu-scroll .badge-warning,
+.onu-scroll .bg-warning,
+.onu-table .badge-warning,
+.onu-table .bg-warning {
+  background: #4a3510 !important;
+  color: #ffc85a !important;
+}
+
+.onu-scroll .badge-danger,
+.onu-scroll .bg-danger,
+.onu-table .badge-danger,
+.onu-table .bg-danger {
+  background: #4a171b !important;
+  color: #ff6a73 !important;
+}
+
+@media (max-width: 900px) {
+  .onu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .onu-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* V3 - neutraliza o azul estrutural legado desta pagina */
+html,
+body,
+body.jrc-neutro-page,
+main,
+.main,
+.main-content,
+#main-content,
+.content,
+.content-wrapper,
+.page-wrapper,
+.page-content,
+.container,
+.container-fluid,
+.onu-shell,
+.onu-page,
+.onu-wrap,
+.onu-content {
+  background: #0b0d10 !important;
+  background-color: #0b0d10 !important;
+}
+
+.onu-shell,
+.onu-page,
+.onu-wrap,
+.onu-content {
+  color: #eef1f4 !important;
+}
+
+.onu-filters,
+.onu-panel,
+.onu-scroll,
+.onu-table-wrap,
+.onu-pagination,
+.onu-pager,
+.onu-footer,
+.onu-table-footer,
+.onu-scroll + div,
+.onu-scroll + footer {
+  background: #14161b !important;
+  background-color: #14161b !important;
+  border-color: #2a2e36 !important;
+}
+
+.onu-pagination button,
+.onu-pager button,
+.onu-footer button,
+.onu-table-footer button {
+  background: #252931 !important;
+  border-color: #343943 !important;
+  color: #f1f3f6 !important;
+}
+
+.onu-pagination button:hover,
+.onu-pager button:hover,
+.onu-footer button:hover,
+.onu-table-footer button:hover {
+  background: #30353e !important;
+}
+
+.onu-pagination .active,
+.onu-pager .active,
+.onu-footer .active,
+.onu-table-footer .active {
+  background: #231316 !important;
+  border-color: #ef111b !important;
+  color: #ff3a43 !important;
+}
+
+.onu-scroll,
+.onu-scroll table,
+.onu-scroll thead,
+.onu-scroll tbody,
+.onu-scroll tfoot,
+.onu-scroll tr,
+.onu-scroll th,
+.onu-scroll td {
+  --bs-table-bg: #15181d !important;
+  --bs-table-striped-bg: #12151a !important;
+  --bs-table-hover-bg: #1b1f25 !important;
+  --bs-table-color: #e7eaf0 !important;
+  --bs-table-border-color: #2a2e35 !important;
+}
+
+.onu-scroll thead th {
+  --bs-table-bg: #111318 !important;
+  background: #111318 !important;
+}
+
+.onu-filters input,
+.onu-filters select,
+.onu-filters .form-control,
+.onu-filters .form-select {
+  background: #0d0f12 !important;
+  background-color: #0d0f12 !important;
+  border-color: #30343c !important;
+}
+
+.onu-tabs,
+.onu-tabs + *,
+.onu-panel > .onu-note,
+.onu-panel > .onu-help {
+  background-color: transparent !important;
+}
+
+
+/* V4 - remove os ultimos fundos azulados do Provisionamento */
+:root {
+  --jrc-prov-bg: #0b0d10;
+  --jrc-prov-panel: #14161b;
+  --jrc-prov-input: #0d0f12;
+  --jrc-prov-border: #2a2e36;
+}
+
+/* Barra superior / cabecalho estrutural */
+body > header,
+body > .header,
+body > .topbar,
+body > .top-bar,
+body > .page-header,
+body > .main-header,
+.main-content > header,
+.main-content > .header,
+.main-content > .topbar,
+.main-content > .top-bar,
+.main-content > .page-header,
+.main-content > .main-header,
+.content-wrapper > header,
+.content-wrapper > .header,
+.content-wrapper > .topbar,
+.content-wrapper > .page-header,
+.page-content > header,
+.page-content > .header,
+.page-content > .topbar,
+.page-content > .page-header {
+  background: var(--jrc-prov-bg) !important;
+  background-color: var(--jrc-prov-bg) !important;
+  border-color: #262a31 !important;
+  box-shadow: none !important;
+}
+
+/* Campos de filtro: elimina azul inclusive de regras antigas/Bootstrap */
+.onu-filters input,
+.onu-filters input[type="text"],
+.onu-filters input[type="search"],
+.onu-filters select,
+.onu-filters .form-control,
+.onu-filters .form-select,
+.onu-filters .input-group-text {
+  --bs-body-bg: var(--jrc-prov-input) !important;
+  --bs-form-control-bg: var(--jrc-prov-input) !important;
+  --bs-secondary-bg: var(--jrc-prov-input) !important;
+  background: var(--jrc-prov-input) !important;
+  background-color: var(--jrc-prov-input) !important;
+  background-image: none !important;
+  color: #e8ebef !important;
+  border-color: #30343c !important;
+  box-shadow: none !important;
+  color-scheme: dark !important;
+}
+
+.onu-filters input:-webkit-autofill,
+.onu-filters input:-webkit-autofill:hover,
+.onu-filters input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #e8ebef !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--jrc-prov-input) inset !important;
+  box-shadow: 0 0 0 1000px var(--jrc-prov-input) inset !important;
+}
+
+/* Barra inferior / footer estrutural */
+body > footer,
+body > .footer,
+.main-content > footer,
+.main-content > .footer,
+.content-wrapper > footer,
+.content-wrapper > .footer,
+.page-content > footer,
+.page-content > .footer,
+.onu-shell ~ footer,
+.onu-page ~ footer,
+.onu-wrap ~ footer {
+  background: var(--jrc-prov-bg) !important;
+  background-color: var(--jrc-prov-bg) !important;
+  border-color: #262a31 !important;
+  box-shadow: none !important;
+}
+
+/* Neutraliza barras decorativas/containers residuais azuis */
+.main-content::before,
+.main-content::after,
+.content-wrapper::before,
+.content-wrapper::after,
+.page-content::before,
+.page-content::after,
+.onu-shell::before,
+.onu-shell::after {
+  background-color: var(--jrc-prov-bg) !important;
+  border-color: #262a31 !important;
+}
+
+/* Se o layout legado usar variaveis Bootstrap com azul */
+body {
+  --bs-body-bg: var(--jrc-prov-bg) !important;
+  --bs-tertiary-bg: var(--jrc-prov-panel) !important;
+  --bs-secondary-bg: var(--jrc-prov-panel) !important;
+}

@@ -546,6 +546,10 @@ if (function_exists('requireLogin')) {
 
     </style>
 
+<!-- JRC NOC SHARED THEME -->
+<link rel="stylesheet" href="/assets/css/jrc-theme.css?v=1">
+<script src="/assets/js/jrc-theme.js?v=1" defer></script>
+<!-- /JRC NOC SHARED THEME -->
 </head>
 
 

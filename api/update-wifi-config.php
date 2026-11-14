@@ -28,9 +28,9 @@ if (!isset($input['wifi_ssid']) || empty($input['wifi_ssid'])) {
 }
 
 $deviceId = clean($input['device_id']);
-$wifiSsid = clean($input['wifi_ssid']);
+$wifiSsid = trim((string) $input['wifi_ssid']);
 $securityMode = isset($input['security_mode']) ? clean($input['security_mode']) : 'WPA2PSK';
-$wifiPassword = isset($input['wifi_password']) ? clean($input['wifi_password']) : '';
+$wifiPassword = isset($input['wifi_password']) ? trim((string) $input['wifi_password']) : '';
 $wlanIndex = isset($input['wlan_index']) ? intval($input['wlan_index']) : 1;
 
 // Validate SSID length (1-32 characters)

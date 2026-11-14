@@ -83,24 +83,29 @@ class GenieACS {
      * @param int $limit - Maximum number of devices to return (0 = no limit)
      * @param int $skip - Number of devices to skip (for pagination)
      */
-    public function getDevices($query = [], $limit = 0, $skip = 0) {
-        $params = [];
+    public function getDevices($query = [], $limit = 0, $skip = 0, $projection = []) {
+    $params = [];
 
-        if (!empty($query)) {
-            $params[] = 'query=' . urlencode(json_encode($query));
-        }
-
-        if ($limit > 0) {
-            $params[] = 'limit=' . $limit;
-        }
-
-        if ($skip > 0) {
-            $params[] = 'skip=' . $skip;
-        }
-
-        $queryString = !empty($params) ? '?' . implode('&', $params) : '';
-        return $this->request('/devices/' . $queryString);
+    if (!empty($query)) {
+        $params[] = 'query=' . urlencode(json_encode($query));
     }
+
+    if ($limit > 0) {
+        $params[] = 'limit=' . $limit;
+    }
+
+    if ($skip > 0) {
+        $params[] = 'skip=' . $skip;
+    }
+
+    if (!empty($projection)) {
+        $params[] = 'projection=' . urlencode(implode(',', $projection));
+    }
+
+    $queryString = !empty($params) ? '?' . implode('&', $params) : '';
+
+    return $this->request('/devices/' . $queryString);
+}
 
     /**
      * Get total device count
@@ -312,64 +317,28 @@ class GenieACS {
      * @return array Response with success status
      */
     public function setWiFiConfig($deviceId, $ssid, $password = '', $wlanIndex = 1, $securityMode = 'WPA2PSK') {
-        $parameters = [];
-
-        // Try multiple parameter paths for different ONU vendors
-        $ssidPaths = [
-            "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{$wlanIndex}.SSID",
-            "Device.WiFi.SSID.{$wlanIndex}.SSID"
-        ];
-
-        $securityPaths = [
-            "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{$wlanIndex}.BeaconType",
-            "Device.WiFi.AccessPoint.{$wlanIndex}.Security.ModeEnabled"
-        ];
-
-        $passwordPaths = [
-            "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{$wlanIndex}.KeyPassphrase",
-            "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{$wlanIndex}.PreSharedKey.1.KeyPassphrase",
-            "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{$wlanIndex}.PreSharedKey.1.PreSharedKey",
-            "Device.WiFi.AccessPoint.{$wlanIndex}.Security.KeyPassphrase"
-        ];
-
-        // For now, use the most common TR-098 paths
-        // 1. Set SSID
-        $parameters[] = [$ssidPaths[0], $ssid, 'xsd:string'];
-
-        // 2. Set Security Mode (BeaconType)
-        // Map security mode to BeaconType values
-        $beaconTypeMap = [
-            'WPA2PSK' => '11i',
-            'WPAPSK' => 'WPA',
-            'WPA2PSKWPAPSK' => 'WPAand11i',
-            'None' => 'Basic'  // or 'None' depending on device
-        ];
-
-        $beaconType = isset($beaconTypeMap[$securityMode]) ? $beaconTypeMap[$securityMode] : '11i';
-        $parameters[] = [$securityPaths[0], $beaconType, 'xsd:string'];
-
-        // 3. Set Password (only if security mode is not Open)
-        if ($securityMode !== 'None' && !empty($password)) {
-            $parameters[] = [$passwordPaths[0], $password, 'xsd:string'];
-
-            // Also set authentication mode for WPA/WPA2
-            $authModePath = "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{$wlanIndex}.WPAAuthenticationMode";
-            $parameters[] = [$authModePath, 'PSKAuthentication', 'xsd:string'];
-
-            // Set encryption method
-            $encryptionPath = "InternetGatewayDevice.LANDevice.1.WLANConfiguration.{$wlanIndex}.WPAEncryptionModes";
-            $encryptionMode = ($securityMode === 'WPA2PSK' || $securityMode === 'WPA2PSKWPAPSK') ? 'AESEncryption' : 'TKIPEncryption';
-            $parameters[] = [$encryptionPath, $encryptionMode, 'xsd:string'];
+        /* JRC_WIFI_GRAVACAO_V1 */
+        if (!function_exists('jrcWifiWriteParameters')) {
+            require_once __DIR__ . '/jrc-wifi-write.php';
         }
-
-        return $this->setParameterValues($deviceId, $parameters);
+        $device = [];
+        $loaded = $this->getDevice($deviceId);
+        if (!empty($loaded['success']) && is_array($loaded['data'] ?? null)) {
+            $device = $loaded['data'];
+        }
+        $parameters = \jrcWifiWriteParameters($device, (string) $ssid, (string) $password, (int) $wlanIndex, (string) $securityMode);
+        if ($parameters === []) {
+            return ['success' => false, 'error' => 'Não encontrei o Wi-Fi desta ONU para gravar.', 'http_code' => 0];
+        }
+        return $this->setParameterValues($deviceId, $parameters, 20000);
     }
+
 
     /**
      * Get device statistics
      */
     public function getDeviceStats() {
-        $devices = $this->getDevices();
+       $devices = $this->getDevices([], 0, 0, ['_id', '_lastInform']);
 
         if (!$devices['success']) {
             return ['success' => false, 'error' => 'Failed to fetch devices'];
@@ -1066,37 +1035,6 @@ class GenieACS {
                 $active = isset($hostData['Active']['_value']) ? $hostData['Active']['_value'] : null;
                 $timestamp = isset($hostData['_timestamp']) ? $hostData['_timestamp'] : null;
 
-                // Physical/local interface reported by some TR-098/TR-181 firmwares.
-                // Do not infer a LAN port when the CPE only says "Ethernet".
-                $hostInterfacePath = null;
-                foreach ([
-                    'Layer2Interface',
-                    'Interface',
-                    'AssociatedDevice',
-                    'X_CT-COM_Layer2Interface',
-                    'X_HW_Layer2Interface',
-                    'X_CU_Layer2Interface',
-                    'X_FH_Layer2Interface',
-                    'X_FH_Interface',
-                    'X_CT-COM_Interface'
-                ] as $interfaceField) {
-                    if (isset($hostData[$interfaceField]['_value']) && $hostData[$interfaceField]['_value'] !== '') {
-                        $hostInterfacePath = (string)$hostData[$interfaceField]['_value'];
-                        break;
-                    }
-                }
-
-                $lanPortNumber = null;
-                if ($hostInterfacePath) {
-                    if (preg_match('/LANEthernetInterfaceConfig\.(\d+)/i', $hostInterfacePath, $m)) {
-                        $lanPortNumber = (int)$m[1];
-                    } elseif (preg_match('/Ethernet\.Interface\.(\d+)/i', $hostInterfacePath, $m)) {
-                        $lanPortNumber = (int)$m[1];
-                    } elseif (preg_match('/(?:LAN|ETH|Ethernet)[ _-]?(\d+)/i', $hostInterfacePath, $m)) {
-                        $lanPortNumber = (int)$m[1];
-                    }
-                }
-
                 // Only add devices with valid IP and MAC
                 if ($ipAddress && $macAddress) {
                     // Filter strategy: Only count hosts that were updated recently relative to device last inform
@@ -1144,8 +1082,6 @@ class GenieACS {
                         'ip_address' => $ipAddress,
                         'mac_address' => $macAddress,
                         'interface_type' => $connectionType,
-                        'interface_path' => $hostInterfacePath,
-                        'lan_port' => $lanPortNumber,
                         'active' => $active ?? true, // Default to active if not specified
                     ];
                 }
@@ -1154,6 +1090,34 @@ class GenieACS {
 
         $data['connected_devices'] = $connectedDevices;
         $data['connected_devices_count'] = count($connectedDevices);
+
+        // Clientes realmente ativos separados por banda Wi-Fi.
+        $activeConnectedDevices = array_values(array_filter(
+            $connectedDevices,
+            static function (array $item): bool {
+                $active = $item['active'] ?? true;
+                return !in_array($active, [false, 0, '0', 'false', 'False', 'FALSE'], true);
+            }
+        ));
+
+        $wifiClients24 = array_values(array_filter(
+            $activeConnectedDevices,
+            static fn(array $item): bool =>
+                ($item['interface_type'] ?? '') === 'WiFi' &&
+                ($item['wifi_band'] ?? null) === '2.4'
+        ));
+
+        $wifiClients5 = array_values(array_filter(
+            $activeConnectedDevices,
+            static fn(array $item): bool =>
+                ($item['interface_type'] ?? '') === 'WiFi' &&
+                ($item['wifi_band'] ?? null) === '5'
+        ));
+
+        $data['wifi_clients_24ghz'] = count($wifiClients24);
+        $data['wifi_clients_5ghz'] = count($wifiClients5);
+        $data['wifi_clients_24ghz_devices'] = $wifiClients24;
+        $data['wifi_clients_5ghz_devices'] = $wifiClients5;
 
         // Physical LAN Ethernet ports
         // TR-098: InternetGatewayDevice.LANDevice.1.LANEthernetInterfaceConfig.{i}

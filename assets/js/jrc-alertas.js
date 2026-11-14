@@ -582,46 +582,95 @@
     }
 
     function loadSignal() {
-        recallIxc();
-        render();
-        var serials = [];
-        var seen = {};
-        devices.forEach(function (device) {
-            var serial = String(device.serial_number || '').trim();
-            var key = normSerial(serial);
-            if (!key || seen[key] || ixcFresh(serial)) return;
-            seen[key] = 1;
-            serials.push(serial);
-        });
-        var batches = [];
-        for (var offset = 0; offset < serials.length; offset += 100) batches.push(serials.slice(offset, offset + 100));
-        var cursor = 0;
-        function pump() {
-            if (cursor >= batches.length) {
-                signalReady = true;
-                render();
-                return Promise.resolve();
-            }
-            var wave = batches.slice(cursor, cursor + 3);
-            cursor += wave.length;
-            return Promise.all(wave.map(function (batch) {
-                return postJson('/api/get-devices-ixc-batch.php', { serial_numbers: batch }).then(function (res) {
-                    if (!res || res.success === false || !res.devices) return;
-                    absorbIxc(res.devices);
-                    rememberIxc(res.devices);
-                });
-            })).then(function () {
-                render();
-                return pump();
-            });
-        }
-        if (!batches.length) {
-            signalReady = true;
-            render();
-            return Promise.resolve();
-        }
-        return pump();
+    /* JRC_ALERTS_PROGRESSIVE_IXC_V1 */
+    recallIxc();
+
+    // Libera a tela imediatamente com os dados locais/TR-069.
+    signalReady = true;
+    render();
+
+    var generation = (window.__jrcAlertsIxcGeneration || 0) + 1;
+    window.__jrcAlertsIxcGeneration = generation;
+
+    var serials = [];
+    var seen = {};
+
+    devices.forEach(function (device) {
+        var serial = String(device.serial_number || '').trim();
+        var key = normSerial(serial);
+
+        if (!key || seen[key] || ixcFresh(serial)) return;
+
+        seen[key] = 1;
+        serials.push(serial);
+    });
+
+    if (!serials.length) {
+        return Promise.resolve();
     }
+
+    // Menos carga inicial: lotes menores e sequenciais.
+    var batches = [];
+    for (var offset = 0; offset < serials.length; offset += 50) {
+        batches.push(serials.slice(offset, offset + 50));
+    }
+
+    var cursor = 0;
+    var renderTimer = null;
+
+    function scheduleRender() {
+        if (renderTimer) clearTimeout(renderTimer);
+        renderTimer = setTimeout(function () {
+            if (generation !== window.__jrcAlertsIxcGeneration) return;
+            render();
+        }, 120);
+    }
+
+    function nextBatch() {
+        if (generation !== window.__jrcAlertsIxcGeneration) return;
+        if (cursor >= batches.length) {
+            scheduleRender();
+            return;
+        }
+
+        var batch = batches[cursor++];
+
+        postJson('/api/get-devices-ixc-batch.php', {
+            serial_numbers: batch
+        }).then(function (res) {
+            if (generation !== window.__jrcAlertsIxcGeneration) return;
+
+            if (res && res.success !== false && res.devices) {
+                absorbIxc(res.devices);
+                rememberIxc(res.devices);
+                scheduleRender();
+            }
+        }).catch(function (error) {
+            console.warn('[ALERTAS] Complemento IXC em background falhou:', error);
+        }).then(function () {
+            if (generation !== window.__jrcAlertsIxcGeneration) return;
+
+            // Cede CPU/rede entre lotes para manter a interface responsiva.
+            setTimeout(nextBatch, 180);
+        });
+    }
+
+    function startBackground() {
+        if (generation !== window.__jrcAlertsIxcGeneration) return;
+
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(nextBatch, { timeout: 1200 });
+        } else {
+            setTimeout(nextBatch, 0);
+        }
+    }
+
+    // Pequeno atraso para a página terminar de pintar antes do IXC.
+    setTimeout(startBackground, 650);
+
+    // Nao bloqueia o boot da tela aguardando todos os lotes IXC.
+    return Promise.resolve();
+}
 
     function boot() {
         if (!mount()) return;

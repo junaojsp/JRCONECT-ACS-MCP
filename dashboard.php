@@ -12,6 +12,9 @@ $genieacsConfigured = isGenieACSConfigured();
 include __DIR__ . '/views/layouts/header.php';
 
 ?>
+<script src="/assets/js/jrc-tr069-apto.js?v=227a5dad58"></script>
+<!-- JRC_TR069_APTO_V1 -->
+
 
 <style>
 
@@ -1126,6 +1129,7 @@ include __DIR__ . '/views/layouts/header.php';
 .jr-ref-reset-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:5px;color:#7e8da2;font-size:7px}
 
 </style>
+<link rel="stylesheet" href="/assets/css/dashboard-reference-dark.css?v=20261029-1">
 
 
 <div class="jrc-dashboard">
@@ -1152,103 +1156,128 @@ include __DIR__ . '/views/layouts/header.php';
 <?php else: ?>
 
 
-    <!-- =====================================================
-         DASHBOARD  - MODELO REFERENCIA ESCURO
-         ===================================================== -->
+    <style>
+    html, body, .main-content, #mainContent, .content-wrapper, .page-content, .dashboard-content, .container-fluid, .container, main {
+        background: #0c0d10 !important;
+        background-image: none !important;
+    }
+    .sidebar, .sidebar-header {
+        background: #101114 !important;
+        border-color: #1c1e24 !important;
+    }
+    #sidebarToggle.sidebar-toggle {
+        background: #1c1f26 !important;
+        border: 1px solid #32353d !important;
+        color: #e8eaee !important;
+        box-shadow: none !important;
+        border-radius: 10px !important;
+    }
+    #sidebarToggle.sidebar-toggle:hover {
+        background: #2a2d34 !important;
+        color: #fff !important;
+        transform: none !important;
+    }
+    .topbar, .navbar, header.topbar, body .topbar {
+        background: #0c0d10 !important;
+        border-bottom: 1px solid #1c1e24 !important;
+    }
+    .footer { display: none !important; }
+    .fb-overview{display:block!important;color:#f3f5f7!important}
+    .fb-overview .fb-lower{display:grid!important;grid-template-columns:minmax(0,1fr) 280px!important;gap:14px!important;align-items:start!important}
+    .fb-overview *{box-sizing:border-box!important}
+    .fb-overview h1{margin:0!important;color:#f7f8fa!important;font-size:28px!important;font-weight:650!important;letter-spacing:-.03em!important;line-height:1.15!important}
+    .fb-overview .fb-page-head p{margin:6px 0 0!important;color:#8d939c!important;font-size:14px!important}
+    .fb-overview .fb-stats{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:18px 0 14px!important}
+    .fb-overview .fb-stat{display:block!important;background:#14161b!important;border:1px solid #2a2d34!important;border-radius:16px!important;padding:16px!important;min-height:118px!important;box-shadow:none!important}
+    .fb-overview .fb-stat-icon{width:34px!important;height:34px!important;max-width:34px!important;border-radius:10px!important;display:grid!important;place-items:center!important;margin:0 0 16px!important;background:#1c2030!important;color:#8eb0ff!important}
+    .fb-overview .fb-stat-icon.is-red{background:#2a1518!important;color:#ff5d5d!important}
+    .fb-overview .fb-stat-icon.is-amber{background:#2c2416!important;color:#f5b942!important}
+    .fb-overview .fb-stat-icon.is-bell{background:#2a1518!important;color:#ff6b6b!important}
+    .fb-overview .fb-stat-icon i{font-size:16px!important;line-height:1!important;width:auto!important;height:auto!important;margin:0!important;background:transparent!important;border:0!important}
+    .fb-overview .fb-stat strong{display:block!important;color:#f7f8fa!important;font-size:30px!important;font-weight:650!important;line-height:1!important;background:transparent!important;border:0!important}
+    .fb-overview .fb-stat span{display:block!important;margin-top:6px!important;color:#8d939c!important;font-size:13px!important}
+    .fb-overview .fb-panel{background:#14161b!important;border:1px solid #2a2d34!important;border-radius:16px!important;overflow:hidden!important}
+    .fb-overview .fb-panel-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:14px 16px!important;border-bottom:1px solid #2a2d34!important}
+    .fb-overview .fb-panel-head h2{margin:0!important;color:#f3f5f7!important;font-size:15px!important;font-weight:650!important}
+    .fb-overview .fb-panel-head a{color:#8d939c!important;font-size:13px!important;text-decoration:none!important}
+    .fb-overview #recent-devices{padding:0 8px 8px!important}
+    .fb-overview #recent-devices .table{margin:0!important;color:#d7dbe2!important;--bs-table-bg:#14161b;--bs-table-color:#d7dbe2;--bs-table-border-color:#2a2d34;--bs-table-hover-bg:#1b1e25;--bs-table-hover-color:#fff}
+    .fb-overview #recent-devices .table thead,
+    .fb-overview #recent-devices .table thead tr,
+    .fb-overview #recent-devices .table thead th{background:#14161b!important;background-color:#14161b!important;color:#8d939c!important;font-size:11px!important;letter-spacing:.04em!important;padding:10px 8px!important;border-color:#2a2d34!important;box-shadow:none!important}
+    .fb-overview #recent-devices .table tbody td{background:#14161b!important;background-color:#14161b!important;color:#d7dbe2!important;font-size:13px!important;padding:10px 8px!important;border-color:#26282f!important}
+    .fb-overview #recent-devices .table tbody tr:hover td{background:#1b1e25!important;background-color:#1b1e25!important}
+    .fb-overview #recent-devices a,
+    .fb-overview #recent-devices a:link,
+    .fb-overview #recent-devices a:visited,
+    .fb-overview #recent-devices .table a,
+    .fb-overview #recent-devices .table a:link,
+    .fb-overview #recent-devices .table a:visited{color:#e8eaee!important;text-decoration:none!important}
+    .fb-overview #recent-devices a:hover,
+    .fb-overview #recent-devices .table a:hover{color:#fff!important}
+    .fb-overview .fb-equip{display:flex!important;align-items:center!important;gap:10px!important;color:#f3f5f7!important;text-decoration:none!important}
+    .fb-overview .fb-equip strong{display:block!important;color:#f7f8fa!important;font-size:13px!important;font-weight:650!important}
+    .fb-overview .fb-equip small,.fb-overview .fb-muted{display:block!important;color:#8d939c!important;font-size:12px!important}
+    .fb-overview .fb-equip-icon{width:32px!important;height:32px!important;border-radius:10px!important;display:grid!important;place-items:center!important;background:#1c1f27!important;color:#c5cad3!important;flex:0 0 auto!important}
+    .fb-overview .fb-signal{display:inline-flex!important;align-items:center!important;gap:6px!important;border-radius:999px!important;padding:3px 8px!important;font-size:12px!important;font-weight:650!important;background:#1c1f27!important;color:#c5cad3!important}
+    .fb-overview .fb-signal i{font-size:8px!important}
+    .fb-overview .fb-signal.is-good{background:#143222!important;color:#3ddc84!important}
+    .fb-overview .fb-signal.is-warn{background:#3a2e14!important;color:#f5b942!important}
+    .fb-overview .fb-signal.is-bad{background:#3a1518!important;color:#ff6b6b!important}
+    .fb-overview .fb-side{padding-bottom:8px!important}
+    .fb-overview .fb-side-row{display:grid!important;grid-template-columns:4px 1fr auto!important;gap:12px!important;align-items:center!important;padding:14px 16px!important;border-top:1px solid #26282f!important}
+    .fb-overview .fb-side-row small{display:block!important;color:#8d939c!important;font-size:12px!important}
+    .fb-overview .fb-side-row strong{color:#f7f8fa!important;font-size:22px!important;font-weight:650!important}
+    .fb-overview .fb-side-bar{width:4px!important;height:28px!important;border-radius:4px!important;background:#3ddc84!important}
+    .fb-overview .fb-side-bar.is-amber{background:#f5b942!important}
+    .fb-overview .fb-side-bar.is-red{background:#ff5d5d!important}
+    .fb-overview .fb-side-bar.is-muted{background:#6d727a!important}
+    @media(max-width:1100px){.fb-overview .fb-lower{grid-template-columns:1fr!important}.fb-overview .fb-stats{grid-template-columns:1fr 1fr!important}}
+    </style>
 
-    <div class="jr-ref-shell">
-        <div class="jr-ref-top">
-            <div class="jr-ref-brand">
-                <div class="jr-ref-brand-icon"><i class="bi bi-diagram-3-fill"></i></div>
-                <div><strong>JR CONECT</strong><span>Gestão e Monitoramento de Equipamentos</span></div>
+    <div class="fb-overview">
+            <div class="fb-page-head">
+                <h1>Visão geral</h1>
+                <p>Saúde da frota de CPEs em tempo real.</p>
             </div>
-            <div class="jr-ref-search"><i class="bi bi-search"></i><input type="text" placeholder="Buscar ONU, SSID 2,4 GHz, cliente, IP, MAC..." onkeydown="if(event.key==='Enter'&&this.value.trim()){window.location='/devices.php?search='+encodeURIComponent(this.value.trim())}"></div>
-        </div>
-
-        <div class="jr-ref-grid">
-            <section class="jr-ref-card jr-ref-status">
-                <div class="jr-ref-card-head"><i class="bi bi-speedometer2"></i><strong>Status dos dispositivos</strong></div>
-                <div class="jr-ref-status-numbers">
-                    <div><strong id="ref-online">-</strong><span><i class="dot green"></i>Online</span></div>
-                    <div><strong id="ref-total">-</strong><span>Total</span></div>
-                </div>
-                <div class="jr-ref-progress"><div id="ref-online-bar"></div><b id="ref-online-pct">-</b></div>
-                <div class="jr-ref-caption">Online nas últimas 24 horas</div>
-                <div id="ref-hour-bars" class="jr-ref-hour-bars"></div>
-            </section>
-
-            <section class="jr-ref-card jr-ref-network">
-                <div class="jr-ref-card-head"><i class="bi bi-diagram-2-fill"></i><strong>Estatísticas da rede</strong><div class="jr-ref-pills"><span class="active"></span><span></span></div></div>
-                <div class="jr-ref-network-body">
-                    <div class="jr-ref-ring">
-                        <canvas id="deviceChart"></canvas>
-                        <div><strong id="ref-availability">-</strong><span>Disponibilidade</span></div>
-                    </div>
-                    <div class="jr-ref-network-side">
-                        <div class="jr-ref-auto"><i class="bi bi-check-circle-fill"></i><span>Inventário oficial do sistema</span></div>
-                        <div class="jr-ref-mini-grid">
-                            <div><strong id="ref-tr069">-</strong><span>Dispositivos gerenciados</span></div>
-                            <div><strong id="ref-critical">-</strong><span>Sinal crítico</span></div>
-                            <div><strong id="ref-nosignal">-</strong><span>Sem leitura</span></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="jr-ref-card jr-ref-ai">
-                <div class="jr-ref-card-head purple"><i class="bi bi-stars"></i><strong>Resumo por IA</strong><span class="beta">beta</span></div>
-                <div class="jr-ref-ai-body">
-                    <p id="ref-ai-summary">Analisando os dados atuais do  e do ...</p>
-                    <button type="button" onclick="document.getElementById('ref-ai-summary').textContent=buildDashboardAISummary()">Atualizar análise <i class="bi bi-arrow-right"></i></button>
-                </div>
-            </section>
-
-            <section class="jr-ref-card jr-ref-activity">
-                <div class="jr-ref-card-head"><i class="bi bi-bar-chart-line"></i><strong>Atividade da rede nas últimas 24 horas</strong></div>
-                <div class="jr-ref-activity-body">
-                    <div class="jr-ref-activity-score"><strong id="ref-active-24h">-</strong><span>equipamentos com leitura recente</span></div>
-                    <div id="ref-activity-bars" class="jr-ref-activity-bars"></div>
-                </div>
-            </section>
-
-            <section class="jr-ref-card jr-ref-models">
-                <div class="jr-ref-card-head"><i class="bi bi-hdd-stack"></i><strong>Uso de dispositivos</strong></div>
-                <div class="jr-ref-models-body">
-                    <div class="jr-ref-model-highlight">
-                        <strong id="ref-top-model">-</strong><span>Modelo mais encontrado</span>
-                        <b id="ref-top-manufacturer">-</b><small>Fabricante mais presente</small>
-                    </div>
-                    <div id="ref-model-bars" class="jr-ref-model-bars"></div>
-                </div>
-            </section>
-
-            <section class="jr-ref-card jr-ref-resets">
-                <div class="jr-ref-card-head"><i class="bi bi-arrow-repeat"></i><strong>Reinícios</strong></div>
-                <div class="jr-ref-resets-body">
-                    <div class="jr-ref-reset-main">
-                        <strong id="ref-reset-today">0</strong>
-                        <span>Reinícios hoje</span>
-                        <div class="jr-ref-reset-ok"><i class="bi bi-check-circle-fill"></i><span>Nenhuma anomalia detectada no número de reinícios</span></div>
-                    </div>
-                    <div class="jr-ref-reset-week">
-                        <strong>Últimos 7 dias</strong>
-                        <span>Média <b id="ref-reset-average">0</b></span>
-                        <div class="jr-ref-reset-bars">
-                            <i style="height:18%"></i><i style="height:26%"></i><i style="height:22%"></i><i style="height:30%"></i><i style="height:25%"></i><i style="height:20%"></i><i style="height:24%"></i>
-                        </div>
-                        <div class="jr-ref-reset-days"><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span></div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <section class="jr-ref-card jr-ref-history">
-            <div class="jr-ref-card-head">
-                <i class="bi bi-list-ul"></i><strong>Histórico de dispositivos</strong>
-                <div class="jr-ref-history-tabs"><span class="active">Todos</span><span>Recentes</span></div>
+            <div class="fb-stats">
+                <article class="fb-stat">
+                    <div class="fb-stat-icon"><i class="bi bi-router"></i></div>
+                    <strong id="ref-total">-</strong>
+                    <span>Equipamentos monitorados</span>
+                </article>
+                <article class="fb-stat">
+                    <div class="fb-stat-icon is-bell"><i class="bi bi-bell"></i></div>
+                    <strong id="fb-alerts">-</strong>
+                    <span>Alertas ativos</span>
+                </article>
+                <article class="fb-stat">
+                    <div class="fb-stat-icon is-amber"><i class="bi bi-exclamation-triangle"></i></div>
+                    <strong id="fb-weak">-</strong>
+                    <span>Sinal fraco</span>
+                </article>
+                <article class="fb-stat">
+                    <div class="fb-stat-icon is-red"><i class="bi bi-x-circle"></i></div>
+                    <strong id="ref-critical">-</strong>
+                    <span>Sinal crítico</span>
+                </article>
             </div>
-            <div id="recent-devices"><div class="spinner"></div></div>
-        </section>
+        <div class="fb-lower">
+            <section class="fb-panel">
+                <div class="fb-panel-head">
+                    <h2>Equipamentos</h2>
+                    <a href="/devices.php">Ver todos</a>
+                </div>
+                <div id="recent-devices"><div class="spinner"></div></div>
+            </section>
+        <aside class="fb-panel fb-side">
+            <div class="fb-panel-head"><h2>Sinal da frota</h2></div>
+            <div class="fb-side-row"><span class="fb-side-bar"></span><div><small>Online nas últimas 24 h</small></div><strong id="ref-online">-</strong></div>
+            <div class="fb-side-row"><span class="fb-side-bar is-amber"></span><div><small>Sinal fraco</small></div><strong id="fb-weak-side">-</strong></div>
+            <div class="fb-side-row"><span class="fb-side-bar is-red"></span><div><small>Sinal crítico</small></div><strong id="fb-critical-side">-</strong></div>
+            <div class="fb-side-row"><span class="fb-side-bar is-muted"></span><div><small>Sem leitura</small></div><strong id="fb-nosignal">-</strong></div>
+        </aside>
+        </div>
     </div>
 
 <?php endif; ?>
@@ -1543,6 +1572,10 @@ function updateChart(stats) {
 
 async function loadUplinkData() {
 
+    if (!document.getElementById('uplinkChart')) {
+        return;
+    }
+
 
     if (uplinkFetchInProgress) {
 
@@ -1834,6 +1867,29 @@ function uniqueDashboardOnus(devices) {
     });
 }
 
+
+function overviewUptime(value) {
+    const seconds = Number(value);
+    if (!Number.isFinite(seconds) || seconds <= 0) return '—';
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    if (days > 0) return days + 'd ' + hours + 'h';
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) return hours + 'h ' + minutes + 'min';
+    return Math.max(1, minutes) + ' min';
+}
+
+function overviewSeen(timestamp) {
+    const value = Number(timestamp);
+    if (!value) return '—';
+    const diff = Math.max(0, Date.now() / 1000 - value);
+    const days = Math.floor(diff / 86400);
+    if (days >= 1) return days + ' d';
+    const hours = Math.floor(diff / 3600);
+    if (hours >= 1) return hours + ' h';
+    return Math.max(1, Math.floor(diff / 60)) + ' min';
+}
+
 async function loadRecentDevices() {
     if (recentDevicesFetchInProgress) return;
     const container = document.getElementById('recent-devices');
@@ -1844,23 +1900,28 @@ async function loadRecentDevices() {
 
     function draw() {
         if (request !== recentDashboardRequest) return;
+        const signature = devices.map(device => [
+            device.device_id,
+            device.serial_number,
+            device.pppoe_username,
+            device.rx_power,
+            device.uptime,
+            device.last_inform_timestamp
+        ].join('|')).join('\n');
+        if (signature && signature === container.dataset.signature && container.querySelector('tbody')) return;
+        container.dataset.signature = signature;
             let html =
                 '<div class="table-responsive">' +
                 '<table class="table table-hover">' +
                 '<thead><tr>';
 
 
-            html += '<th>Serial</th>';
-            html += '<th>MAC</th>';
-            html += '<th>Modelo</th>';
-            html += '<th>IP</th>';
-            html += '<th>SSID 2,4 GHz</th>';
-            html += '<th>PPPoE</th>';
-            html += '<th>RX</th>';
-            html += '<th>Temperatura</th>';
-            html += '<th>Clientes</th>';
-            html += '<th>Status</th>';
-            html += '<th>Ações</th>';
+            html += '<th>Equipamento</th>';
+            html += '<th>Cliente (PPPoE)</th>';
+            html += '<th>IP WAN</th>';
+            html += '<th>Sinal RX</th>';
+            html += '<th>Uptime</th>';
+            html += '<th>Visto</th>';
 
 
             html +=
@@ -1868,237 +1929,32 @@ async function loadRecentDevices() {
 
 
 
-            devices.forEach(
-                device => {
-
-
-                    const ipAddress =
-                        extractIP(
-                            device.ip_tr069
-                        );
-
-
-                    /*
-                     * IP.
-                     */
-
-                    let ipDisplay;
-
-
-                    if (
-                        ipAddress !== 'N/A' &&
-                        ipAddress !== ''
-                    ) {
-
-
-                        ipDisplay =
-                            `<a href="http://${ipAddress}" target="_blank" rel="noopener noreferrer">${ipAddress}</a>`;
-
-
-                    } else {
-
-
-                        ipDisplay =
-                            ipAddress;
-
-
+            devices.forEach(device => {
+                    const ipAddress = extractIP(device.ip_tr069);
+                    const ipDisplay = (ipAddress && ipAddress !== 'N/A')
+                        ? `<a href="http://${escapeDashboardHtml(ipAddress)}" target="_blank" rel="noopener noreferrer">${escapeDashboardHtml(ipAddress)}</a>`
+                        : '—';
+                    const titleParts = [device.manufacturer, device.product_class].filter(part => part && part !== 'N/A' && part !== 'N/D');
+                    const title = escapeDashboardHtml(titleParts.join(' ') || 'Equipamento');
+                    const serial = escapeDashboardHtml(device.serial_number || '—');
+                    const clientRaw = String(device.pppoe_username || '').trim();
+                    const client = (!clientRaw || clientRaw === 'N/A' || clientRaw === 'N/D') ? '—' : escapeDashboardHtml(clientRaw);
+                    const rxPower = parseFloat(device.rx_power);
+                    let signal = '<span class="fb-signal is-muted"><i class="bi bi-circle-fill"></i>Sem dado</span>';
+                    if (!isNaN(rxPower) && rxPower !== -999) {
+                        const band = rxPower > -25 ? 'is-good' : (rxPower > -27 ? 'is-warn' : 'is-bad');
+                        signal = `<span class="fb-signal ${band}"><i class="bi bi-circle-fill"></i>${escapeDashboardHtml(Number(rxPower).toFixed(2))} dBm</span>`;
                     }
-
-
-                    /*
-                     * Clientes.
-                     */
-
-                    const clientsCount =
-                        device.connected_devices_count ||
-                        0;
-
-
-                    let clientsBadge;
-
-
-                    if (
-                        clientsCount > 0
-                    ) {
-
-
-                        clientsBadge =
-                            `<span class="badge bg-primary">${clientsCount}</span>`;
-
-
-                    } else {
-
-
-                        clientsBadge =
-                            '<span class="badge bg-secondary">0</span>';
-
-
-                    }
-
-
-                    /*
-                     * Potência RX.
-                     */
-
-                    const rxPower =
-                        parseFloat(
-                            device.rx_power
-                        );
-
-
-                    let rxBadgeClass =
-                        'bg-secondary';
-
-
-                    let rxDisplay =
-                        device.rx_power;
-
-
-                    if (
-                        !isNaN(rxPower) &&
-                        rxPower !== -999
-                    ) {
-
-
-                        if (
-                            rxPower > -25
-                        ) {
-
-
-                            rxBadgeClass =
-                                'bg-success';
-
-
-                        } else if (
-                            rxPower > -27
-                        ) {
-
-
-                            rxBadgeClass =
-                                'bg-warning';
-
-
-                        } else {
-
-
-                            rxBadgeClass =
-                                'bg-danger';
-
-
-                        }
-
-
-                        rxDisplay =
-                            `<span class="badge ${rxBadgeClass}">${device.rx_power} dBm</span>`;
-
-
-                    } else {
-
-
-                        rxDisplay =
-                            `<span class="badge ${rxBadgeClass}">N/D</span>`;
-
-
-                    }
-
-
-                    /*
-                     * Status.
-                     */
-
-                    let statusBadge;
-
-
-                    if (
-                        device.status === 'online'
-                    ) {
-
-
-                        const ping =
-                            device.ping ||
-                            '-';
-
-
-                        statusBadge =
-                            `<span class="badge online">ONLINE [${ping}ms]</span>`;
-
-
-                    } else {
-
-
-                        statusBadge =
-                            '<span class="badge offline">OFFLINE [-]</span>';
-
-
-                    }
-
-
-                    /*
-                     * Linha.
-                     */
-
-                    html += '<tr>';
-
-
-                    html +=
-                        `<td><a href="/device-detail.php?id=${encodeURIComponent(device.device_id)}">${device.serial_number}</a></td>`;
-
-
-                    html +=
-                        `<td>${device.mac_address || 'N/D'}</td>`;
-
-
-                    html +=
-                        `<td>${device.product_class || 'N/D'}</td>`;
-
-
-                    html +=
-                        `<td>${ipDisplay}</td>`;
-
-
-                    html +=
-                        `<td>${device.wifi_ssid_24ghz ?? device.wifi_ssid ?? 'N/D'}</td>`;
-
-
-                    html +=
-                        `<td>${device.pppoe_username || 'N/D'}</td>`;
-
-
-                    html +=
-                        `<td>${rxDisplay}${onuReadingLabel(device.reading_source || "TR-069", device.reading_queried_at, device.reading_measured_at)}</td>`;
-
-
-                    html +=
-                        `<td>${device.temperature || 'N/A'}°C</td>`;
-
-
-                    html +=
-                        `<td class="text-center">${clientsBadge}</td>`;
-
-
-                    html +=
-                        `<td>${statusBadge}</td>`;
-
-
-                    html +=
-                        '<td>';
-
-
-                    html +=
-                        `<button class="btn btn-sm btn-primary" onclick="summonDeviceQuick('${device.device_id}')" title="Solicitar comunicação"><i class="bi bi-lightning-charge"></i></button>`;
-
-
-                    html +=
-                        '</td>';
-
-
-                    html +=
-                        '</tr>';
-
-
-                }
-            );
-
+                    const href = '/device-detail.php?id=' + encodeURIComponent(device.device_id || '');
+                    html += '<tr>'
+                        + `<td><a class="fb-equip" href="${href}"><span class="fb-equip-icon"><i class="bi bi-router"></i></span><span><strong>${title}</strong><small>${serial}</small></span></a></td>`
+                        + `<td class="fb-muted">${client}</td>`
+                        + `<td>${ipDisplay}</td>`
+                        + `<td>${signal}</td>`
+                        + `<td>${escapeDashboardHtml(overviewUptime(device.uptime))}</td>`
+                        + `<td class="fb-muted">${escapeDashboardHtml(overviewSeen(device.last_inform_timestamp))}</td>`
+                        + '</tr>';
+                });
 
             html +=
                 '</tbody></table></div>';
@@ -2110,19 +1966,18 @@ async function loadRecentDevices() {
     }
 
     if (devices.length) draw();
-    else container.innerHTML = '<div class="spinner"></div>';
+    else if (!container.querySelector('tbody')) container.innerHTML = '<div class="spinner"></div>';
 
     try {
         const result = await fetchAPI('/api/recent-devices.php', { timeout: 25000 });
         if (!result?.success) throw new Error(result?.message || 'Consulta indisponível');
         devices = uniqueDashboardOnus(Array.isArray(result.devices) ? result.devices : []);
-        recentDashboardDevices = devices;
         if (!devices.length) {
-            container.innerHTML = '<p class="text-center text-muted">Nenhuma atividade recente encontrada</p>';
+            if (!container.querySelector('tbody')) {
+                container.innerHTML = '<p class="text-center text-muted">Nenhuma atividade recente encontrada</p>';
+            }
             return;
         }
-        // Render before requesting IXC information.
-        draw();
         const serialNumbers = devices.map(device => device.serial_number);
         await Promise.allSettled([
             (async () => {
@@ -2143,13 +1998,14 @@ async function loadRecentDevices() {
                         reading_measured_at: ixc.rx_power != null ? ixc.last_signal_update : null
                     };
                 });
-                recentDashboardDevices = devices;
-                draw();
             })()
         ]);
+        recentDashboardDevices = devices;
+        draw();
     } catch (error) {
         console.warn('Consulta da dashboard indisponível:', error);
-        if (!devices.length) container.innerHTML = '<p class="text-center text-danger">Falha ao carregar os equipamentos. Atualize a página.</p>';
+        if (devices.length) draw();
+        else if (!container.querySelector('tbody')) container.innerHTML = '<p class="text-center text-danger">Falha ao carregar os equipamentos. Atualize a página.</p>';
     } finally {
         recentDevicesFetchInProgress = false;
     }
@@ -2297,12 +2153,15 @@ async function confirmSummon() {
    INICIALIZAÇÃO
    ========================================================== */
 
+const overviewDeviceLoader = loadRecentDevices;
+
 document.addEventListener(
 
     'DOMContentLoaded',
 
     function() {
 
+        window.loadRecentDevices = overviewDeviceLoader;
 
         <?php if ($genieacsConfigured): ?>
 
@@ -2311,7 +2170,7 @@ document.addEventListener(
 
             loadUplinkData();
 
-            loadRecentDevices();
+            overviewDeviceLoader();
 
 
             /*
@@ -2327,7 +2186,7 @@ document.addEventListener(
 
                     loadUplinkData();
 
-                    loadRecentDevices();
+                    overviewDeviceLoader();
 
 
                 },
@@ -2474,7 +2333,7 @@ function updateServicesSummary() {
 function refreshFinalDashboard() {
     clearOnuReadCache();
     loadFinalDiscoveryData();
-    loadRecentDevices();
+    overviewDeviceLoader();
 }
 
 setInterval(updateDashboardClock, 1000);
@@ -2565,7 +2424,7 @@ function renderReferenceDashboard(devices, summary) {
         return Number.isFinite(t) ? t : null;
     };
 
-    let online = 0, critical = 0, noSignal = 0, active24 = 0;
+    let online = 0, critical = 0, weak = 0, noSignal = 0, active24 = 0;
     const hourly = Array(24).fill(0);
     const models = {};
     const manufacturers = {};
@@ -2588,6 +2447,8 @@ function renderReferenceDashboard(devices, summary) {
         } else if (rx <= -27) {
             critical++;
             if (alerts.length < 5) alerts.push({cls:'critical', text:'Sinal crítico - ' + (d?.serial || 'ONU')});
+        } else if (rx <= -25) {
+            weak++;
         }
 
         const model = (d?.acs?.product_class || d?.ixc?.onu_tipo || 'Não identificado').trim() || 'Não identificado';
@@ -2609,6 +2470,11 @@ function renderReferenceDashboard(devices, summary) {
     set('ref-availability', availability+'%');
     set('ref-tr069', fmt(summary?.tr069_active || 0));
     set('ref-critical', fmt(critical));
+    set('fb-critical-side', fmt(critical));
+    set('fb-weak', fmt(weak));
+    set('fb-weak-side', fmt(weak));
+    set('fb-nosignal', fmt(noSignal));
+    set('fb-alerts', fmt(critical + weak + noSignal));
     set('ref-nosignal', fmt(noSignal));
     set('ref-active-24h', fmt(active24));
 
@@ -2669,6 +2535,12 @@ function buildDashboardAISummary() {
 
 <?php
 
+/* JRC_INVENTORY_SAFE_V3_START */
+echo '<link rel="stylesheet" href="/assets/css/jrc-inventory-safe-v3.css?v=20261022-3">';
+echo '<script src="/assets/js/jrc-inventory-safe-v3.js?v=20261022-3"></script>';
+/* JRC_INVENTORY_SAFE_V3_END */
 include __DIR__ . '/views/layouts/footer.php';
 
 ?>
+
+<link rel="stylesheet" href="/assets/css/jrc-inventory.css?v=20261022">

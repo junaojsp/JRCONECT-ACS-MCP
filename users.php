@@ -284,6 +284,10 @@ while ($row = $result->fetch_assoc()) {
 include __DIR__ . '/views/layouts/header.php';
 
 ?>
+<script>document.documentElement.classList.add('jrc-neutro-page')</script>
+<link rel="stylesheet" href="/assets/css/jrc-neutro.css?v=8d5503daf8">
+<!-- JRC_NEUTRO_V1 -->
+
 
 <style>
 
