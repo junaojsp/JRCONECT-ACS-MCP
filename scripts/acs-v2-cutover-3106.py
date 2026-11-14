@@ -25,6 +25,7 @@ NGINX_LINK = Path("/etc/nginx/sites-enabled/mcp.jrconect.com")
 STATEDIR = Path("/root/jrc-acs-v2-cutover-3106")
 STATE = STATEDIR / "state.json"
 BACKUP = STATEDIR / "nginx-mcp-pre-acs-v2.conf"
+NEGATIVE_GATE = STATEDIR / "negative-auth-gate-3106.json"
 LOCK = STATEDIR / ".lock"
 OLD = "jrconect-mcp-opa-ready"
 NEW = "jrconect-mcp-acs-hml-v2"
@@ -207,6 +208,24 @@ def preflight():
     old_id, new_id = compare_containers()
     return path, source, changed, old_id, new_id
 
+def verify_negative_gate(new_image):
+    if NEGATIVE_GATE.is_symlink() or not NEGATIVE_GATE.is_file():
+        fail("TESTE_NEGATIVO_OAUTH_REAL_PENDENTE")
+    try:
+        receipt = json.loads(NEGATIVE_GATE.read_text("utf8"))
+    except (OSError, ValueError):
+        fail("RECIBO_NEGATIVO_INVALIDO")
+    if (receipt.get("result") != "verified-denied"
+        or receipt.get("mode") != "oauth-valid-token-without-acs-role"
+        or receipt.get("port") != NEW_PORT
+        or receipt.get("container_image") != new_image):
+        fail("RECIBO_NEGATIVO_NAO_CORRESPONDE_A_IMAGEM")
+    stamp = receipt.get("verified_at")
+    if not isinstance(stamp, int) or not (0 <= time.time()-stamp <= 43200):
+        fail("TESTE_NEGATIVO_EXPIRADO")
+    return True
+
+
 def secure_dir():
     if STATEDIR.is_symlink():
         fail("STATE_DIR_LINK_NAO_PERMITIDO")
@@ -252,6 +271,7 @@ def activate():
     if STATE.exists() or BACKUP.exists():
         fail("BACKUP_ANTERIOR_EXISTE_USAR_STATUS_OU_ROLLBACK")
     path, old, changed, old_image, new_image = preflight()
+    verify_negative_gate(new_image)
     fd = guarded_lock()
     try:
         if STATE.exists() or BACKUP.exists() or path.read_bytes() != old:
@@ -380,6 +400,11 @@ def plan():
     print("ADMINISTRACAO ACS: DESABILITADA")
     print("BLOCO ALTERADO: APENAS location = /mcp")
     print("BACKUP STATE:", "EXISTENTE - BLOQUEIA ATIVACAO" if STATE.exists() or BACKUP.exists() else "LIVRE")
+    try:
+        verify_negative_gate(new_image)
+        print("TESTE NEGATIVO OAUTH REAL: OK")
+    except Blocked:
+        print("TESTE NEGATIVO OAUTH REAL: PENDENTE OU INVALIDO - NAO ATIVAR")
     print("PLANO OK - NENHUMA ALTERACAO")
 
 def main():
