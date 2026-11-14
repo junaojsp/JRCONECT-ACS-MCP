@@ -35,6 +35,17 @@ sudo python3 /tmp/acs-v2-hml-3106.py status
 
 Se houver bloqueio, nao renomear/remover os containers para forcar o teste. Verificar motivo. O script remove apenas o container `jrconect-mcp-acs-hml-v2` se falhar no startup e nao faz rollback de Nginx/producao porque ele nao toca nesses componentes.
 
+## Teste OAuth real na nova HML 3106 (apos start)
+
+O teste ja homologado de Keycloak, `scripts/acs-oauth-pkce-hml.py`, agora aceita `--hml-port 3106`; por padrao continua 3105. Ele compara a lista de tools na 3104 com a 3106, rejeita ferramentas antigas ausentes e executa somente as duas ferramentas ACS de leitura **na 3106**. Nao executa tools/call na producao 3104.
+
+```bash
+python3 /tmp/acs-oauth-pkce-hml.py --check --hml-port 3106
+python3 /tmp/acs-oauth-pkce-hml.py --hml-port 3106
+```
+
+**IMPORTANTE:** atualizar o arquivo `/tmp/acs-oauth-pkce-hml.py` com o commit aprovado mais recente ANTES de usar `--hml-port`. A versao antiga da PR #156 nao reconhece esse argumento. Nunca colar a URL de retorno com `code` e `state` no ChatGPT, screenshots ou mensagens. Copiar a URL completa apenas ao campo oculto do PuTTY conforme o procedimento ja homologado pelo usuario. O login Keycloak usa `mcp-teste` sem modificar sua senha ou o cliente OAuth.
+
 ## Gates para incorporar as ferramentas
 
 Ainda precisamos:
