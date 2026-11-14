@@ -1,0 +1,24 @@
+name: ACS per-handler overlay HML (read-only)
+on:
+  pull_request:
+    paths:
+      - 'scripts/stage-acs-per-handler-hml.py'
+      - 'tests/stage_acs_per_handler_hml_test.py'
+      - '.github/workflows/acs-per-handler-hml.yml'
+      - 'scripts/README-acs-per-handler-hml.md'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/stage-acs-per-handler-hml.py'
+      - 'tests/stage_acs_per_handler_hml_test.py'
+      - '.github/workflows/acs-per-handler-hml.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/stage-acs-per-handler-hml.py tests/stage_acs_per_handler_hml_test.py
+      - run: python3 -m unittest discover -s tests -p 'stage_acs_per_handler_hml_test.py' -v

@@ -1,0 +1,253 @@
+#!/usr/bin/env python3
+"""Stage-only ACS overlay V2: preserve EXACT old per-role MCP handler routing.
+
+Reads only the already-running, isolated ACS HML on 3105, patches a PRIVATE
+temporary copy of its server.js and optionally builds a NEW Docker image.
+Does not start/stop containers, change Nginx, publish ports, change OAuth,
+alter production (3104), HML (3105), keys, env, shared /data or plugins.
+
+The V1 all-scopes ACS route is replaced by ACS-enhanced variants of the
+EXISTING handlers. The original dispatch is not changed.
+"""
+import argparse
+import hashlib
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tempfile
+import time
+
+SOURCE_CONTAINER = "jrconect-mcp-acs-hml"
+SOURCE_IMAGE = "jrconect-mcp:acs-readonly-stage-20261114T022110Z"
+SOURCE_SERVER = "/app/server.js"
+TARGET_IMAGE_PREFIX = "jrconect-mcp:acs-per-handler-stage-"
+PORTS_TO_PRESERVE = (3100, 3103, 3104, 3105)
+OVERLAY_MARKER = "JRC_ACS_PER_HANDLER_V2"
+
+
+class Blocked(Exception):
+    pass
+
+
+def fail(reason):
+    raise Blocked(reason)
+
+
+def command(*args, timeout=40, stdout=False):
+    try:
+        p = subprocess.run(
+            args, check=False, stdout=subprocess.PIPE if stdout else subprocess.DEVNULL,
+            stderr=subprocess.PIPE, timeout=timeout,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        fail("FALHA_COMANDO_OU_TIMEOUT")
+    if p.returncode:
+        fail("COMANDO_FALHOU_" + str(args[0]) + "_" + str(p.returncode))
+    return p.stdout.decode("utf-8").strip() if stdout else None
+
+
+def health(port):
+    if port not in PORTS_TO_PRESERVE:
+        fail("PORTA_NAO_AUTORIZADA")
+    command("curl", "--fail", "--silent", "--show-error", "--max-time", "5",
+            "http://127.0.0.1:" + str(port) + "/health", timeout=8)
+
+
+def replace_once(source, pattern, replacement, name, *, flags=0):
+    matches = list(re.finditer(pattern, source, flags))
+    if len(matches) != 1:
+        fail("ESTRUTURA_DIVERGENTE_" + name + "_" + str(len(matches)))
+    match = matches[0]
+    return source[:match.start()] + replacement(match) + source[match.end():]
+
+
+def patch_server(source):
+    if OVERLAY_MARKER in source:
+        fail("OVERLAY_V2_JA_APLICADO")
+    for required in (
+        "JRC_ACS_READONLY_OVERLAY_V1",
+        "acsMonitorAuthorized", "acsRequestContext",
+        "registerAcsMonitorTools", "includeAcs",
+        "const acsCentralReadHandler", "const mcpHandler = toNodeHandler(handler);",
+        "const payload = await validarToken(match[1]);",
+        "pabxCentralMcpHandlers",
+    ):
+        if required not in source:
+            fail("ESTRUTURA_DIVERGENTE_ANCHOR_" + required)
+
+    # Remove exactly V1 handler, which mixed *all* six scopes independent of
+    # original routing. The module/factory's "includeAcs" remains untouched.
+    source = replace_once(
+        source,
+        r'(?m)^[ \t]*const acsCentralReadHandler[ \t]*=[ \t]*toNodeHandler'
+        r'\(makeMcpHandler\(true,[ \t]*true,[ \t]*true,[ \t]*true,'
+        r'[ \t]*true,[ \t]*true,[ \t]*true\)\);[ \t]*\n',
+        lambda _: "",
+        "V1_HANDLER",
+    )
+    source = replace_once(
+        source,
+        r'(?ms)^[ \t]*// JRC_ACS_READONLY_OVERLAY_V1: only all-scopes admins;'
+        r'[^\n]*\n[ \t]*if \(acsMonitorAuthorized\(payload\) &&'
+        r'.*?\n[ \t]*}[ \t]*\n'
+        r'(?=[ \t]*if \(process\.env\.SHIELD_MCP_ALLOWED_SUB)',
+        lambda _: "",
+        "V1_ROUTE",
+    )
+    if "acsCentralReadHandler" in source:
+        fail("V1_HANDLER_REFERENCIA_RESTANTE")
+
+    # Preserve every one of the original dispatch branches and bitmask tables.
+    # Every old precompiled handler receives an ACS-aware wrapper with the same
+    # six booleans. The ACS variant is lazily built ONLY when that very request
+    # has passed acsMonitorAuthorized; other users see the original handler.
+    pattern = r'toNodeHandler\s*\(\s*makeMcpHandler\s*\(([^()]*)\)\s*\)'
+    matches = list(re.finditer(pattern, source))
+    if len(matches) < 8:
+        fail("HANDLERS_LEGADOS_INSUFICIENTES_" + str(len(matches)))
+    count = 0
+
+    def replace_handler(m):
+        nonlocal count
+        args = [x.strip() for x in m.group(1).split(",")]
+        if len(args) != 6 or any(x not in ("true", "false") for x in args):
+            fail("HANDLER_ASSINATURA_NAO_SUPORTADA")
+        count += 1
+        return "acsAwareNodeHandler(" + ", ".join(args) + ")"
+
+    source = re.sub(pattern, replace_handler, source)
+    if "toNodeHandler(makeMcpHandler(" in source:
+        fail("HANDLERS_SEM_OVERLAY")
+    source = replace_once(
+        source,
+        r'(?m)^([ \t]*)const mcpHandler = toNodeHandler\(handler\);[ \t]*$',
+        lambda m: m.group(0) + """
+// """ + OVERLAY_MARKER + """: preserve the EXACT original selected handler.
+// No ACS role -> original handler. ACS role -> same six scopes plus ACS reads.
+const acsAwareNodeHandler = (...legacyFlags) => {
+  if (legacyFlags.length !== 6 || legacyFlags.some(x => typeof x !== "boolean")) {
+    throw new Error("ACS_HANDLER_FLAGS_INVALIDAS");
+  }
+  const existingHandler = toNodeHandler(makeMcpHandler(...legacyFlags));
+  let acsEnhancedHandler = null;
+  return (req, res) => {
+    const validatedJwt = acsRequestContext.getStore();
+    if (!acsMonitorAuthorized(validatedJwt)) {
+      return existingHandler(req, res);
+    }
+    if (!acsEnhancedHandler) {
+      acsEnhancedHandler = toNodeHandler(makeMcpHandler(...legacyFlags, true));
+    }
+    return acsEnhancedHandler(req, res);
+  };
+};
+""",
+        "INSERT_HELPER",
+    )
+
+    # Bind the *already validated* Keycloak token to the original async HTTP
+    # request context; no user-controlled token claim enters here.
+    source = replace_once(
+        source,
+        r'(?m)^([ \t]*)const payload = await validarToken'
+        r'\(match\[1\]\);[ \t]*\n'
+        r'(?=[ \t]*if \(process\.env\.SHIELD_MCP_ALLOWED_SUB)',
+        lambda m: (m.group(0) + m.group(1) +
+                   "acsRequestContext.enterWith(payload); // " +
+                   OVERLAY_MARKER + ": per-request, validated JWT only\n"),
+        "OAUTH_CONTEXT",
+    )
+    if source.count(OVERLAY_MARKER) != 2:
+        fail("OVERLAY_MARKER_COUNT")
+    if "acsCentralReadHandler" in source or "registerAcsAdminTools" in source:
+        fail("ADMIN_OU_HANDLER_V1_RESTANTE")
+    return source, count
+
+
+def inspect_prereqs():
+    for port in PORTS_TO_PRESERVE:
+        health(port)
+    state = command("docker", "inspect", "-f",
+                    "{{.State.Running}}", SOURCE_CONTAINER, stdout=True)
+    if state != "true":
+        fail("HML_3105_INDISPONIVEL")
+    existing = command("docker", "inspect", "-f",
+                       "{{.Image}}", SOURCE_CONTAINER, stdout=True)
+    expected = command("docker", "image", "inspect", "-f",
+                       "{{.Id}}", SOURCE_IMAGE, stdout=True)
+    if existing != expected or not expected.startswith("sha256:"):
+        fail("IMAGEM_HML_DIVERGENTE")
+    return expected
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("action", choices=("plan", "stage"))
+    args = parser.parse_args()
+    if subprocess.run(["id", "-u"], capture_output=True, text=True).stdout.strip() != "0":
+        fail("EXECUTE_COM_SUDO")
+    before = inspect_prereqs()
+    with tempfile.TemporaryDirectory(prefix="acs-overlay-v2-", dir="/root") as wd:
+        work = Path(wd)
+        original_path = work / "server-original.js"
+        patched_path = work / "server-patched.js"
+        command("docker", "cp", SOURCE_CONTAINER + ":" + SOURCE_SERVER,
+                str(original_path))
+        original = original_path.read_text("utf-8")
+        patched, n = patch_server(original)
+        patched_path.write_text(patched, encoding="utf-8")
+        patched_path.chmod(0o600)
+        # Node syntax validation in a short-lived disconnected, readonly sandbox.
+        command("docker", "run", "--rm", "--network", "none", "--read-only",
+                "--cap-drop", "ALL", "--security-opt", "no-new-privileges",
+                "--user", "0", "--entrypoint", "node",
+                "--mount", "type=bind,src=" + str(patched_path) +
+                ",dst=/tmp/server.js,readonly",
+                SOURCE_IMAGE, "--check", "/tmp/server.js", timeout=35)
+        print("=== ACS HANDLERS POR PERMISSAO - HML ===")
+        print("HANDLERS LEGADOS TRANSFORMADOS:", n)
+        print("ASSINATURA JS: OK")
+        print("ROTEAMENTO EXISTENTE: PRESERVADO")
+        print("AUTORIZACAO ACS: INDEPENDENTE; ROLE E ALLOWLIST OBRIGATORIAS")
+        print("ADMINISTRACAO ACS: DESABILITADA")
+        print("SOURCE_HASH:", hashlib.sha256(original.encode()).hexdigest()[:16])
+        print("PATCH_HASH:", hashlib.sha256(patched.encode()).hexdigest()[:16])
+        if args.action == "plan":
+            print("PLANO OK: NENHUMA ALTERACAO")
+            return
+
+        tag = TARGET_IMAGE_PREFIX + time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+        dockerfile = work / "Dockerfile"
+        dockerfile.write_text(
+            "FROM " + SOURCE_IMAGE + "\n"
+            "USER root\n"
+            "COPY --chmod=0644 server-patched.js /app/server.js\n"
+            "USER node\n", encoding="utf8")
+        command("docker", "build", "--pull=false", "--network", "none", "-f",
+                str(dockerfile), "-t", tag, str(work), timeout=120)
+        command("docker", "run", "--rm", "--network", "none", "--read-only",
+                "--cap-drop", "ALL", "--entrypoint", "node", tag,
+                "--check", "/app/server.js", timeout=35)
+        after = command("docker", "inspect", "-f",
+                        "{{.Image}}", SOURCE_CONTAINER, stdout=True)
+        if before != after:
+            fail("HML_ALTERADA_DURANTE_STAGE")
+        for port in PORTS_TO_PRESERVE:
+            health(port)
+        print("IMAGEM_CANDIDATA_V2:", tag)
+        print("CONTAINERS/Nginx/PRODUCAO: NENHUM ALTERADO")
+        print("PENDENTE: HML isolada 3106 + OAuth real + catalogo + chamadas ACS")
+        print("NAO EXECUTAR activate ou trocar porta 3104")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Blocked as e:
+        print("BLOQUEADO:", str(e), file=sys.stderr)
+        sys.exit(2)
+    except Exception:
+        print("BLOQUEADO: ERRO_INESPERADO (sem expor conteudo sensivel)",
+              file=sys.stderr)
+        sys.exit(2)
