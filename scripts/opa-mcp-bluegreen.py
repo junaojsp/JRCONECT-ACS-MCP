@@ -273,6 +273,12 @@ def activate():
         fail("candidata nao esta saudavel")
     if green["Id"]!=state["green_id"] or green["Image"]!=state["candidate_image"]:
         fail("a candidata mudou depois do preparo")
+    persistent=state.get("persistent_data")
+    mount=next((m for m in green.get("Mounts",[]) if m["Destination"]=="/data"),None)
+    if not persistent or not mount or mount.get("Type")!="bind" or not mount.get("RW") or mount.get("Source")!=persistent:
+        fail("Green ainda sem /data persistente validado; nao ativar")
+    if not (pathlib.Path(persistent)/"connections.json").is_file():
+        fail("Historico de conexoes nao encontrado no /data persistente")
     if live["Image"]!=state["production_image"]:
         fail("imagem atual da producao mudou; abortando")
     path=config_path()
