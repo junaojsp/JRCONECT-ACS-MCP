@@ -1,0 +1,24 @@
+name: ACS HML 3105 safety
+on:
+  pull_request:
+    paths:
+      - 'scripts/acs-hml-3105.py'
+      - 'tests/acs_hml_3105_test.py'
+      - 'scripts/README-acs-hml-3105.md'
+      - '.github/workflows/acs-hml-3105.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/acs-hml-3105.py'
+      - 'tests/acs_hml_3105_test.py'
+      - '.github/workflows/acs-hml-3105.yml'
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/acs-hml-3105.py tests/acs_hml_3105_test.py
+      - run: python3 -m unittest discover -s tests -p 'acs_hml_3105_test.py' -v
