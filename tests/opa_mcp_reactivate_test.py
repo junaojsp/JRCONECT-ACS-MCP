@@ -45,6 +45,7 @@ class ReactivationTests(unittest.TestCase):
             "green_id": "candidate-id",
             "candidate_image": "candidate-image",
             "production_image": "production-image",
+            "persistent_data": str(self.persist),
             "nginx_path": str(self.nginx),
             "nginx_original_sha256": hashlib.sha256(NGINX_ORIGINAL.encode()).hexdigest(),
         }
