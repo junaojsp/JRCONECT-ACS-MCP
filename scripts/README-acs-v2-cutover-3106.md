@@ -35,11 +35,23 @@ sudo python3 /tmp/acs-v2-cutover-3106.py plan
 
 Se `BLOQUEADO`, não usar `activate`; enviar somente o código do bloqueio e corrigir com nova PR, mantendo os servidores como estão.
 
-## Passo 2: validar negação de acesso ACS ao usuário sem role
+## Passo 2: testar OAuth real sem a permissão ACS
 
-Antes de promover, usar uma conta de homologação Keycloak **distinta** do usuário `mcp-teste`, autenticada com OAuth e sem `acs-mcp-admin`, para verificar que 3106 NÃO anuncia as tools ACS. Não retire a role de `mcp-teste` nem altere suas senhas/credenciais. Caso não exista conta de testes sem role, NÃO alegar que o gate passou.
+Este gate é OBRIGATÓRIO. A PR também amplia o teste OAuth `scripts/acs-oauth-pkce-hml.py` com `--expect-no-acs`, `--login-hint` e gravação de recibo **sem token** vinculado à imagem Docker verificada.
 
-As funções de autorização ACS já rejeitam JWT fictício sem role; falta comprovar o fluxo real. Guardar somente a evidência sem token/URL de retorno, não registrar dados pessoais.
+Utilize uma conta Keycloak **distinta** de `mcp-teste` que NÃO possua a role `acs-mcp-admin`. Exemplo de nome da conta: `acs-sem-role`, apenas se essa conta for criada por um administrador. Não remover a role de `mcp-teste` nem alterar credenciais de produção.
+
+Depois de baixar o `acs-oauth-pkce-hml.py` do SHA desta PR, execute (exemplo, substituindo pelo nome do usuário real sem role):
+
+```bash
+sudo python3 /tmp/acs-oauth-pkce-hml.py --hml-port 3106 --expect-no-acs --login-hint acs-sem-role
+```
+
+O login é feito no navegador com PKCE, da mesma forma já utilizada no teste real `mcp-teste`; o retorno OAuth é colado **apenas** no campo oculto do PuTTY. O script valida o JWT retornado pelo Keycloak, bloqueia caso `acs-mcp-admin` esteja presente, executa somente `initialize` e `tools/list` nas portas 3104/3106, confirma que nenhuma ferramenta ACS aparece e que nenhuma ferramenta antiga do usuário está ausente. **Não executa `tools/call` com essa identidade.**
+
+Apenas quando o resultado mostrar `NEGATIVO: OK` o script salvará o recibo de aprovação em `/root/jrc-acs-v2-cutover-3106/negative-auth-gate-3106.json`, contendo SOMENTE estado OK, horário, porta e ID da imagem candidata (nenhuma credencial ou identidade).
+
+O comando `activate` valida automaticamente que esse recibo foi gerado para a imagem 3106 **atual** e tem menos de 12 horas. Sem recibo, imagem divergente ou recibo expirado, a ativação é bloqueada. Esse processo evita exigir que o operador cole tokens no ChatGPT.
 
 ## Passo 3: ativação controlada
 
