@@ -51,7 +51,7 @@ def patch_server(source):
         fail("ESTRUTURA_DIVERGENTE: ACS ja esta presente; reconciliar, sem duplicar")
     for anchor in ("makeMcpHandler", "createMcpHandler", "registerOpaApiTools",
                    "opaApiAuthorized", "pabxAdminAuthorized", "financeMcpAuthorized",
-                   "ixcWebserviceAuthorized", "SHIELD_MCP_ALLOWED_SUB",
+                   "ixcWebserviceAuthorized", "pabxReadAuthorized", "SHIELD_MCP_ALLOWED_SUB",
                    "const mcpHandler = toNodeHandler(handler);"):
         if anchor not in source:
             fail("ESTRUTURA_DIVERGENTE: falta ancora "+anchor)
@@ -103,7 +103,7 @@ def patch_server(source):
         space+"// JRC_ACS_READONLY_OVERLAY_V1: only all-scopes admins; strict per-request OAuth context.\n"
         +space+"if (acsMonitorAuthorized(payload) &&\n"
         +space+"    financeMcpAuthorized(payload) && opaApiAuthorized(payload) &&\n"
-        +space+"    ixcWebserviceAuthorized(payload) && pabxAdminAuthorized(payload) &&\n"
+        +space+"    ixcWebserviceAuthorized(payload) && pabxReadAuthorized(payload) &&\n"\n        +space+"    pabxAdminAuthorized(payload) &&\n"
         +space+"    process.env.SHIELD_MCP_ALLOWED_SUB === payload.sub) {\n"
         +space+"  req.mcpUser = { sub: payload.sub, client: payload.azp };\n"
         +space+"  return acsRequestContext.run(payload, () => acsCentralReadHandler(req, res));\n"
