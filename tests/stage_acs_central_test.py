@@ -9,19 +9,20 @@ spec.loader.exec_module(stage)
 
 SOURCE="""import { createServer } from 'node:http';
 import { createMcpHandler } from '@modelcontextprotocol/server';
-const handler = createMcpHandler(() => new McpServer({}));
-function makeMcpHandler(includeShield=false, includeFinance=false, includeOpa=false, includeIxc=false, includePabxRead=false, includePabxAdmin=false) {
-  return createMcpHandler(() => {
-    const mcp = new McpServer({});
-    if (includeShield) registerShieldTools(mcp);
-    if (includeFinance) registerFinanceSuite(mcp);
-    if (includeOpa) registerOpaApiTools(mcp);
-    if (includeIxc) registerIxcTools(mcp);
-    if (includePabxRead) registerPabxRead(mcp);
-    if (includePabxAdmin) registerPabxAdmin(mcp);
-    return mcp;
-  });
-}
+const handler = createMcpHandler(() => {
+  const mcp = new McpServer({});
+  return mcp;
+});
+const makeMcpHandler = (includeShield, includeFinance = false, includeOpa = false, includeIxc = false, includePabx = false, includePabxRead = false) => createMcpHandler(() => {
+  const mcp = new McpServer({});
+  if (includeShield) registerShieldTools(mcp);
+  if (includeFinance) registerFinanceSuite(mcp);
+  if (includeOpa) registerOpaApiTools(mcp);
+  if (includeIxc) registerIxcTools(mcp);
+  if (includePabx) registerPabxAdmin(mcp);
+  if (includePabxRead) registerPabxRead(mcp);
+  return mcp;
+});
 const mcpHandler = toNodeHandler(handler);
 const otherHandler = toNodeHandler(makeMcpHandler(true, true, false, false, false, true));
 function route(req, res, match) {
@@ -43,7 +44,7 @@ function route(req, res, match) {
 class StagingTests(unittest.TestCase):
     def test_stages_only_one_new_restricted_handler_and_preserves_old_routing(self):
         result=stage.patch_server(SOURCE)
-        self.assertIn("function makeMcpHandler(includeShield=false, includeFinance=false, includeOpa=false, includeIxc=false, includePabxRead=false, includePabxAdmin=false, includeAcs = false)",result)
+        self.assertIn("const makeMcpHandler = (includeShield, includeFinance = false, includeOpa = false, includeIxc = false, includePabx = false, includePabxRead = false, includeAcs = false) => createMcpHandler(() => {", result)
         self.assertIn("acsCentralReadHandler",result)
         self.assertIn("registerAcsMonitorTools(mcp, () => acsRequestContext.getStore())",result)
         self.assertIn("acsMonitorAuthorized(payload)",result)
@@ -56,6 +57,8 @@ class StagingTests(unittest.TestCase):
         self.assertIn("return opaCentralMcpHandler(req,res)",result)
         self.assertEqual(result.count("JRC_ACS_READONLY_OVERLAY_V1"),2)
         self.assertEqual(result.count("registerOpaApiTools(mcp)"),1)
+        self.assertIn("const handler = createMcpHandler(() => {\n  const mcp = new McpServer({});\n  return mcp;\n});", result)
+        self.assertEqual(result.count("registerAcsMonitorTools(mcp"),1)
         self.assertEqual(result.count("includeAcs = false"),1)
         self.assertTrue(result.index("acsMonitorAuthorized(payload)") < result.index("if (process.env.SHIELD_MCP_ALLOWED_SUB === payload.sub)"))
 
@@ -65,8 +68,14 @@ class StagingTests(unittest.TestCase):
             stage.patch_server(result)
 
     def test_changed_function_signature_fails_closed(self):
-        altered=SOURCE.replace("includePabxAdmin=false","includePabxAdmin=false, other=false")
+        altered=SOURCE.replace("includePabxRead = false)","includePabxRead = false, other = false)")
         with self.assertRaisesRegex(RuntimeError,"esperado 6"):
+            stage.patch_server(altered)
+
+    def test_swapped_permission_argument_names_fail_closed(self):
+        altered=SOURCE.replace("includePabx = false, includePabxRead = false",
+                               "includePabxRead = false, includePabx = false")
+        with self.assertRaisesRegex(RuntimeError,"ordem ou nome"):
             stage.patch_server(altered)
 
     def test_changed_authentication_block_fails_closed(self):
