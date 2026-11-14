@@ -25,7 +25,7 @@ AUTH = ISSUER + "/protocol/openid-connect/auth"
 TOKEN = ISSUER + "/protocol/openid-connect/token"
 CLIENT = "chatgpt-mcp"
 REDIRECT = "http://127.0.0.1:8765/callback"
-PORTS = (3104, 3105)
+PORTS = (3104, 3105, 3106)
 PROTOCOL = "2025-06-18"
 MAX_RESULT = 2_000_000
 TEST_TOOLS = ("acs_recursos_host", "acs_status_integracoes")
@@ -258,11 +258,13 @@ class MCP:
         return bool(payloads) and all(isinstance(x, (dict, list)) for x in payloads)
 
 
-def run_smoke(token):
+def run_smoke(token, hml_port=3105):
+    if hml_port not in (3105, 3106):
+        raise SafeFailure("PORTA_HML_NAO_AUTORIZADA")
     print("=== HOMOLOGACAO REAL MCP (SEM MOSTRAR TOKEN) ===")
     main = MCP(3104, token)
-    hml = MCP(3105, token)
-    for port, client in ((3104, main), (3105, hml)):
+    hml = MCP(hml_port, token)
+    for port, client in ((3104, main), (hml_port, hml)):
         client.initialize()
         print("PORTA", port, "OAuth + initialize: OK")
     current = main.tools()
@@ -270,9 +272,9 @@ def run_smoke(token):
     missing = sorted(current - candidate)
     acs = sorted(set(TEST_TOOLS) & candidate)
     print("FERRAMENTAS 3104:", len(current))
-    print("FERRAMENTAS 3105:", len(candidate))
+    print("FERRAMENTAS "+str(hml_port)+":", len(candidate))
     print("FERRAMENTAS ACS ENCONTRADAS:", ", ".join(acs) if acs else "NENHUMA")
-    print("FERRAMENTAS EXISTENTES AUSENTES NA 3105:", len(missing))
+    print("FERRAMENTAS EXISTENTES AUSENTES NA "+str(hml_port)+":", len(missing))
     if missing:
         print("RESULTADO: BLOQUEADO - o catalogo da HML perdeu ferramentas antigas")
         return 2
@@ -293,14 +295,16 @@ def run_smoke(token):
 def main():
     parser = argparse.ArgumentParser(description="Smoke test OAuth PKCE + MCP ACS HML")
     parser.add_argument("--check", action="store_true", help="Verify localhost services only; no OAuth")
+    parser.add_argument("--hml-port", type=int, choices=(3105, 3106), default=3105,
+                        help="ACS homologacao alvo (padrao 3105; V2 3106)")
     args = parser.parse_args()
     # This script only runs on the ACS host, never opens ports.
-    for port in PORTS:
+    for port in (3104, args.hml_port):
         req = Request("http://127.0.0.1:"+str(port)+"/health", method="GET")
         _, status = http_json(req, timeout=5, max_bytes=1024)
         if status != 200:
             raise SafeFailure("MCP_HEALTH_INDISPONIVEL_PORTA_"+str(port))
-    print("PORTAS 3104/3105: HEALTH OK")
+    print("PORTAS 3104/"+str(args.hml_port)+": HEALTH OK")
     if args.check:
         print("DRY_RUN: sem login, sem token, sem alteracoes")
         return 0
@@ -321,7 +325,7 @@ def main():
     token = exchange_code(code, verifier)
     del code, verifier
     try:
-        return run_smoke(token)
+        return run_smoke(token, args.hml_port)
     finally:
         del token
 
