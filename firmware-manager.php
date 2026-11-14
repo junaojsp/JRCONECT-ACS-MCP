@@ -9,16 +9,16 @@ $currentPage = 'firmware';
 include __DIR__ . '/views/layouts/header.php';
 ?>
 <style>
-.jrc-fw {color:#e5edf8;max-width:1520px;margin:auto}
+.jrc-fw {--fw-bg:#071827;--fw-card:#0c2136;--fw-border:#1c4b70;--fw-accent:#1c6cc2;color:#e5edf8;max-width:1520px;margin:auto}
 .jrc-fw .lead{font-size:13px;color:#9bb7d0}
 .jrc-fw .fw-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:18px 0}
-.jrc-fw .fw-card{background:#0d2237;border:1px solid #244665;border-radius:12px;padding:18px}
+.jrc-fw .fw-card{background:var(--fw-card);border:1px solid var(--fw-border);border-radius:12px;padding:18px}
 .jrc-fw .fw-num{font-size:25px;font-weight:700;color:#eef8ff}
 .jrc-fw .fw-label{font-size:12px;color:#9db5c9}
 .jrc-fw .fw-pill{display:inline-block;background:#173b56;color:#b7e6ff;border:1px solid #285c7d;border-radius:20px;padding:4px 10px;font-size:12px}
 .jrc-fw .fw-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 14px}
 .jrc-fw .fw-tabs button{background:#112a43;border:1px solid #31516d;color:#e7f3fc;border-radius:8px;padding:10px 15px}
-.jrc-fw .fw-tabs button[aria-selected="true"]{background:#1767b5;border-color:#378ada}
+.jrc-fw .fw-tabs button[aria-selected="true"]{background:var(--fw-accent);border-color:#378ada}
 .jrc-fw .fw-panel[hidden]{display:none}
 .jrc-fw table{width:100%;color:#d9e8f5;border-collapse:collapse;font-size:13px}
 .jrc-fw td,.jrc-fw th{padding:12px;border-bottom:1px solid #254057;text-align:left}

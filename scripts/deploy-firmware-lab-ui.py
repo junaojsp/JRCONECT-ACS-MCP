@@ -42,27 +42,45 @@ def main():
         die("codificacao inesperada")
     if page.count(MARKER) != 1:
         die("placeholder de acesso legado ausente ou duplicado")
-    anchors = list(re.finditer(r"<a\b(?P<attrs>[^>]*)>(?P<body>(?:(?!</a>).)*?)</a>", src, re.I | re.S))
-    matched = [m for m in anchors if re.search(r"<span\b[^>]*>\s*Firmware\s*</span>", m.group("body"), re.I)]
-    if len(matched) != 1:
-        die("esperada uma unica entrada Firmware no menu, encontrados: " + str(len(matched)))
-    match = matched[0]
-    attr = match.group("attrs")
-    href_matches = list(re.finditer(r'\bhref\s*=\s*["\'](?P<path>[^"\']+)["\']', attr, re.I))
-    if len(href_matches) != 1:
-        die("href da entrada Firmware ambiguo")
-    old_href = href_matches[0].group("path")
-    if not re.fullmatch(r"/[a-zA-Z0-9_-]+\.php", old_href) or old_href == "/firmware-manager.php":
-        die("rota anterior de Firmware inesperada")
+    # Production uses a PHP-computed href. Match the specific nav-firmware
+    # anchor by id, on its own source line, without HTML regex parsing of ?>.
+    lines = src.splitlines(keepends=True)
+    indexes = [i for i, line in enumerate(lines)
+               if '<a ' in line and 'id="nav-firmware"' in line]
+    if len(indexes) != 1:
+        die("esperada uma unica ancora nav-firmware")
+    idx = indexes[0]
+    line = lines[idx]
+    if not any('<span>Firmware</span>' in x for x in lines[idx+1:idx+5]):
+        die("rotulo Firmware nao corresponde ao id")
+    expected = 'href="<?php echo htmlspecialchars($firmwareHref, ENT_QUOTES, \'UTF-8\'); ?>"'
+    if line.count(expected) == 1:
+        # The dynamic original route resolves to device detail/firmware
+        # when an ONU id is known, and /devices.php otherwise.
+        old_href = "/devices.php"
+        old_menu_expression = "PHP firmwareHref (device detail or devices.php)"
+        changed_line = line.replace(expected, 'href="/firmware-manager.php"', 1)
+    else:
+        literal = re.findall(r'href="(/[A-Za-z0-9_-]+\\.php)"', line)
+        if len(literal) != 1 or literal[0] == "/firmware-manager.php":
+            die("rota Firmware desconhecida; manter producao intacta")
+        old_href = literal[0]
+        old_menu_expression = old_href
+        changed_line = line.replace('href="' + old_href + '"',
+                                    'href="/firmware-manager.php"', 1)
     if not (WEB / old_href.lstrip("/")).is_file():
-        die("rota de Firmware antiga inexistente; nao substitui menu")
-    new_attrs = attr[:href_matches[0].start("path")] + "/firmware-manager.php" + attr[href_matches[0].end("path"):]
-    old_anchor = match.group(0)
-    new_anchor = "<a" + new_attrs + ">" + match.group("body") + "</a>"
-    new_header = src[:match.start()] + new_anchor + src[match.end():]
-    link = '<p><a class="btn btn-outline-info btn-sm" href="' + html.escape(old_href, quote=True) + '">Abrir gerenciamento de firmware anterior</a></p>'
+        die("rota de retorno anterior inexistente")
+    if changed_line == line:
+        die("ancora nao alterada")
+    lines[idx] = changed_line
+    new_header = "".join(lines)
+    # Preserve legacy workflow by returning to Devices, where the operator
+    # selects an ONU and opens its already existing firmware tab.
+    link = ('<p><a class="btn btn-outline-info btn-sm" href="'
+            + html.escape(old_href, quote=True)
+            + '">Abrir Dispositivos e o firmware da ONU (fluxo anterior)</a></p>')
     new_page = page.replace(MARKER, link)
-    print("MENU_ATUAL:", old_href)
+    print("MENU_ATUAL:", old_menu_expression)
     print("MENU_NOVO: /firmware-manager.php")
     print("ACESSO_LEGADO: preservado na nova pagina")
     print("ACOES_GENIEACS: nenhuma")
