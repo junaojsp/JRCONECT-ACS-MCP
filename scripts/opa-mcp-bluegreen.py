@@ -297,9 +297,19 @@ def activate():
     if new.replace(changed,block,1)!=text:
         fail("alteracao proposta nao e exclusivamente no bloco /mcp")
     STATE_DIR.mkdir(mode=0o700,parents=True,exist_ok=True)
-    if BACKUP.exists(): fail("backup Nginx anterior existente; revisar antes de ativar")
-    shutil.copy2(path,BACKUP)
-    os.chmod(BACKUP,0o600)
+    if state.get("activated"):
+        fail("Estado indica ativacao em vigor; nao repetir")
+    if BACKUP.exists():
+        # A successful rollback leaves the original backup in place. Reuse it
+        # only if BOTH backup and live Nginx equal the immutable pre-switch hash.
+        if not BACKUP.is_file() or sha(BACKUP.read_bytes()) != state["nginx_original_sha256"]:
+            fail("Backup Nginx preexistente diverge; nao sobrescrever")
+        if sha(current) != sha(BACKUP.read_bytes()):
+            fail("Nginx atual nao corresponde ao backup; nao reativar")
+        print("BACKUP: reutilizando copia original validada apos rollback")
+    else:
+        shutil.copy2(path,BACKUP)
+        os.chmod(BACKUP,0o600)
     try:
         file_write_atomic(path,new.encode())
         call("nginx","-t")
