@@ -1,0 +1,23 @@
+name: ACS OAuth guard diagnostic (read-only)
+on:
+  pull_request:
+    paths:
+      - 'scripts/diagnose-acs-oauth-route-3105.py'
+      - 'tests/diagnose_acs_route_3105_test.py'
+      - '.github/workflows/acs-guard-diagnostic.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/diagnose-acs-oauth-route-3105.py'
+      - 'tests/diagnose_acs_route_3105_test.py'
+      - '.github/workflows/acs-guard-diagnostic.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/diagnose-acs-oauth-route-3105.py tests/diagnose_acs_route_3105_test.py
+      - run: python3 -m unittest discover -s tests -p 'diagnose_acs_route_3105_test.py' -v
