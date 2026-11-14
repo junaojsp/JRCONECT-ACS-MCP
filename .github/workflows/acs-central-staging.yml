@@ -1,0 +1,23 @@
+name: ACS central overlay staging safety
+on:
+  pull_request:
+    paths:
+      - 'scripts/stage-acs-readonly-central.py'
+      - 'tests/stage_acs_central_test.py'
+      - '.github/workflows/acs-central-staging.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/stage-acs-readonly-central.py'
+      - 'tests/stage_acs_central_test.py'
+      - '.github/workflows/acs-central-staging.yml'
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/stage-acs-readonly-central.py tests/stage_acs_central_test.py
+      - run: python3 -m unittest discover -s tests -p 'stage_acs_central_test.py' -v
