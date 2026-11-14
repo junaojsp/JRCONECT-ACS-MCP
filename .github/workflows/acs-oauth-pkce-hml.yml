@@ -1,0 +1,24 @@
+name: ACS OAuth PKCE homologacao local
+on:
+  pull_request:
+    paths:
+      - 'scripts/acs-oauth-pkce-hml.py'
+      - 'tests/acs_oauth_pkce_hml_test.py'
+      - 'scripts/README-acs-oauth-pkce-hml.md'
+      - '.github/workflows/acs-oauth-pkce-hml.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/acs-oauth-pkce-hml.py'
+      - 'tests/acs_oauth_pkce_hml_test.py'
+      - '.github/workflows/acs-oauth-pkce-hml.yml'
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/acs-oauth-pkce-hml.py tests/acs_oauth_pkce_hml_test.py
+      - run: python3 -m unittest discover -s tests -p 'acs_oauth_pkce_hml_test.py' -v
