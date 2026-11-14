@@ -1,0 +1,28 @@
+name: ACS admin guarded tools
+on:
+  pull_request:
+    paths:
+      - 'mcp/integrations/acs-admin-guarded-tools.js'
+      - 'tests/acs-admin-guarded.test.mjs'
+      - 'scripts/README-acs-administrativo-seguro.md'
+      - '.github/workflows/acs-admin-guardrails.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'mcp/integrations/acs-admin-guarded-tools.js'
+      - 'tests/acs-admin-guarded.test.mjs'
+      - '.github/workflows/acs-admin-guardrails.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --prefix mcp --omit=dev --ignore-scripts --no-audit --no-fund
+      - run: node --check mcp/integrations/acs-admin-guarded-tools.js
+      - run: node --test tests/acs-admin-guarded.test.mjs
