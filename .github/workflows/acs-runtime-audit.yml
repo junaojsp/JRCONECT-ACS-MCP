@@ -1,0 +1,23 @@
+name: ACS MCPv2 read-only runtime audit
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit-acs-mcpv2-readonly.py'
+      - 'tests/audit_acs_mcpv2_readonly_test.py'
+      - '.github/workflows/acs-runtime-audit.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/audit-acs-mcpv2-readonly.py'
+      - 'tests/audit_acs_mcpv2_readonly_test.py'
+      - '.github/workflows/acs-runtime-audit.yml'
+permissions:
+  contents: read
+jobs:
+  safe-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m py_compile scripts/audit-acs-mcpv2-readonly.py tests/audit_acs_mcpv2_readonly_test.py
+      - run: python3 -m unittest discover -s tests -p 'audit_acs_mcpv2_readonly_test.py' -v
