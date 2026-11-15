@@ -224,7 +224,7 @@ data-version="<?=fwbh($f['version']??'')?>"><?=fwbh(($f['manufacturer']??'').' /
       option.hidden=!eligible;option.disabled=!eligible;
       if(eligible){count++;sole=option.value;}
     });
-    firmware.value=count===1?sole:'';
+    if(!Array.from(firmware.options).some(option=>option.value===firmware.value && !option.disabled && option.value)){firmware.value=count===1?sole:'';}
     note.textContent=count
       ? count+' imagem(ns) compatível(is) por fabricante, modelo e hardware. A compatibilidade técnica ainda precisa de homologação.'
       : 'Nenhuma imagem correspondente à revisão de hardware foi encontrada no repositório. Cadastro e atualização bloqueados.';
