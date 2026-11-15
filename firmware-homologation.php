@@ -197,6 +197,14 @@ data-version="<?=fwbh($f['version']??'')?>"><?=fwbh(($f['manufacturer']??'').' /
   const deviceCard=get('fw-simple-device-card'),summary=get('fw-simple-summary');
   const firmwareCard=get('fw-simple-firmware-card'),firmware=get('fw-select');
   const note=get('fw-simple-firmware-info'),compat=get('fw-simple-compat-note');
+  // Keep an immutable local copy of the catalogue options. Native <option hidden>
+  // behaves inconsistently across browsers; rebuild only eligible options.
+  const catalogueOptions=Array.from(firmware.options).filter(opt=>opt.value).map(opt=>({
+    value:opt.value,label:opt.textContent||'',
+    manufacturer:opt.dataset.manufacturer||'',
+    model:opt.dataset.model||'',
+    hardware:opt.dataset.hardware||''
+  }));
   const confirm=get('fw-simple-confirm'),register=get('fw-simple-register');
   const csrf=<?=json_encode($_SESSION['jrc_fwb_csrf'], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT)?>;
   let current=null;
@@ -214,20 +222,26 @@ data-version="<?=fwbh($f['version']??'')?>"><?=fwbh(($f['manufacturer']??'').' /
   };
   function syncFirmware(){
     if(!current)return;
-    let count=0,sole='';
-    Array.from(firmware.options).forEach(option=>{
-      if(!option.value)return;
-      const eligible=norm(option.dataset.manufacturer)===norm(current.manufacturer)
-        && norm(option.dataset.model)===norm(current.model)
-        && norm(option.dataset.hardware)===norm(current.hardware)
-        && !!norm(current.hardware);
-      option.hidden=!eligible;option.disabled=!eligible;
-      if(eligible){count++;sole=option.value;}
-    });
-    if(!Array.from(firmware.options).some(option=>option.value===firmware.value && !option.disabled && option.value)){firmware.value=count===1?sole:'';}
-    note.textContent=count
-      ? count+' imagem(ns) compatível(is) por fabricante, modelo e hardware. A compatibilidade técnica ainda precisa de homologação.'
-      : 'Nenhuma imagem correspondente à revisão de hardware foi encontrada no repositório. Cadastro e atualização bloqueados.';
+    const previous=firmware.value;
+    const matches=catalogueOptions.filter(item=>
+      norm(item.manufacturer)===norm(current.manufacturer) &&
+      norm(item.model)===norm(current.model) &&
+      norm(item.hardware)===norm(current.hardware) &&
+      !!norm(current.hardware));
+    const choices=[new Option('Selecione uma imagem','')];
+    matches.forEach(item=>choices.push(new Option(item.label,item.value)));
+    firmware.replaceChildren(...choices);
+    firmware.value=matches.some(item=>item.value===previous)?previous:(matches.length===1?matches[0].value:'');
+    if(matches.length){
+      note.textContent=matches.length+' imagem(ns) correspondente(s) ao fabricante, modelo e hardware cadastrados. Essa correspondência ainda não comprova compatibilidade técnica ou homologação.';
+    }else if(!catalogueOptions.length){
+      note.textContent='O catálogo não retornou nenhuma imagem cadastrada para seleção. Confira o repositório.';
+    }else{
+      const revisions=catalogueOptions.filter(item=>norm(item.manufacturer)===norm(current.manufacturer)&&norm(item.model)===norm(current.model)).map(item=>item.hardware);
+      note.textContent=revisions.length
+        ? 'Modelo localizado, mas revisão de hardware diferente do catálogo. ONU: '+(current.hardware||'não informada')+'; catálogo: '+[...new Set(revisions)].join(', ')+'.'
+        : 'Nenhuma imagem cadastrada para este fabricante e modelo. Consulte o repositório.';
+    }
     firmwareCard.hidden=false;
     register.disabled=!(firmware.value && confirm.checked && current.id && current.serial && current.manufacturer && current.model && current.hardware && current.version);
   }
