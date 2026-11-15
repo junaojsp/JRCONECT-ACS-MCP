@@ -12,6 +12,7 @@ import sys
 PAGE = Path("/var/www/gacs/firmware-homologation.php")
 SOURCE = Path(__file__).resolve().parent.parent / "firmware-homologation.php"
 SECTION_START = '<section class="jrc-fwb">'
+SOURCE_SECTION_START = '<section class="jrc-fwb" aria-label="Homologacao simplificada de firmware">'
 SECTION_END = '</section>'
 SCRIPT_START = '<script>\n(function(){'
 SCRIPT_END = '</script>'
@@ -41,7 +42,7 @@ def patch(live, source):
     if any(token not in source for token in NEW_MARKERS):
         fail("fonte simplificada incompleta")
     lo, hi = segment(live, SECTION_START, SECTION_END, "painel atual")
-    so, si = segment(source, SECTION_START, SECTION_END, "painel novo")
+    so, si = segment(source, SOURCE_SECTION_START, SECTION_END, "painel novo")
     live = live[:lo] + source[so:si] + live[hi:]
     lo, hi = segment(live, SCRIPT_START, SCRIPT_END, "script atual")
     so, si = segment(source, SCRIPT_START, SCRIPT_END, "script novo")
