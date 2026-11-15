@@ -1,6 +1,6 @@
 <?php
 /* Read-only device finder for firmware bench UI. GET only; NEVER writes to GenieACS. */
-require_once __DIR__ . '/config/config.php';
+require_once dirname(__DIR__) . '/config/config.php';
 requireLogin();
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
