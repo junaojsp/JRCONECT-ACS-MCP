@@ -1,0 +1,125 @@
+/*
+ * JR CONECT ACS — Shared firmware visual standard v1
+ * Applies ONLY when firmware-manager, firmware-library or firmware-homologation
+ * has its unique root element. Does not change common ACS pages.
+ */
+:root {
+  --jrc-fw-page: #071827;
+  --jrc-fw-card: #0c2136;
+  --jrc-fw-border: #1c4b70;
+  --jrc-fw-text: #e5edf8;
+  --jrc-fw-muted: #9db5c9;
+  --jrc-fw-accent: #1c6cc2;
+}
+body:has(.jrc-fw),
+body:has(.jrc-fw-lib),
+body:has(.jrc-fwb) {
+  background-color: var(--jrc-fw-page) !important;
+}
+
+/* Existing global footer injects a dark horizontal strip into firmware pages.
+ * Hide it on these three pages only; preserve the shared layout and menu. */
+body:has(.jrc-fw) .footer,
+body:has(.jrc-fw-lib) .footer,
+body:has(.jrc-fwb) .footer,
+body:has(.jrc-fw) footer,
+body:has(.jrc-fw-lib) footer,
+body:has(.jrc-fwb) footer {
+  display: none !important;
+}
+
+/* Prevent global legacy dark backgrounds from leaking into firmware panels. */
+body:has(.jrc-fw) .main-content,
+body:has(.jrc-fw-lib) .main-content,
+body:has(.jrc-fwb) .main-content,
+body:has(.jrc-fw) .content-wrapper,
+body:has(.jrc-fw-lib) .content-wrapper,
+body:has(.jrc-fwb) .content-wrapper,
+body:has(.jrc-fw) .page-content,
+body:has(.jrc-fw-lib) .page-content,
+body:has(.jrc-fwb) .page-content {
+  background-color: var(--jrc-fw-page) !important;
+}
+
+/* Consistent spacing, card treatment and typography across the three screens. */
+.jrc-fw,
+.jrc-fw-lib,
+.jrc-fwb {
+  width: min(100%, 1480px) !important;
+  max-width: 1480px !important;
+  margin-inline: auto !important;
+  color: var(--jrc-fw-text) !important;
+  padding-bottom: 24px;
+}
+
+.jrc-fw .fw-card,
+.jrc-fw-lib .fw-card,
+.jrc-fwb .card,
+.jrc-fwb details.card {
+  background: var(--jrc-fw-card) !important;
+  border: 1px solid var(--jrc-fw-border) !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  color: var(--jrc-fw-text) !important;
+}
+
+.jrc-fw .fw-panel,
+.jrc-fw .fw-panel table,
+.jrc-fw-lib table,
+.jrc-fwb table {
+  background-color: transparent !important;
+  color: var(--jrc-fw-text) !important;
+}
+
+.jrc-fw tbody tr,
+.jrc-fw tbody td,
+.jrc-fw-lib tbody tr,
+.jrc-fw-lib tbody td,
+.jrc-fwb tbody tr,
+.jrc-fwb tbody td {
+  background: var(--jrc-fw-card) !important;
+  color: var(--jrc-fw-text) !important;
+}
+
+.jrc-fw th,
+.jrc-fw-lib th,
+.jrc-fwb th {
+  background: #14263e !important;
+  color: #b7d2e9 !important;
+}
+
+.jrc-fw-lib input,
+.jrc-fwb input,
+.jrc-fwb select,
+.jrc-fw .fw-tabs button {
+  background-color: #13243a !important;
+  color: var(--jrc-fw-text) !important;
+  border-color: #31516d !important;
+}
+
+.jrc-fwb .fw-simple-item,
+.jrc-fwb .fw-result {
+  background: #102b43 !important;
+  border-color: #31516d !important;
+}
+
+.jrc-fw-lib .fw-alert,
+.jrc-fwb .notice,
+.jrc-fw .fw-note {
+  background: #10324c !important;
+  color: #d4eafb !important;
+}
+
+.jrc-fw-lib .fw-card h3,
+.jrc-fwb .card h3,
+.jrc-fw h2,
+.jrc-fw-lib h2,
+.jrc-fwb h2 {
+  color: var(--jrc-fw-text) !important;
+}
+
+@media(max-width:800px) {
+  .jrc-fw,
+  .jrc-fw-lib,
+  .jrc-fwb { padding-inline: 8px; }
+}
