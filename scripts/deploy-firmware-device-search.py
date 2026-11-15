@@ -18,7 +18,7 @@ SOURCE_API=Path(__file__).resolve().parent.parent/"api/firmware-device-search.ph
 
 FORM_MARK='<div class="grid">\n<div><label for="device-id">ID exato no GenieACS</label>'
 BLOCK_START='<div class="card" style="margin:14px 0;background:#10283f">'
-CSS_START='\n.jrc-fwb .fw-search-modes'
+CSS_START='\n.jrc-fwb .fw-search-modes{display:flex;gap:18px;flex-wrap:wrap}'
 SCRIPT_START='<script>\n(function(){'
 END_PAGE="<?php include __DIR__.'/views/layouts/footer.php'; ?>"
 OLD_DESC='Etapa de cadastro e conferencia. A verificacao ao vivo do dispositivo e o envio do firmware estao bloqueados ate integrarmos as rotinas existentes do ACS.'
