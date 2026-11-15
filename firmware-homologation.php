@@ -107,10 +107,18 @@ include __DIR__.'/views/layouts/header.php';
 .jrc-fwb th,.jrc-fwb td{padding:10px;text-align:left;border-bottom:1px solid #254057}
 .jrc-fwb a{color:#86caff}
 @media(max-width:860px){.jrc-fwb .grid{grid-template-columns:1fr}}
+
+.jrc-fwb .fw-search-modes{display:flex;gap:18px;flex-wrap:wrap}
+.jrc-fwb .fw-search-modes input{width:auto}
+.jrc-fwb .fw-search-row{display:flex;gap:8px;align-items:center}
+.jrc-fwb .fw-search-row button{margin-top:0;white-space:nowrap}
+.jrc-fwb .fw-search-results{margin-top:12px;max-height:380px;overflow-y:auto}
+.jrc-fwb .fw-result{background:#071827;border:1px solid #31516d;border-radius:8px;margin:8px 0;padding:12px;display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.jrc-fwb .fw-result button{margin-top:0}
 </style>
 <section class="jrc-fwb">
 <h2>Homologacao de Firmware em Bancada</h2>
-<p class="muted">Etapa de cadastro e conferencia. A verificacao ao vivo do dispositivo e o envio do firmware estao bloqueados ate integrarmos as rotinas existentes do ACS.</p>
+<p class="muted">Busque ONUs no inventario do GenieACS e vincule uma ONU de bancada ao firmware. Apenas leitura do cadastro; nenhuma atualizacao e enviada.</p>
 <p><a href="/firmware-library.php">Voltar ao repositorio</a></p>
 <?php if($msg):?><div class="notice" role="status"><?=fwbh($msg)?></div><?php endif;?>
 <?php if($err):?><div class="notice error" role="alert"><?=fwbh($err)?></div><?php endif;?>
@@ -125,6 +133,21 @@ include __DIR__.'/views/layouts/header.php';
 <option value="<?=fwbh($f['id']??'')?>"><?=fwbh(($f['manufacturer']??'').' / '.($f['model']??'').' / HW '.($f['hw_revision']??'').' / '.($f['version']??'').' / '.substr($f['sha256']??'',0,12))?></option>
 <?php endforeach;?>
 </select>
+<div class="card" style="margin:14px 0;background:#10283f">
+<h3>Localizar ONU no ACS</h3>
+<p class="muted">Escolha uma busca para preencher automaticamente o cadastro abaixo. Consulta apenas o inventario do GenieACS; nao envia comandos para a ONU.</p>
+<div class="fw-search-modes">
+<label><input type="radio" name="fw-search-type" value="device" checked> Por dispositivo (MAC, serial ou ID)</label>
+<label><input type="radio" name="fw-search-type" value="model"> Por modelo (listar ONUs)</label>
+</div>
+<div class="fw-search-row">
+<input id="fw-search-term" type="search" autocomplete="off" maxlength="64" placeholder="Digite MAC, serial ou ID" aria-label="Termo da busca de ONU">
+<button id="fw-search-button" type="button">Buscar no ACS</button>
+</div>
+<div id="fw-search-status" class="muted" role="status" aria-live="polite"></div>
+<div id="fw-search-results" class="fw-search-results" aria-label="Resultados de consulta"></div>
+<p class="muted">Se hardware ou versao aparecerem vazios, o GenieACS ainda nao informou esses parametros. Confirme-os na OLT. Buscar por modelo nao executa atualizacoes em massa.</p>
+</div>
 <div class="grid">
 <div><label for="device-id">ID exato no GenieACS</label><input id="device-id" name="device_id" maxlength="180" required placeholder="ID do dispositivo no ACS"></div>
 <div><label for="serial">Serial</label><input id="serial" name="serial" maxlength="100" required></div>
@@ -147,4 +170,67 @@ include __DIR__.'/views/layouts/header.php';
 <?php endforeach;?></tbody></table></div></div>
 <div class="card"><h3>Execucao de firmware</h3><div class="notice">Desabilitada nesta fase. Somente apos validar API, identificacao real da ONU, compatibilidade de hardware, permissao e entrega GenieACS FS/NBI.</div><button type="button" disabled style="opacity:.5;cursor:not-allowed">Atualizar ONU (indisponivel)</button></div>
 </section>
+<script>
+(function(){
+  const box=document.querySelector('.jrc-fwb');
+  if (!box) return;
+  const term=box.querySelector('#fw-search-term');
+  const button=box.querySelector('#fw-search-button');
+  const status=box.querySelector('#fw-search-status');
+  const results=box.querySelector('#fw-search-results');
+  const modes=Array.from(box.querySelectorAll('input[name="fw-search-type"]'));
+  const csrf=<?=json_encode($_SESSION['jrc_fwb_csrf'])?>;
+  const fields={id:'device-id',serial:'serial',manufacturer:'manufacturer',model:'model',hardware:'hardware',version:'installed-version'};
+  const el=(tag,text,cls)=>{
+    const node=document.createElement(tag);
+    if(cls)node.className=cls;
+    node.textContent=text;
+    return node;
+  };
+  modes.forEach(m=>m.addEventListener('change',()=>{
+    term.value='';results.replaceChildren();status.textContent='';
+    term.placeholder=m.value==='model'?'Digite um modelo, ex.: HG6143D3':'Digite MAC, serial ou ID';
+  }));
+  async function search(){
+    const type=modes.find(m=>m.checked)?.value||'device';
+    const q=term.value.trim();
+    if(q.length<3){status.textContent='Digite pelo menos 3 caracteres.';return;}
+    button.disabled=true;
+    results.replaceChildren();
+    status.textContent='Consultando inventario do ACS...';
+    try {
+      const url='/api/firmware-device-search.php?'+new URLSearchParams({type,term:q,csrf});
+      const reply=await fetch(url,{credentials:'same-origin',headers:{'Accept':'application/json'}});
+      const data=await reply.json();
+      if(!reply.ok)throw new Error(data.error||'Falha de consulta ao ACS');
+      const devices=Array.isArray(data.items)?data.items:[];
+      status.textContent=devices.length+' equipamento(s) encontrado(s).'+(data.truncated?' Exibindo apenas os primeiros 40; refine a busca.':'');
+      devices.forEach(d=>{
+        const row=el('div','','fw-result');
+        const desc=el('div',(d.manufacturer||'Fabricante desconhecido')+' / '+(d.model||'Modelo desconhecido')
+          +' | Serial: '+(d.serial||'nao informado')
+          +' | MAC: '+(d.mac||'nao informado')
+          +' | HW: '+(d.hardware||'nao informado')
+          +' | Firmware: '+(d.version||'nao informado'),'muted');
+        const pick=el('button','Selecionar ONU');
+        pick.type='button';
+        pick.addEventListener('click',()=>{
+          Object.keys(fields).forEach(key=>{
+            const field=box.querySelector('#'+fields[key]);
+            if(field) field.value=d[key]||'';
+          });
+          status.textContent='ONU selecionada. Confira a imagem cadastrada e os parametros antes de registrar bancada.';
+          box.querySelector('#device-id')?.scrollIntoView({block:'center',behavior:'smooth'});
+        });
+        row.append(desc,pick);
+        results.append(row);
+      });
+    }catch(err){status.textContent=err.message||'Falha na busca. Confira a conexao com o GenieACS.';}
+    finally{button.disabled=false;}
+  }
+  button.addEventListener('click',search);
+  term.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();search();}});
+})();
+</script>
+
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
