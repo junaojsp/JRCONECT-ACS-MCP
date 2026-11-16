@@ -1,0 +1,43 @@
+name: ACS Huawei TR-069 safe compare
+on:
+  pull_request:
+    paths:
+      - 'lib/JrcTr069ProfileCompare.php'
+      - 'scripts/compare-acs-huawei-tr069.php'
+      - 'tests/jrc-tr069-profile-compare.test.php'
+      - 'docs/acs-huawei-tr069-compare.md'
+      - '.github/workflows/acs-huawei-tr069-compare.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compare-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: mysqli,curl
+      - name: PHP syntax check
+        run: |
+          php -l lib/JrcTr069ProfileCompare.php
+          php -l scripts/compare-acs-huawei-tr069.php
+          php -l tests/jrc-tr069-profile-compare.test.php
+      - name: Compare telemetry path logic with synthetic Huawei records
+        run: php tests/jrc-tr069-profile-compare.test.php
+      - name: Assert passive NBI GET with no CPE modifications
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('scripts/compare-acs-huawei-tr069.php').read_text()
+          assert 'CURLOPT_HTTPGET => true' in s
+          assert '127.0.0.1' in s and '/devices/?' in s
+          for bad in ['/tasks', 'refreshObject', 'setParameterValues',
+                      'CURLOPT_POST', 'CURLOPT_CUSTOMREQUEST',
+                      'INSERT INTO', 'UPDATE ', 'DELETE FROM']:
+              assert bad not in s, bad
+          assert 'FIM_COMPARACAO=OK' in s
+          print('JRC_HUAWEI_COMPARE_READONLY_GUARD_OK')
+          PY
