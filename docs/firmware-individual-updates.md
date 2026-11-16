@@ -15,7 +15,11 @@ sudo python3 scripts/deploy-firmware-updates.py apply
 
 O instalador usa `/var/www/gacs` (alterável por `--root`), valida PHP antes de gravar,
 preserva as páginas personalizadas e adiciona apenas links e correções dos indicadores legados.
-Aborta se os pontos de alteração não forem reconhecidos. Faz backup em
+Aborta se os pontos de alteração das páginas de firmware não forem reconhecidos.
+O atalho na página de equipamento é opcional: se o layout personalizado não for
+reconhecido (nenhum ou vários botões candidatos), preserva `device-detail.php`
+integralmente, emite um aviso e continua. Nesse caso, abra a central pelo repositório
+de firmwares, pela página de bancada ou por `/firmware-updates.php`. Faz backup em
 `/var/backups/jrc-acs-firmware-updates`, reverte arquivos em caso de erro e é idempotente.
 Não modifica configurações, catálogo, binários, integrações MCP ou serviços.
 Um checkout servido diretamente já recebe os arquivos pelo pull; nesse caso o instalador é desnecessário.
