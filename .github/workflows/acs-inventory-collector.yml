@@ -1,0 +1,31 @@
+name: ACS inventory collector validation
+on:
+  pull_request:
+    paths:
+      - 'api/get-devices.php'
+      - 'api/device-inventory-status.php'
+      - 'cron/collect-device-inventory.php'
+      - 'lib/JrcDeviceInventoryCache.php'
+      - 'lib/JrcIxcInventoryReader.php'
+      - 'tests/jrc-inventory-reader.test.php'
+      - '.github/workflows/acs-inventory-collector.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: mysqli, curl
+      - run: |
+          php -l api/get-devices.php
+          php -l api/device-inventory-status.php
+          php -l cron/collect-device-inventory.php
+          php -l lib/JrcDeviceInventoryCache.php
+          php -l lib/JrcIxcInventoryReader.php
+          php tests/jrc-inventory-reader.test.php
