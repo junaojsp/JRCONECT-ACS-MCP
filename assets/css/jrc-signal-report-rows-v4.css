@@ -1,0 +1,54 @@
+/* JRC_SIGNAL_ROW_BLUE_V4
+   Only loaded by view-logs.php. The old rule required .main-content
+   .content-wrapper, which does not necessarily exist in the live DOM.
+   Apply directly to the report table/cells including Bootstrap shadow fill. */
+html body table,
+html body table.table,
+html body .table-responsive,
+html body table > tbody,
+html body table > tbody > tr,
+html body table > tbody > tr > td,
+html body table > tbody > tr > th,
+html body .table > :not(caption) > * > * {
+  --bs-table-bg: #102c49 !important;
+  --bs-table-accent-bg: transparent !important;
+  --bs-table-striped-bg: #143450 !important;
+  --bs-table-hover-bg: #204768 !important;
+  --bs-table-color: #e7f4ff !important;
+  --bs-table-border-color: #2b5473 !important;
+  color: #e7f4ff !important;
+  border-color: #2b5473 !important;
+}
+html body table > tbody > tr,
+html body table > tbody > tr > td,
+html body table > tbody > tr > th,
+html body .table > tbody > tr,
+html body .table > tbody > tr > td,
+html body .table > tbody > tr > th {
+  background: #102c49 !important;
+  background-color: #102c49 !important;
+  box-shadow: none !important;
+}
+html body table > tbody > tr:nth-child(even),
+html body table > tbody > tr:nth-child(even) > td,
+html body table > tbody > tr:nth-child(even) > th,
+html body .table > tbody > tr:nth-child(even),
+html body .table > tbody > tr:nth-child(even) > td {
+  background: #143450 !important;
+  background-color: #143450 !important;
+}
+html body table > tbody > tr:hover,
+html body table > tbody > tr:hover > td,
+html body table > tbody > tr:hover > th,
+html body .table > tbody > tr:hover,
+html body .table > tbody > tr:hover > td {
+  background: #204768 !important;
+  background-color: #204768 !important;
+}
+html body table > thead > tr,
+html body table > thead > tr > th,
+html body table > thead > tr > td {
+  background: #164366 !important;
+  background-color: #164366 !important;
+  color: #e7f4ff !important;
+}
