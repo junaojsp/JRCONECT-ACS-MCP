@@ -33,7 +33,7 @@ header('Content-Type: application/json');
 try {
     // Get GenieACS credentials from database
     $db = getDBConnection();
-    $stmt = $db->prepare("SELECT host, port, username, password FROM genieacs_credentials LIMIT 1");
+    $stmt = $db->prepare("SELECT host, port, username, password FROM genieacs_credentials WHERE is_connected = 1 ORDER BY id DESC LIMIT 1");
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -57,7 +57,8 @@ try {
     );
 
     // Get all devices
-    $result = $genieacs->getDevices();
+    require_once __DIR__ . '/../lib/JrcRecentDevices.php';
+    $result = JrcRecentDevices::fetch($config);
 
     if (!$result['success']) {
         jsonResponse([
@@ -97,7 +98,7 @@ try {
         'devices' => $recentDevices
     ]);
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     jsonResponse([
         'success' => false,
         'message' => 'Error: ' . $e->getMessage()
