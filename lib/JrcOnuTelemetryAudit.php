@@ -45,9 +45,9 @@ final class JrcOnuTelemetryAudit
         $scan = static function(array $node, string $path, int $depth)
             use (&$scan, &$out, &$visited, $pattern): void {
             if (++$visited > 100000 || $depth > 24 || count($out) >= 50) return;
-            if (array_key_exists('_value', $node) && preg_match($pattern, $path)) {
+            if (preg_match($pattern, $path)) {
                 // Use only parameter path metadata, never CPE values in reports.
-                $raw = $node['_value'];
+                $raw = $node['_value'] ?? null;
                 $present = $raw !== null && $raw !== '';
                 $out[$path] = [
                     'has_value' => $present,
@@ -95,7 +95,8 @@ final class JrcOnuTelemetryAudit
         $paths = self::candidatePaths($raw, 'rx');
         $tempPaths = self::candidatePaths($raw, 'temperature');
         // Actual optical evidence overrides a generic "Router" label.
-        if ($rx || self::anyPathWithValue($paths)) $type = 'onu';
+        if ($rx || ($type === 'desconhecido' && $paths !== []) ||
+            ($type === 'roteador' && self::anyPathWithValue($paths))) $type = 'onu';
 
         if ($type === 'roteador') {
             $status = 'ROTEADOR_SEM_RX_ESPERADO';
@@ -136,6 +137,7 @@ final class JrcOnuTelemetryAudit
     {
         $totals = ['analisados' => 0, 'onus' => 0, 'roteadores' => 0,
                    'tipo_a_confirmar' => 0, 'onus_sem_rx' => 0,
+                   'onus_sem_temperatura' => 0, 'onus_sem_rx_e_temperatura' => 0,
                    'onus_sem_rx_com_inform_recente' => 0];
         $groups = [];
         foreach ($observations as $r) {
@@ -144,8 +146,10 @@ final class JrcOnuTelemetryAudit
             if ($r['type'] === 'desconhecido') $totals['tipo_a_confirmar']++;
             if ($r['type'] === 'onu') {
                 $totals['onus']++;
+                if (!$r['temp_valid']) $totals['onus_sem_temperatura']++;
                 if (!$r['rx_valid']) {
                     $totals['onus_sem_rx']++;
+                    if (!$r['temp_valid']) $totals['onus_sem_rx_e_temperatura']++;
                     if ($r['recent_inform']) $totals['onus_sem_rx_com_inform_recente']++;
                 }
             }
@@ -194,7 +198,7 @@ final class JrcOnuTelemetryAudit
     private static function deviceType(string $model): string
     {
         $name = strtoupper($model);
-        if (preg_match('/(?:ONU|ONT|GPON|EPON|XGPON|XGSPON|FTTH|FIBERHOME|HG[0-9]{3,}[A-Z0-9]*|EG[0-9]{3,}[A-Z0-9]*)/i', $name)) {
+        if (preg_match('/(?:ONU|ONT|GPON|EPON|XGPON|XGSPON|FTTH|FIBERHOME|HG[0-9]{3,}[A-Z0-9]*|EG[0-9]{3,}[A-Z0-9]*|AN5506[A-Z0-9-]*|ZXHN[ _-]*F6[0-9A-Z-]*)/i', $name)) {
             return 'onu';
         }
         if (preg_match('/(?:ROUTER|ROTEADOR|ROUTERBOARD)/i', $name)) {
