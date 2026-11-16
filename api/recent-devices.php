@@ -22,6 +22,7 @@ if (getConfig('jrc_dashboard_cache_enabled') === '1') {
         // Cache not available: old GenieACS endpoint is unchanged.
     }
 }
+// END JRC OVERVIEW SNAPSHOT FAST PATH
 
 
 use App\GenieACS;
