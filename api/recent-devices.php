@@ -5,6 +5,24 @@ require_once __DIR__ . '/../config/config.php';
 set_time_limit(20);
 
 requireLogin();
+ 
+// JRC OVERVIEW SNAPSHOT FAST PATH (opt-in, read-only).
+// Keep the deployed dashboard layout and existing JSON response contract unchanged.
+if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
+if (getConfig('jrc_dashboard_cache_enabled') === '1') {
+    require_once __DIR__ . '/../lib/JrcDashboardSnapshot.php';
+    try {
+        $cachedOverview = JrcDashboardSnapshot::response(getDBConnection(), 'recent');
+        if ($cachedOverview !== null) {
+            header('Cache-Control: private, no-store');
+            jsonResponse($cachedOverview);
+        }
+    } catch (Throwable $overviewError) {
+        error_log('JRC overview cache recent: ' . $overviewError->getMessage());
+        // Cache not available: old GenieACS endpoint is unchanged.
+    }
+}
+
 
 use App\GenieACS;
 use App\GenieACS_Fast;
