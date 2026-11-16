@@ -1,0 +1,62 @@
+/* JRC SIGNAL REPORT BLUE FINAL: isolated to the ACS optical report. */
+:root {
+  --jrc-signal-ink: #e7f4ff;
+  --jrc-signal-panel: #0d2541;
+  --jrc-signal-row: #102c49;
+  --jrc-signal-row-alt: #143450;
+  --jrc-signal-heading: #164366;
+  --jrc-signal-outline: #2b5473;
+}
+
+/* Table elements and Bootstrap dark rows must not retain neutral black/gray. */
+body .main-content .content-wrapper table,
+body .main-content .content-wrapper .table,
+body .main-content .content-wrapper .table-responsive,
+body .main-content .content-wrapper .table > :not(caption) > *,
+body .main-content .content-wrapper .table > :not(caption) > * > * {
+  --bs-table-bg: var(--jrc-signal-row);
+  --bs-table-accent-bg: transparent;
+  --bs-table-striped-bg: var(--jrc-signal-row-alt);
+  --bs-table-hover-bg: #204768;
+  --bs-table-color: var(--jrc-signal-ink);
+  --bs-table-border-color: var(--jrc-signal-outline);
+  color: var(--jrc-signal-ink) !important;
+  border-color: var(--jrc-signal-outline) !important;
+}
+body .main-content .content-wrapper table tbody tr,
+body .main-content .content-wrapper table tbody td,
+body .main-content .content-wrapper .table tbody tr,
+body .main-content .content-wrapper .table tbody td {
+  background: var(--jrc-signal-row) !important;
+  background-color: var(--jrc-signal-row) !important;
+  box-shadow: none !important;
+  color: var(--jrc-signal-ink) !important;
+}
+body .main-content .content-wrapper table tbody tr:nth-child(even),
+body .main-content .content-wrapper table tbody tr:nth-child(even) > td,
+body .main-content .content-wrapper .table tbody tr:nth-child(even),
+body .main-content .content-wrapper .table tbody tr:nth-child(even) > td {
+  background: var(--jrc-signal-row-alt) !important;
+  background-color: var(--jrc-signal-row-alt) !important;
+}
+body .main-content .content-wrapper table tbody tr:hover,
+body .main-content .content-wrapper table tbody tr:hover > td,
+body .main-content .content-wrapper .table tbody tr:hover,
+body .main-content .content-wrapper .table tbody tr:hover > td {
+  background: #204768 !important;
+  background-color: #204768 !important;
+}
+body .main-content .content-wrapper table thead tr,
+body .main-content .content-wrapper table thead th,
+body .main-content .content-wrapper .table thead tr,
+body .main-content .content-wrapper .table thead th {
+  background: var(--jrc-signal-heading) !important;
+  background-color: var(--jrc-signal-heading) !important;
+  color: var(--jrc-signal-ink) !important;
+}
+body .main-content .content-wrapper .card,
+body .main-content .content-wrapper .report-card,
+body .main-content .content-wrapper .signal-report {
+  background: var(--jrc-signal-panel) !important;
+  border-color: var(--jrc-signal-outline) !important;
+}
