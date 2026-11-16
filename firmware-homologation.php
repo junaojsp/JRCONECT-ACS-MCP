@@ -163,7 +163,7 @@ include __DIR__.'/views/layouts/header.php';
 <label for="fw-select">Arquivo disponível no repositório</label>
 <select id="fw-select" name="firmware_id" required>
 <option value="">Selecione uma imagem</option>
-<?php foreach($files as $f): if(($f['status']??'')!=='nao_homologado') continue; ?>
+<?php foreach(fwbRead(FW_BENCH_DIR.'/catalog.json') as $f): if(($f['status']??'')!=='nao_homologado') continue; ?>
 <option value="<?=fwbh($f['id']??'')?>"
 data-manufacturer="<?=fwbh($f['manufacturer']??'')?>"
 data-model="<?=fwbh($f['model']??'')?>"
@@ -171,7 +171,7 @@ data-hardware="<?=fwbh($f['hw_revision']??'')?>"
 data-version="<?=fwbh($f['version']??'')?>"><?=fwbh(($f['manufacturer']??'').' / '.($f['model']??'').' / '.($f['version']??''))?></option>
 <?php endforeach; ?>
 </select>
-<p class="muted" id="fw-simple-firmware-info">Somente arquivos com fabricante, modelo e hardware correspondentes serão oferecidos.</p>
+<p class="muted" id="fw-simple-firmware-info">As imagens cadastradas serão filtradas por fabricante, modelo e revisão de hardware.</p>
 <label class="fw-simple-check"><input type="checkbox" name="bench_confirm" value="1" id="fw-simple-confirm"> Esta é minha ONU de bancada e tenho acesso físico a ela.</label>
 <button type="submit" id="fw-simple-register" disabled>Preparar teste (sem atualizar)</button>
 <p class="muted">Preparar apenas registra o vínculo. Não envia firmware à ONU.</p>
