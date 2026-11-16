@@ -20,27 +20,82 @@
         return routerModel.test(model) && !opticalModel.test(model);
     }
 
+    // Keep the existing RX value if the ONU/IXC provided one.
+    // Some customized dashboards render the Equipment rows as DIVs rather
+    // than a semantic TABLE; both layouts must be supported.
+    function replaceNoReadingBadge(root) {
+        const elements = [root, ...root.querySelectorAll('span, small, strong, td, div, .badge')];
+        // Prefer the innermost matching node, preserving the surrounding row.
+        for (let i = elements.length - 1; i >= 0; --i) {
+            const node = elements[i];
+            const label = normalized(node.textContent);
+            if (label.length > 32 || !badSignal.test(label) ||
+                /dBm/i.test(label) || node.dataset?.jrcRouterSignal === '1') continue;
+            // Do not replace an ancestor when its child already has the label.
+            if (Array.from(node.children).some(child =>
+                badSignal.test(normalized(child.textContent)))) continue;
+            node.textContent = 'Roteador';
+            node.title = 'Roteador comum; não possui leitura óptica própria neste ACS';
+            node.dataset.jrcRouterSignal = '1';
+            return true;
+        }
+        return false;
+    }
+
     function updateTableBadges() {
+        // Semantic tables: map RX column by its heading.
         for (const table of document.querySelectorAll('table')) {
             const heads = Array.from(table.querySelectorAll('thead th'));
             if (!heads.length) continue;
-            const rxIndex = heads.findIndex(h => /sinal\s*rx|^rx(?:\s|$)/i.test(normalized(h.textContent)));
-            const deviceIndex = heads.findIndex(h => /equipamento|modelo/i.test(normalized(h.textContent)));
+            const rxIndex = heads.findIndex(h =>
+                /sinal\s*rx|^rx(?:\s|$)/i.test(normalized(h.textContent)));
+            const deviceIndex = heads.findIndex(h =>
+                /equipamento|modelo/i.test(normalized(h.textContent)));
             if (rxIndex < 0 || deviceIndex < 0) continue;
-
             for (const tr of table.querySelectorAll('tbody tr')) {
                 const cells = tr.querySelectorAll('td');
                 if (cells.length <= Math.max(rxIndex, deviceIndex)) continue;
-                const model = normalized(cells[deviceIndex].textContent);
-                if (!isExplicitRouter(model)) continue;
-                const rxCell = cells[rxIndex];
-                if (rxCell.dataset.jrcRouterSignal === '1') continue;
-                const current = normalized(rxCell.textContent);
-                if (!badSignal.test(current)) continue; // never override real RX.
-                const badge = rxCell.querySelector('span, .badge') || rxCell;
-                badge.textContent = 'Roteador';
-                badge.title = 'Roteador sem interface óptica identificada: RX não se aplica neste dispositivo';
-                rxCell.dataset.jrcRouterSignal = '1';
+                if (!isExplicitRouter(normalized(cells[deviceIndex].textContent))) continue;
+                replaceNoReadingBadge(cells[rxIndex]);
+            }
+        }
+
+        // Customized card/grid rows: the deployed dashboard can render its
+        // "Equipamentos" list without <table>/<thead>. Find a short explicit
+        // model label and its *nearest bounded row* containing "Sem dado".
+        // Never search the whole dashboard container for a badge.
+        const models = document.querySelectorAll(
+            'strong, b, a, td:first-child, [class*="device-name"], [class*="equipment-name"]'
+        );
+        for (const modelEl of models) {
+            const model = normalized(modelEl.textContent);
+            if (model.length < 3 || model.length > 90 || !isExplicitRouter(model)) continue;
+            let row = modelEl.parentElement;
+            for (let depth = 0; depth < 7 && row; depth++, row = row.parentElement) {
+                const text = normalized(row.textContent);
+                if (text.length > 800) break;
+
+                // Stop at a row that has ALREADY been decorated, rather than
+                // ascending into the list and changing a neighboring ONU.
+                if (Array.from(row.querySelectorAll('*')).some(node =>
+                    node.dataset?.jrcRouterSignal === '1')) break;
+
+                // If more than one device title is inside this ancestor, it
+                // is a MULTI-ROW wrapper. Never apply a router badge there.
+                const deviceTitles = Array.from(row.querySelectorAll('strong, b'))
+                    .map(node => normalized(node.textContent))
+                    .filter(name => name.length < 90 &&
+                        (routerModel.test(name) || opticalModel.test(name)));
+                if (deviceTitles.length > 1) break;
+
+                if (badSignal.test(text) && replaceNoReadingBadge(row)) break;
+
+                // Recognized single equipment row, but no missing RX: do not
+                // continue climbing to the next equipment's signal.
+                const css = String(row.className || '').toLowerCase()
+                    .replace(/[-_]/g, ' ');
+                if (/(?:^|\s)(?:row|item|entry|record)(?:\s|$)/.test(css) &&
+                    !/(?:container|grid|wrapper|list)/.test(css)) break;
             }
         }
     }
@@ -83,31 +138,37 @@
 
     let counts = null;
     function updateSidebar() {
-        if (!counts || !Number.isFinite(counts.routers)) return;
+        if (!counts || !Number.isSafeInteger(counts.routers)) return;
         const existing = document.querySelector('[data-jrc-router-summary="1"]');
         if (existing) {
             const value = existing.querySelector('[data-jrc-router-count]');
-            if (value && value.textContent !== counts.routers.toLocaleString('pt-BR')) {
-                value.textContent = counts.routers.toLocaleString('pt-BR');
-            }
+            const formatted = counts.routers.toLocaleString('pt-BR');
+            if (value && value.textContent !== formatted) value.textContent = formatted;
             return;
         }
         const row = getNoReadingRow();
         if (!row || !row.parentElement) return;
-        const copy = row.cloneNode(false);
-        copy.removeAttribute('id');
-        copy.dataset.jrcRouterSummary = '1';
-        copy.title = 'Roteadores classificados no inventário do GenieACS. O contador óptico "Sem leitura" usa sua fonte atual e não foi alterado.';
-        copy.style.display = 'flex';
-        copy.style.alignItems = 'center';
-        copy.style.justifyContent = 'space-between';
 
-        const label = document.createElement('span');
-        label.textContent = 'Roteador (ACS)';
-        const value = document.createElement('strong');
-        value.dataset.jrcRouterCount = '1';
-        value.textContent = counts.routers.toLocaleString('pt-BR');
-        copy.append(label, value);
+        // Clone the COMPLETE styled indicator row. Shallow cloneNode(false)
+        // dropped the actual typography/columns and produced overlapping text.
+        const copy = row.cloneNode(true);
+        copy.dataset.jrcRouterSummary = '1';
+        copy.title = 'Quantidade de roteadores identificados no inventário ACS; não subtrai o indicador óptico Sem leitura';
+        copy.removeAttribute('id');
+        copy.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+
+        const leafNodes = Array.from(copy.querySelectorAll('*'))
+            .filter(el => el.children.length === 0);
+        const label = leafNodes.find(el =>
+            normalized(el.textContent).toLowerCase() === 'sem leitura');
+        const number = leafNodes.find(el =>
+            /^(?:\d[\d.,]*|[-–])$/.test(normalized(el.textContent)));
+
+        // Do not insert a malformed row if the original's structure differs.
+        if (!label || !number) return;
+        label.textContent = 'Roteadores';
+        number.textContent = counts.routers.toLocaleString('pt-BR');
+        number.dataset.jrcRouterCount = '1';
         row.insertAdjacentElement('afterend', copy);
     }
 
