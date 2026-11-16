@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Opt-in router-report deployment for the customized JR CONECT ACS.
 
-Install two new read-only report files and update ONLY the already installed
-router-badge JS. No changes to dashboard.php, customized view-logs.php, IXC,
-GenieACS/TR-069, firmware, tasks, flags, cron, MCP, credentials or database.
+Install the dedicated read-only router page, its helper, a blue report CSS,
+update ONLY the existing router-badge JS and add one CSS include to the
+customized view-logs.php. Keep the remainder of that page byte-for-byte.
+Never change dashboard.php, IXC, GenieACS/TR-069, firmware, tasks, flags,
+cron, MCP, credentials or database.
 """
 from __future__ import annotations
 
