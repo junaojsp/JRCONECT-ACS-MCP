@@ -51,13 +51,24 @@ final class JrcEquipmentClassification
         return 'desconhecido';
     }
 
-    /** Optical reading status, never classify a normal router as missing RX. */
+    /**
+     * No RX by itself does not prove an ONU telemetry failure.
+     *
+     * Keep three separate states:
+     * - roteador: no optical sensor expected on the router itself;
+     * - sem_leitura: identified optical ONU without a valid RX measurement;
+     * - tipo_nao_identificado: neither optical evidence nor router identity.
+     * Any valid RX makes the device optical, regardless of router functions.
+     */
     public static function signal(array $device): string
     {
-        if (self::type($device) === 'roteador') return 'roteador';
+        $type = self::type($device);
+        if ($type === 'roteador') return 'roteador';
         $rx = self::validOpticalRx($device['ixc_rx_power'] ?? null);
         if ($rx === null) $rx = self::validOpticalRx($device['rx_power'] ?? null);
-        if ($rx === null) return 'sem_leitura';
+        if ($rx === null) {
+            return $type === 'onu' ? 'sem_leitura' : 'tipo_nao_identificado';
+        }
         if ($rx < -28) return 'critico';
         if ($rx <= -25) return 'fraco';
         return 'normal';
@@ -68,6 +79,8 @@ final class JrcEquipmentClassification
         $out = [
             'total' => 0, 'roteadores' => 0, 'roteadores_sem_rx' => 0,
             'onus' => 0, 'desconhecidos' => 0,
+            'onus_sem_leitura' => 0, 'onus_com_rx' => 0,
+            'desconhecidos_sem_leitura' => 0,
         ];
         foreach ($devices as $device) {
             if (!is_array($device)) throw new InvalidArgumentException('Dispositivo invalido');
@@ -78,8 +91,14 @@ final class JrcEquipmentClassification
                 $out['roteadores_sem_rx']++;
             } elseif ($type === 'onu') {
                 $out['onus']++;
+                if (self::signal($device) === 'sem_leitura') {
+                    $out['onus_sem_leitura']++;
+                } else {
+                    $out['onus_com_rx']++;
+                }
             } else {
                 $out['desconhecidos']++;
+                $out['desconhecidos_sem_leitura']++;
             }
         }
         return $out;
