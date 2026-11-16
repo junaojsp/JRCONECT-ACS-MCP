@@ -88,12 +88,14 @@ unset($withoutTimestamp['VirtualParameters']['RXPower']['_timestamp']);
 $without = Consolidator::fleet([$withoutTimestamp], [], $now);
 same($without['devices'][0]['rx_measured_at_epoch'], 0, 'missing measurement timestamp never inherits Inform');
 same($without['devices'][0]['diagnostics']['rx_status'], 'sem_dados', 'missing timestamp must be unknown');
+same($without['devices'][0]['diagnostics']['rx_issue'], 'sem_timestamp_da_medicao', 'missing timestamp reason');
 
 $oldOptic = $make('E', 'AA:BB:05', 10, -22.1);
 $oldOptic['VirtualParameters']['RXPower']['_timestamp'] = gmdate('c', $now - 86400);
 $oldResult = Consolidator::fleet([$oldOptic], [], $now);
 same($oldResult['devices'][0]['diagnostics']['rx_status'], 'sem_dados', 'old RX cannot inherit fresh Inform');
 same($oldResult['devices'][0]['rx_measured_at_epoch'], $now - 86400, 'real RX timestamp preserved');
+same($oldResult['devices'][0]['diagnostics']['rx_issue'], 'leitura_desatualizada', 'stale RX reason');
 
 same(Diagnostics::number('0', -80, -0.00001), null, 'zero is absent');
 same(Diagnostics::number('-999', -80, -0.00001), null, 'sentinel');
