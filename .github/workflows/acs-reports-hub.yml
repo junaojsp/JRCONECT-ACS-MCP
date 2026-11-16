@@ -1,0 +1,30 @@
+name: ACS Consultas x Relatorios
+on:
+  pull_request:
+    paths:
+      - 'reports-hub.php'
+      - 'router-report.php'
+      - 'scripts/deploy-acs-reports-hub.py'
+      - 'tests/test_deploy_acs_reports_hub.py'
+      - '.github/workflows/acs-reports-hub.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: mysqli
+      - name: PHP syntax of separate reports pages
+        run: |
+          php -l reports-hub.php
+          php -l router-report.php
+      - name: Safe customized menu overlay and regression tests
+        run: |
+          python3 -m py_compile scripts/deploy-acs-reports-hub.py
+          python3 tests/test_deploy_acs_reports_hub.py
