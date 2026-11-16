@@ -112,3 +112,29 @@ Passos apos merge:
 Somente apos PLAN_OK aplicar:
 
     cd /tmp/jrc-acs-firmware-ui && sudo python3 scripts/deploy-acs-router-signal.py apply
+
+## Correcao visual: identificacao em linhas personalizadas
+
+Validacao da tela em 16/11/2026 mostrou dois problemas apos o apply:
+o D-LINK Router ainda aparecia com Sem dado, e a nova linha Roteador
+(ACS) perdia alinhamento/texto sobreposto no resumo Sinal da frota.
+
+O primeiro problema ocorre quando a listagem e renderizada por DIVs
+sem thead/tr/td. O script agora aceita tanto tabela HTML quanto linhas
+personalizadas: identifica a evidencia explicita de Router no modelo,
+busca a linha mais proxima contendo Sem dado e altera somente esse badge.
+Nunca altera o valor RX em dBm nem a classificacao de ONU.
+
+O segundo problema vinha do cloneNode(false), que descartava os filhos
+com as classes de layout e tipografia. Agora a linha e clonada com
+estrutura completa; apenas label (Roteadores) e numero sao atualizados.
+Se a estrutura da linha original nao puder ser identificada, a
+adicao e ignorada, sem criar um elemento desalinhado.
+
+O novo teste JS sem dependencias simula o DOM personalizado, troca
+das linhas a cada atualizacao, ONU sem RX, RX real e o quadro lateral.
+Os testes e a instalacao seguem sem alterar APIs, tasks ou dashboard.
+
+Depois do merge, o overlay seguro ja instalado atualiza somente
+assets/js/jrc-router-signal.js, preservando o mesmo include da PR anterior.
+Use primeiro modo plan e depois apply com backup se PLAN_OK.
