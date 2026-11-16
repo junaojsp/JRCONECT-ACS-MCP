@@ -72,6 +72,35 @@ $emptyValue = JrcOnuTelemetryAudit::inspect(
 );
 check($emptyValue['status'], 'PARAMETRO_RX_SEM_VALOR', 'Parametro existe mas vazio');
 
+// Some GenieACS parameter records have the path but no _value key yet.
+$unpopulated = JrcOnuTelemetryAudit::inspect(
+    device('HG6143D', $now - 60, [
+        'VirtualParameters' => ['RXPower' => ['_timestamp' => '2026-11-16T14:00:00Z']]
+    ]),
+    parsed('HG6143D'), $now
+);
+check($unpopulated['status'], 'PARAMETRO_RX_SEM_VALOR',
+      'RX cadastrado sem campo _value precisa ser reconhecido');
+
+// Missing temperature must be independently counted without hiding valid RX.
+$temperatureOnly = JrcOnuTelemetryAudit::inspect(
+    device('HG6143D', $now - 60, [
+        'VirtualParameters' => ['RXPower' => ['_value' => -23.1]]
+    ]),
+    parsed('HG6143D', '-23.1', 'N/A'), $now
+);
+check($temperatureOnly['rx_valid'], true, 'RX preservado sem temperatura');
+check($temperatureOnly['temp_valid'], false, 'Temperatura em falta');
+
+// Generic routers must be excluded even though no RX parameter exists.
+$routerNoRx = JrcOnuTelemetryAudit::inspect(
+    device('D-LINK Router', $now - 55),
+    parsed('D-LINK Router'), $now
+);
+check($routerNoRx['type'], 'roteador', 'Roteador comum nao entra nas ONUs');
+
+
+
 $oldInform = JrcOnuTelemetryAudit::inspect(
     device('EG8145V5', $now - 86400),
     parsed('EG8145V5'), $now
@@ -105,14 +134,19 @@ check($fakeWifiSecret, [], 'Nunca processar caminho de senha');
 
 $report = JrcOnuTelemetryAudit::summarize([
     $router, $onuOk, $missingPath, $alternatePath,
-    $emptyValue, $oldInform, $historicalRx, $unknown
+    $emptyValue, $unpopulated, $temperatureOnly, $oldInform, $historicalRx, $unknown
 ]);
-check($report['totais']['analisados'], 8, 'Total');
+check($report['totais']['analisados'], 10, 'Total');
 check($report['totais']['roteadores'], 1, 'Roteadores');
 check($report['totais']['tipo_a_confirmar'], 1, 'Desconhecidos');
-check($report['totais']['onus'], 6, 'ONUs reconhecidas');
-check($report['totais']['onus_sem_rx'], 4, 'ONUs sem RX cadastrado');
-check($report['totais']['onus_sem_rx_com_inform_recente'], 3,
+check($report['totais']['onus'], 8, 'ONUs reconhecidas');
+check($report['totais']['onus_sem_rx'], 5, 'ONUs sem RX cadastrado');
+check($report['totais']['onus_sem_rx_com_inform_recente'], 4,
       'Sem RX e comunicacao recente');
+
+check($report['totais']['onus_sem_temperatura'], 7,
+      'Temperatura ausente independente de RX');
+check($report['totais']['onus_sem_rx_e_temperatura'], 5,
+      'ONUs com ambos os parametros ausentes');
 
 echo "JRC_ONU_TELEMETRY_AUDIT_TESTS_OK\n";
