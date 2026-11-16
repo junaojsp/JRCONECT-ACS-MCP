@@ -26,7 +26,7 @@ eq(JrcEquipmentClassification::type($huawei), 'onu', 'Huawei ONU');
 eq(JrcEquipmentClassification::signal($onu), 'sem_leitura', 'ONU sem RX');
 eq(JrcEquipmentClassification::type($missing), 'desconhecido',
    'Sem sinal isoladamente nao prova ser roteador');
-eq(JrcEquipmentClassification::signal($missing), 'sem_leitura', 'Desconhecido');
+eq(JrcEquipmentClassification::signal($missing), 'tipo_nao_identificado', 'Desconhecido nao e falha de ONU');
 eq(JrcEquipmentClassification::type($ontWithRouter), 'onu', 'Router GPON e ONU');
 eq(JrcEquipmentClassification::type($routerWithOptical), 'onu',
    'Optica observada prevalece sobre rotulo Router');
@@ -42,7 +42,27 @@ eq(JrcEquipmentClassification::summarize(
    [$router, $onu, $missing, $routerWithOptical]
 ), [
     'total' => 4, 'roteadores' => 1, 'roteadores_sem_rx' => 1,
-    'onus' => 2, 'desconhecidos' => 1
+    'onus' => 2, 'desconhecidos' => 1,
+    'onus_sem_leitura' => 1, 'onus_com_rx' => 1,
+    'desconhecidos_sem_leitura' => 1
 ], 'Resumo consistente');
+
+
+// Even with missing temperature, an optical ONU is not a simple router.
+eq(JrcEquipmentClassification::signal([
+    'product_class' => 'HG6143D', 'rx_power' => '-24.10',
+    'temperature' => 'N/A'
+]), 'normal', 'Temperatura ausente nao afeta RX valido');
+
+// An unknown vendor without RX must not artificially increase "ONU sem leitura".
+$unidentified = JrcEquipmentClassification::summarize([
+    ['product_class' => 'CPE Device X9', 'rx_power' => 'N/A'],
+    ['product_class' => 'GPON Router ONT', 'rx_power' => 'N/A'],
+    ['product_class' => 'D-LINK Router', 'rx_power' => 'N/A']
+]);
+eq($unidentified['onus_sem_leitura'], 1, 'Somente ONU optica sem RX');
+eq($unidentified['desconhecidos_sem_leitura'], 1, 'Modelo nao identificado isolado');
+eq($unidentified['roteadores_sem_rx'], 1, 'Roteador sem porta optica separado');
+eq($unidentified['total'], 3, 'Tres grupos exclusivos');
 
 echo "JRC_ROUTER_CLASSIFICATION_TESTS_OK\n";
