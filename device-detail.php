@@ -39,6 +39,8 @@ include __DIR__ . '/views/layouts/header.php';
             Voltar para Equipamentos
         </a>
 
+        <a class="btn btn-primary" href="/firmware-updates.php?device_id=<?= htmlspecialchars(rawurlencode((string)$deviceId), ENT_QUOTES, 'UTF-8') ?>">Atualizar firmware</a>
+
         <button
             class="btn btn-primary"
             onclick="summonDevice()"

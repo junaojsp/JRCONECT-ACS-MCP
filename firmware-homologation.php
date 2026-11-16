@@ -177,7 +177,7 @@ data-version="<?=fwbh($f['version']??'')?>"><?=fwbh(($f['manufacturer']??'').' /
 <p class="muted">Preparar apenas registra o vínculo. Não envia firmware à ONU.</p>
 </div>
 </form>
-<div class="card"><h3>Atualização</h3><div class="notice">Envio bloqueado enquanto não validarmos a integração do GenieACS e o procedimento oficial desta imagem.</div><button type="button" disabled aria-disabled="true" class="fw-simple-disabled">Atualizar ONU (ainda indisponível)</button></div>
+<div class="card"><h3>Atualização individual</h3><p>Para validar o equipamento no ACS, confirmar o envio e acompanhar o resultado, abra a central de atualizações.</p><a href="/firmware-updates.php">Abrir atualização individual</a></div>
 <details class="card"><summary>Histórico de preparação</summary><div class="fw-simple-table"><table>
 <thead><tr><th>ONU / Serial</th><th>Arquivo (SHA)</th><th>Versão instalada</th><th>Status</th><th>Data UTC</th></tr></thead><tbody>
 <?php if (!$records): ?><tr><td colspan="5">Nenhuma ONU vinculada.</td></tr><?php endif; ?>
