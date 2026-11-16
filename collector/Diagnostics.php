@@ -32,6 +32,19 @@ final class Diagnostics
             $signal = $rx < -28 ? 'critico' : ($rx <= -25 ? 'fraco' : 'normal');
         }
 
+        // Distinguish an absent RX parameter from a stale or unverified sample.
+        // This is diagnostic metadata; no unavailable measurement becomes "normal".
+        $rxIssue = null;
+        if ($signal === 'sem_dados') {
+            if (!$online) $rxIssue = 'sem_comunicacao_recente';
+            elseif ($device['rx_power'] === null || ($device['rx_power'] ?? '') === '') {
+                $rxIssue = 'parametro_ou_valor_ausente';
+            } elseif ($rx === null) $rxIssue = 'valor_invalido';
+            elseif ($sampleAt <= 0) $rxIssue = 'sem_timestamp_da_medicao';
+            elseif ($sampleAt > $now + 300) $rxIssue = 'timestamp_futuro';
+            else $rxIssue = 'leitura_desatualizada';
+        }
+
         $temp = self::number($device['temperature'] ?? null, -30, 130);
         $tempSource = (string)($device['temperature_source'] ?? 'tr069');
         $tempMeasured = (int)($device['temperature_measured_at_epoch'] ?? 0);
@@ -56,6 +69,7 @@ final class Diagnostics
         return [
             'status' => $status,
             'rx_status' => $signal,
+            'rx_issue' => $rxIssue,
             'temperature_status' => $temperature,
             'warnings' => $warnings
         ];
