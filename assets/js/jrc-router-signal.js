@@ -73,9 +73,29 @@
             let row = modelEl.parentElement;
             for (let depth = 0; depth < 7 && row; depth++, row = row.parentElement) {
                 const text = normalized(row.textContent);
-                if (text.length > 800) break; // prevent crossing into another equipment row
-                if (!badSignal.test(text)) continue;
-                if (replaceNoReadingBadge(row)) break;
+                if (text.length > 800) break;
+
+                // Stop at a row that has ALREADY been decorated, rather than
+                // ascending into the list and changing a neighboring ONU.
+                if (Array.from(row.querySelectorAll('*')).some(node =>
+                    node.dataset?.jrcRouterSignal === '1')) break;
+
+                // If more than one device title is inside this ancestor, it
+                // is a MULTI-ROW wrapper. Never apply a router badge there.
+                const deviceTitles = Array.from(row.querySelectorAll('strong, b'))
+                    .map(node => normalized(node.textContent))
+                    .filter(name => name.length < 90 &&
+                        (routerModel.test(name) || opticalModel.test(name)));
+                if (deviceTitles.length > 1) break;
+
+                if (badSignal.test(text) && replaceNoReadingBadge(row)) break;
+
+                // Recognized single equipment row, but no missing RX: do not
+                // continue climbing to the next equipment's signal.
+                const css = String(row.className || '').toLowerCase()
+                    .replace(/[-_]/g, ' ');
+                if (/(?:^|\s)(?:row|item|entry|record)(?:\s|$)/.test(css) &&
+                    !/(?:container|grid|wrapper|list)/.test(css)) break;
             }
         }
     }
