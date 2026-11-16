@@ -9,7 +9,8 @@ declare(strict_types=1);
  *
  * Only GET /devices via local loopback. No TR-069 task, refresh, provision,
  * IXC call, DB write, cron installation, deployment or CPE action.
- * No subscriber identifiers, Wi-Fi secrets or raw JSON in stdout/logs.
+ * No subscriber names, Wi-Fi secrets or raw JSON in stdout/logs.
+ * Only problem ONUs are listed, with serial and model for field diagnosis.
  */
 if (PHP_SAPI !== 'cli') {
     http_response_code(403);
@@ -105,8 +106,17 @@ try {
             }
             $seen[$id] = true;
             $parsed = \App\GenieACS_Fast::parseDeviceDataFast($raw);
-            $observations[] = JrcOnuTelemetryAudit::inspect($raw, $parsed, $clock);
-            // Never store raw records, subscriber fields or credentials in output.
+            $observation = JrcOnuTelemetryAudit::inspect($raw, $parsed, $clock);
+            if ($observation['type'] === 'onu' &&
+                (!$observation['rx_valid'] || !$observation['temp_valid'])) {
+                // Device serial is an operational locator, not a customer
+                // name, PPPoE, MAC, address or private configuration.
+                $serial = trim((string)($parsed['serial_number'] ?? ''));
+                $observation['serial'] = preg_match('/^[A-Za-z0-9_.:-]{4,80}$/D', $serial)
+                    ? $serial : 'SEM_SERIAL';
+            }
+            $observations[] = $observation;
+            // Raw GenieACS records and sensitive CPE fields are discarded.
         }
         unset($devices);
         if (count($seen) > $maxPages * $pageSize) {
@@ -126,25 +136,39 @@ try {
     unset($auth, $pass);
 
     $report = JrcOnuTelemetryAudit::summarize($observations);
+    // Output only identified ONUs with missing telemetry, never routers or
+    // unclassified equipment, even when their RX/temperature is missing.
+    $problems = array_values(array_filter($observations, static function(array $r): bool {
+        return $r['type'] === 'onu' && (!$r['rx_valid'] || !$r['temp_valid']);
+    }));
+    usort($problems, static function(array $a, array $b): int {
+        return (($b['recent_inform'] && !$b['rx_valid']) <=>
+                ($a['recent_inform'] && !$a['rx_valid']))
+            ?: ((int)$a['rx_valid'] <=> (int)$b['rx_valid'])
+            ?: strcmp($a['model'], $b['model'])
+            ?: strcmp($a['serial'] ?? '', $b['serial'] ?? '');
+    });
     unset($observations);
     $t = $report['totais'];
 
     echo "JRC_ONU_TELEMETRIA_AUDITORIA_OK\n";
     echo "DATA_UTC=" . gmdate('Y-m-d H:i:s') . "\n";
     echo "FONTE=GenieACS NBI local (somente GET; dados ja cadastrados)\n";
-    echo "TOTAL_CPE=" . $t['analisados'] .
-         " ONU_IDENTIFICADA=" . $t['onus'] .
-         " ROTEADORES=" . $t['roteadores'] .
-         " TIPO_NAO_CONFIRMADO=" . $t['tipo_a_confirmar'] . "\n";
-    echo "ONU_SEM_RX=" . $t['onus_sem_rx'] .
-         " ONU_SEM_RX_COM_INFORM_15MIN=" . $t['onus_sem_rx_com_inform_recente'] . "\n";
+    echo "TOTAL_CPE_EXAMINADOS=" . $t['analisados'] .
+         " ONU_IDENTIFICADAS=" . $t['onus'] .
+         " EXCLUIDOS_NAO_ONU=" . ($t['analisados'] - $t['onus']) . "\n";
+    echo "ONUS_SEM_RX=" . $t['onus_sem_rx'] .
+         " ONUS_SEM_TEMPERATURA=" . $t['onus_sem_temperatura'] .
+         " ONUS_SEM_RX_E_TEMP=" . $t['onus_sem_rx_e_temperatura'] . "\n";
+    echo "ONUS_SEM_RX_INFORM_RECENTE_15MIN=" .
+         $t['onus_sem_rx_com_inform_recente'] . "\n";
     echo "ATENCAO=Inform recente nao prova suporte ao RX; ausente no NBI pode significar parametro nao descoberto.\n";
     echo "ATENCAO=RX/temperatura coletados do cadastro TR-069; IXC optico nao foi consultado nesta auditoria.\n";
     echo "MODELOS_POR_PRIORIDADE:\n";
 
     foreach ($report['modelos'] as $m) {
-        if ($m['tipo'] !== 'onu' && $m['tipo'] !== 'desconhecido') continue;
-        if ($m['tipo'] === 'onu' && $m['sem_rx'] === 0) continue;
+        if ($m['tipo'] !== 'onu') continue;
+        if ($m['sem_rx'] === 0 && $m['temperatura_sem_dado'] === 0) continue;
         echo "MODELO=" . $m['fabricante'] . " / " . $m['modelo'] .
              " TIPO=" . $m['tipo'] .
              " TOTAL=" . $m['total'] .
@@ -166,6 +190,22 @@ try {
             echo "  CAMINHO_RX_NBI=" . $path . " QTD=" . $count . "\n";
         }
     }
+    echo "ONUS_INDIVIDUAIS_COM_COLETA_PENDENTE:\n";
+    $detailLimit = 120;
+    foreach (array_slice($problems, 0, $detailLimit) as $r) {
+        $rx = $r['rx_valid'] ? 'OK' : 'AUSENTE';
+        $temperature = $r['temp_valid'] ? 'OK' : 'AUSENTE';
+        echo "ONU_PENDENTE SERIAL=" . ($r['serial'] ?? 'SEM_SERIAL') .
+             " MODELO=" . $r['manufacturer'] . "/" . $r['model'] .
+             " FIRMWARE=" . $r['firmware'] .
+             " RX=" . $rx .
+             " TEMP=" . $temperature .
+             " INFORM_15MIN=" . ($r['recent_inform'] ? 'SIM' : 'NAO') .
+             " HIPOTESE_RX=" . $r['status'] . "\n";
+    }
+    $omitted = max(0, count($problems) - $detailLimit);
+    echo "ONUS_LISTADAS=" . min(count($problems), $detailLimit) .
+         " ONUS_ADICIONAIS_NAO_LISTADAS=" . $omitted . "\n";
     echo "FIM_AUDITORIA=OK\n";
 } catch (Throwable $error) {
     // Never echo raw HTTP response, stack traces, subscriber values or tokens.
