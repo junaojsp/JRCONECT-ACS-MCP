@@ -1,0 +1,13 @@
+name: Dashboard recent query
+on:
+  push:
+    paths: ['lib/JrcRecentDevices.php', 'api/recent-devices.php', 'scripts/deploy-dashboard-query.py', 'tests/dashboard-query.test.php', 'tests/test_deploy_dashboard_query.py', '.github/workflows/dashboard-query.yml']
+  pull_request:
+    paths: ['lib/JrcRecentDevices.php', 'api/recent-devices.php', 'scripts/deploy-dashboard-query.py', 'tests/dashboard-query.test.php', 'tests/test_deploy_dashboard_query.py', '.github/workflows/dashboard-query.yml']
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: php -l api/recent-devices.php && php tests/dashboard-query.test.php
+      - run: python3 tests/test_deploy_dashboard_query.py
