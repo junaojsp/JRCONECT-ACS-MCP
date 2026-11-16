@@ -30,7 +30,11 @@ def patch(name, text):
         anchor = '        <button\n            class="btn btn-primary"'
         addition = '        <a class="btn btn-primary" href="/firmware-updates.php?device_id=<?= htmlspecialchars(rawurlencode((string)$deviceId), ENT_QUOTES, \'UTF-8\') ?>">Atualizar firmware</a>\n\n'
         if text.count(anchor) != 1:
-            raise ValueError('Botão de equipamento desconhecido')
+            # This shortcut is optional; the repository and bench links are
+            # the supported entry points when a live device page is customized.
+            print('AVISO: device-detail.php personalizado; preservado sem adicionar atalho. '
+                  'Acesse pelo repositório de firmwares ou /firmware-updates.php.')
+            return text
         return text.replace(anchor, addition + anchor, 1)
     if text.count(anchor) != 1:
         raise ValueError('Página de repositório desconhecida')
