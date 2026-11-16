@@ -37,7 +37,7 @@ final class Diagnostics
         $rxIssue = null;
         if ($signal === 'sem_dados') {
             if (!$online) $rxIssue = 'sem_comunicacao_recente';
-            elseif ($device['rx_power'] === null || ($device['rx_power'] ?? '') === '') {
+            elseif (($device['rx_power'] ?? null) === null || ($device['rx_power'] ?? '') === '') {
                 $rxIssue = 'parametro_ou_valor_ausente';
             } elseif ($rx === null) $rxIssue = 'valor_invalido';
             elseif ($sampleAt <= 0) $rxIssue = 'sem_timestamp_da_medicao';
