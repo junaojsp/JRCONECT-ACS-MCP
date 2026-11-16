@@ -59,7 +59,8 @@ final class JrcDeviceInventoryCache
         while ($row = $rows->fetch_assoc()) {
             $decoded = json_decode($row['payload_json'], true);
             if (!is_array($decoded)) throw new RuntimeException('Cache corrompido');
-            $devices[] = $decoded;
+            require_once __DIR__ . '/JrcSnmpTelemetry.php';
+            $devices[] = JrcSnmpTelemetry::apply($decoded);
         }
         $stmt->close();
 

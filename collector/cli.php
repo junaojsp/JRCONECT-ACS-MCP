@@ -22,8 +22,15 @@ use JRC\Collector\ShadowRepository;
 
 date_default_timezone_set('UTC');
 $mode = $argv[1] ?? '--check';
+// Explicit pilot mode uses the existing collector entry point, independently of NBI/IXC.
+if (in_array($mode, ['--snmp-pilot', '--snmp-fleet'], true) && count($argv) === 2) {
+    $module = $mode === '--snmp-fleet' ? '/snmp_fleet.py' : '/snmp_pilot.py';
+    $process = proc_open(['python3', __DIR__ . $module],
+        [0 => STDIN, 1 => STDOUT, 2 => STDERR], $pipes);
+    exit(is_resource($process) ? proc_close($process) : 1);
+}
 if (!in_array($mode, ['--check', '--shadow'], true) || count($argv) > 2) {
-    fwrite(STDERR, "Use: php collector/cli.php [--check|--shadow]\n");
+    fwrite(STDERR, "Use: php collector/cli.php [--check|--shadow|--snmp-pilot|--snmp-fleet]\n");
     exit(2);
 }
 if ($mode === '--shadow' && Config::env('JRC_COLLECTOR_SHADOW_WRITE') !== '1') {

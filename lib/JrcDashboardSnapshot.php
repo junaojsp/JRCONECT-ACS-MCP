@@ -31,7 +31,8 @@ final class JrcDashboardSnapshot
         while ($row = $rows->fetch_assoc()) {
             $item = json_decode($row['payload_json'], true);
             if (!is_array($item)) throw new RuntimeException('Snapshot corrompido');
-            $devices[] = $item;
+            require_once __DIR__ . '/JrcSnmpTelemetry.php';
+            $devices[] = JrcSnmpTelemetry::apply($item);
         }
         $stmt->close();
         if (count($devices) !== $expected) {

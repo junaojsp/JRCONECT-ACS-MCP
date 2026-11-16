@@ -80,6 +80,9 @@ try {
     } elseif ($url !== '' || $token !== '') {
         $note = 'Configuracao IXC incompleta; somente GenieACS';
     }
+    require_once __DIR__ . '/../lib/JrcSnmpTelemetry.php';
+    $devices = array_map([JrcSnmpTelemetry::class, 'apply'], $devices);
+
     $published = JrcDeviceInventoryCache::publish($db, $devices, $ixcMatched, $note);
     echo 'COLETA_OK total=' . $published['total'] .
          ' ixc_matched=' . $published['ixc_matched'] .

@@ -1,0 +1,37 @@
+name: ACS SNMP source cutover
+on:
+  pull_request:
+    paths:
+      - 'collector/**'
+      - 'lib/JrcSnmpTelemetry.php'
+      - 'lib/GenieACS*.php'
+      - 'lib/JrcDashboardSnapshot.php'
+      - 'lib/JrcDeviceInventoryCache.php'
+      - 'api/get-onu*.php'
+      - 'cron/collect-device-inventory.php'
+      - 'tests/test_snmp_*.py'
+      - 'tests/jrc-snmp-telemetry.test.php'
+      - 'scripts/deploy-acs-snmp.py'
+      - 'scripts/inspect-acs-telemetry.py'
+      - 'tests/test_deploy_acs_snmp.py'
+      - '.github/workflows/acs-snmp-cutover.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli, curl
+          tools: none
+      - name: Syntax and snapshot reader tests
+        run: |
+          for f in lib/JrcSnmpTelemetry.php lib/GenieACS.php lib/GenieACS_Fast.php lib/JrcDashboardSnapshot.php lib/JrcDeviceInventoryCache.php api/get-onu-optical.php api/get-onu-snmp.php cron/collect-device-inventory.php collector/cli.php; do php -l "$f"; done
+          php tests/jrc-snmp-telemetry.test.php
+          php tests/jrc-telemetry-honesty.test.php
+          php tests/jrc-collector.test.php
+          python3 -m unittest discover -s tests -p 'test_snmp_*.py' -v
+          python3 -m unittest discover -s tests -p 'test_deploy_acs_snmp.py' -v
