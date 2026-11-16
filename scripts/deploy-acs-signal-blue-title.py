@@ -48,13 +48,10 @@ def proposal(root):
         if len(matches)!=1:
             abort("Link CSS de origem nao encontrado de forma unica")
         original=lines[matches[0]]
-        match=re.match(r"^(\\s*)echo\\s+(['\"])",original)
-        if not match:
+        if not original.lstrip().startswith("echo "):
             abort("CSS personalizado nao usa echo PHP esperado")
-        indent=match.group(1)
-        injected=indent+"echo '<link rel=\\\"stylesheet\\\" href=\\\"/assets/css/jrc-signal-report-final-blue.css?v=3\\\">';\\n"
-        # quotes are escaped in a Python string but the resulting PHP should have plain quotes
-        injected=injected.replace('\\\\"','"')
+        indent=original[:len(original)-len(original.lstrip())]
+        injected=indent + "echo '<link rel=\"stylesheet\" href=\"/assets/css/jrc-signal-report-final-blue.css?v=3\">';\n"
         lines.insert(matches[0]+1,injected)
         text="".join(lines)
     if text.count(LINK_MARKER)!=1:
