@@ -94,13 +94,16 @@ final class JrcOnuTelemetryAudit
         $temp = self::validTemp($parsed['temperature'] ?? null);
         $paths = self::candidatePaths($raw, 'rx');
         $tempPaths = self::candidatePaths($raw, 'temperature');
+        // Actual optical evidence overrides a generic "Router" label.
+        if ($rx || self::anyPathWithValue($paths)) $type = 'onu';
 
         if ($type === 'roteador') {
             $status = 'ROTEADOR_SEM_RX_ESPERADO';
         } elseif ($type === 'desconhecido') {
             $status = 'TIPO_A_CONFIRMAR';
         } elseif ($rx) {
-            $status = 'RX_OK';
+            $status = $recent ? 'RX_PRESENTE_INFORM_RECENTE'
+                              : 'RX_CADASTRADO_INFORM_ANTIGO';
         } elseif ($age === null || $age > 7200 || $age < -300) {
             $status = 'INFORM_ANTIGO_OU_AUSENTE';
         } elseif (!$recent) {
