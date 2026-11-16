@@ -108,8 +108,13 @@ body.append(side);
 const grid = element('div', '', 'acs-grid-equipamentos');
 const router = row('D-LINK Router', 'Sem dado');
 const onuMissing = row('FiberHome HG6245D', 'Sem dado');
+const unknownMissing = row('CPE Device X9', 'Sem dado');
 const onuWithRx = row('Huawei EG8145V5', '-26.12 dBm');
-grid.append(router.item, onuMissing.item, onuWithRx.item);
+const onuWithMissingTemperature = row('Huawei EG8145V5', '-24.10 dBm');
+const tempField = element('div', '', 'acs-equipment-temperature');
+tempField.append(element('span', 'Sem dado', 'badge'));
+onuWithMissingTemperature.item.append(tempField);
+grid.append(router.item, onuMissing.item, unknownMissing.item, onuWithRx.item, onuWithMissingTemperature.item);
 body.append(grid);
 
 let observer;
@@ -146,8 +151,11 @@ vm.runInNewContext(source, context);
 (async () => {
     await new Promise(setImmediate); // async source summary completes
     assert.equal(router.rx.textContent, 'Roteador', 'D-Link grid badge replaced');
-    assert.equal(onuMissing.rx.textContent, 'Sem dado', 'ONU lacking RX unchanged');
+    assert.equal(onuMissing.rx.textContent, 'ONU sem leitura', 'ONU sem RX identificada corretamente');
+    assert.equal(unknownMissing.rx.textContent, 'Tipo a confirmar', 'Dispositivo com tipo desconhecido nao e ONU');
     assert.equal(onuWithRx.rx.textContent, '-26.12 dBm', 'real RX unchanged');
+    assert.equal(onuWithMissingTemperature.rx.textContent, '-24.10 dBm', 'ONU RX real preservado');
+    assert.equal(tempField.textContent, 'Sem dado', 'Ausencia de temperatura nao vira ausencia de RX');
 
     const sidebarRow = body.querySelector('[data-jrc-router-summary="1"]');
     assert.ok(sidebarRow, 'counter appended in signal-fleet panel');
