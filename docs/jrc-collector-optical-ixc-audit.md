@@ -12,9 +12,12 @@ que o painel personalizado ja utiliza. Este passo so consulta dados.
 
 O script `scripts/jrc-collector-ixc-audit.php`:
 
-- identifica URL e token literais usados pelo endpoint existente
-  `/var/www/gacs/api/get-onu-optical.php` com tokenizacao estatica
-  (sem incluir/executar PHP nem imprimir as credenciais);
+- identifica URL e token no endpoint existente
+  `/var/www/gacs/api/get-onu-optical.php` com tokenizacao estatica.
+  No ACS personalizado, o endpoint chama `getIxcConfig()`: a auditoria
+  carrega apenas a configuracao confiavel do painel e resolve as chaves
+  referenciadas em `$ixcConfig`, **sem executar o endpoint optico**
+  e sem imprimir credenciais;
 - chama apenas a operacao IXC de listagem `ixcsoft: listar`
   em `radpop_radio_cliente_fibra`;
 - consulta somente o snapshot atual de `jrc_device_inventory_*`;
@@ -64,3 +67,13 @@ O codigo legado contem um token IXC literal em arquivo PHP. Esta auditoria
 nao o replica nem o imprime. Antes de operacao continua no Docker, criar
 credenciais dedicadas de leitura armazenadas como secrets fora do repo.
 Planejar rotacao do token legado sem interromper as APIs de producao.
+
+## Ajuste apos diagnostico em producao
+
+A primeira versao esperava atribuicao literal para `$ixcBaseUrl` e
+`$ixcToken`. No ACS instalado, ambos usam `$ixcConfig`, obtido de
+`getIxcConfig()`. O adaptador atualizado aceita essas atribuicoes e
+obtém os valores da funcao de configuracao ja utilizada pela API, sem
+exibir tokens, executar `get-onu-optical.php`, mudar credenciais, ou
+escrever no banco. Testes validam o caso real e rejeitam origem diferente
+ou configuracao incompleta.
