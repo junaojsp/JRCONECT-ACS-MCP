@@ -63,3 +63,30 @@ nessa ONU-piloto, sem alterar a frota.
 A PR #195 de classificação visual foi revertida e NÃO deve ser
 reinstalada. Não alterar dashboard, IXC/TR-069, reboot, firmware,
 cron ou flags em consequência desta auditoria.
+
+## Etapa seguinte: confirmar escala real do RX e da temperatura
+
+O teste piloto de 16/11/2026 confirmou:
+
+- HG6245D: X_FH_GponInterfaceConfig.RXPower cadastrado, ultimo
+  timestamp de aproximadamente 21.374 min, que e dado antigo.
+- HG8546M: X_GponInterfaceConfig.RXPower e
+  X_GponInterfaceConfig.TransceiverTemperature cadastrados, com
+  timestamp aproximado de 84 min no instante da auditoria.
+- HG6143D e EG8145V5: piloto selecionado sem parametros opticos
+  cadastrados no NBI, exigindo avaliacao de descoberta por modelo.
+
+Para validar a unidade original antes de corrigir o parser, o script
+passa a mostrar BRUTO_OPTICO nos dois caminhos RX proprietarios e
+no campo TransceiverTemperature, somente se o valor for numerico.
+Nenhum outro parametro de assinante ou rede tem o valor exibido.
+O texto BRUTO_OPTICO NAO SIGNIFICA dBm OU CELSIUS: a escala deve
+ser conferida com outro dado conhecido e a idade da coleta.
+Nao habilitar novas fontes de RX no dashboard enquanto nao houver
+confirmacao de unidade, intervalo valido e frescor do parametro.
+
+Reexecutar o mesmo comando de auditoria piloto apos merge desta PR:
+
+    cd /tmp/jrc-acs-firmware-ui && git pull --ff-only origin main && php tests/jrc-onu-pilot-paths.test.php && php scripts/audit-acs-onu-optical-pilots.php
+
+O procedimento segue 100% somente leitura e nao faz deploy.
