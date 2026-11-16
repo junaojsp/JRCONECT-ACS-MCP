@@ -80,7 +80,7 @@ def main():
         stop("verificacao CSRF falhou")
     for name in ("csrf", "confirm", "catalogueOptions", "current"):
         import re
-        count = len(re.findall(r"^\\s*(?:const|let)\\s+" + name + r"\\s*=", script(fixed), re.M))
+        count = len(re.findall(r"^\s*(?:const|let)\s+" + name + r"\s*=", script(fixed), re.M))
         if count != 1:
             stop("declaracao de " + name + " repetida ou ausente: " + str(count))
     js_lint(fixed)
