@@ -1,0 +1,21 @@
+name: ACS SNMP pilot
+on:
+  pull_request:
+    paths:
+      - 'collector/cli.php'
+      - 'collector/snmp_pilot.py'
+      - 'tests/test_snmp_pilot.py'
+      - '.github/workflows/acs-snmp-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+      - run: php -l collector/cli.php
+      - run: python3 -m unittest discover -s tests -p 'test_snmp_pilot.py' -v
