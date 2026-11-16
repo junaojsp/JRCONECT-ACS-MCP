@@ -1,0 +1,19 @@
+# Copy as /etc/jrc-collector/config.env (root:root 0600).
+# This file contains no real secrets. All passwords/tokens are separate files.
+JRC_ACS_URL=http://127.0.0.1:7557
+JRC_ACS_USER=
+JRC_ACS_PASSWORD_FILE=/run/jrc-collector-secrets/acs_password
+JRC_IXC_URL=
+JRC_IXC_TOKEN_FILE=/run/jrc-collector-secrets/ixc_token
+JRC_IXC_USERS_ENABLED=0
+JRC_DB_HOST=127.0.0.1
+JRC_DB_PORT=3306
+JRC_DB_NAME=
+JRC_DB_USER=
+JRC_DB_PASSWORD_FILE=/run/jrc-collector-secrets/mysql_password
+
+# Stay in read-only dry-run until shadow tables and DB privileges are homologated.
+JRC_COLLECTOR_SHADOW_WRITE=0
+
+# Optional, vendor validated Celsius threshold; leave empty if unknown.
+JRC_TEMPERATURE_WARNING_C=
