@@ -28,11 +28,20 @@ final class JrcOnuPilotPaths
             if (++$nodes > 60000 || $depth > 22 || count($results) >= $limit) return;
 
             $optical = preg_match(
-                '/(?:^|[._-])(?:GPON|EPON|PON|OPTIC(?:AL)?|TRANSCEIVER|RX(?:POWER|PWR|SIGNAL)|TEMPERATURE|GETTEMP|LASER)(?:$|[._-])/i',
+                '/gpon|epon|optic|transceiver|rxpower|rxpwr|rxsignal|temperature|gettemp|laser|signalpower/i',
                 $path
             ) === 1;
+            $hasChildren = false;
+            foreach ($tree as $k => $v) {
+                if (!str_starts_with((string)$k, '_') && is_array($v)) {
+                    $hasChildren = true;
+                    break;
+                }
+            }
+            // Container objects often have _timestamp too. Do NOT stop at
+            // the container and hide nested RXPower/Temperature leaves.
             $isLeaf = array_key_exists('_value', $tree) ||
-                      array_key_exists('_timestamp', $tree);
+                      (!$hasChildren && array_key_exists('_timestamp', $tree));
             if ($optical && $isLeaf) {
                 $present = array_key_exists('_value', $tree) &&
                            $tree['_value'] !== null && $tree['_value'] !== '';
