@@ -1,0 +1,28 @@
+name: JRC Collector Shadow
+on:
+  pull_request:
+    paths:
+      - 'collector/**'
+      - 'tests/jrc-collector.test.php'
+      - '.github/workflows/jrc-collector-shadow.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: curl, mysqli
+      - name: PHP syntax checks
+        run: |
+          for file in collector/*.php; do php -l "$file"; done
+          php -l tests/jrc-collector.test.php
+      - name: Offline diagnostic and privacy tests
+        run: php tests/jrc-collector.test.php
+      - name: Check isolated Docker image
+        run: docker build --pull --tag jrc-collector:ci --file collector/Dockerfile .
