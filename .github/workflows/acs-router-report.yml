@@ -5,6 +5,7 @@ on:
       - 'router-report.php'
       - 'lib/JrcRouterReportRows.php'
       - 'assets/js/jrc-router-signal.js'
+      - 'assets/css/jrc-signal-report-blue.css'
       - 'scripts/deploy-acs-router-report.py'
       - 'tests/jrc-router-report.test.php'
       - 'tests/test_deploy_acs_router_report.py'
