@@ -37,7 +37,9 @@ $make = static function(string $id, string $serial, int $informAge, ?float $rx) 
             ]]
         ],
     ];
-    if ($rx !== null) $raw['VirtualParameters']['RXPower'] = ['_value' => $rx];
+    if ($rx !== null) $raw['VirtualParameters']['RXPower'] = [
+        '_value' => $rx, '_timestamp' => gmdate('c', $now - $informAge)
+    ];
     return $raw;
 };
 $raw = [
@@ -80,6 +82,19 @@ $ixc[IxcReadOnly::serial('AA:BB:01')]['measured_at_epoch'] = $now - 86400;
 $stale = Consolidator::fleet([$raw[0]], $ixc, $now, 70.0);
 same($stale['devices'][0]['rx_source'], 'tr069', 'old IXC may not override live TR-069');
 same($stale['devices'][0]['diagnostics']['rx_status'], 'normal', 'fresh TR-069 still valid');
+// A fresh Inform does not refresh optical data. Parameter timestamp must be fresh.
+$withoutTimestamp = $make('D', 'AA:BB:04', 10, -22.1);
+unset($withoutTimestamp['VirtualParameters']['RXPower']['_timestamp']);
+$without = Consolidator::fleet([$withoutTimestamp], [], $now);
+same($without['devices'][0]['rx_measured_at_epoch'], 0, 'missing measurement timestamp never inherits Inform');
+same($without['devices'][0]['diagnostics']['rx_status'], 'sem_dados', 'missing timestamp must be unknown');
+
+$oldOptic = $make('E', 'AA:BB:05', 10, -22.1);
+$oldOptic['VirtualParameters']['RXPower']['_timestamp'] = gmdate('c', $now - 86400);
+$oldResult = Consolidator::fleet([$oldOptic], [], $now);
+same($oldResult['devices'][0]['diagnostics']['rx_status'], 'sem_dados', 'old RX cannot inherit fresh Inform');
+same($oldResult['devices'][0]['rx_measured_at_epoch'], $now - 86400, 'real RX timestamp preserved');
+
 same(Diagnostics::number('0', -80, -0.00001), null, 'zero is absent');
 same(Diagnostics::number('-999', -80, -0.00001), null, 'sentinel');
 same(Diagnostics::number('-26,34', -80, -0.00001), -26.34, 'comma decimal');
