@@ -73,7 +73,8 @@ try {
                 // Full parser - complete data extraction
                 $parsed = $genieacs->parseDeviceData($device);
             }
-            $devices[] = $parsed;
+            require_once __DIR__ . '/../lib/JrcSnmpTelemetry.php';
+            $devices[] = JrcSnmpTelemetry::apply($parsed);
         }
 
         $response = [

@@ -5,6 +5,9 @@ function check($actual, $expected, $message) {
     if ($actual !== $expected) throw new RuntimeException($message . ': ' . json_encode($actual));
 }
 check(JrcSnmpTelemetry::serial('485754438FEEDBA7'), 'HWTC8FEEDBA7', 'hex serial');
+check(JrcSnmpTelemetry::serial('DD32e69b93a4'), 'HEX12:DD32E69B93A4', 'opaque hex identity');
+check(JrcSnmpTelemetry::serial('HEX12:DD32E69B93A4'), 'HEX12:DD32E69B93A4', 'idempotent identity');
+check(JrcSnmpTelemetry::serial('000000000000'), '', 'placeholder identity');
 $old = ['serial_number'=>'HWTC8feedba7', 'rx_power'=>-10, 'ixc_rx_power'=>-12,
         'temperature'=>30, 'status'=>'online'];
 $empty = JrcSnmpTelemetry::apply($old, [], 1100, true);

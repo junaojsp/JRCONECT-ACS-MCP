@@ -15,7 +15,12 @@ Até 4096 ONUs por OLT neste primeiro perfil. Não desabilita Inform/CWMP.
 
 Serial é vinculado por índice SNMP; a saída converte o prefixo hexadecimal do
 serial TR-069 em quatro letras, com sufixo hexadecimal. Serial inválido ou
-repetido rejeita a coleta. Não faz associação por nome, IP ou ordem de resposta.
+repetido vai para quarentena local por índice; ambas as ocorrências de um serial
+duplicado são excluídas da associação. Nenhuma ONU válida é descartada por uma
+identidade inválida de outra ONU. `discovered_total` inclui quarentena, `total`
+conta seriais associáveis. `success` confirma a publicação parcial ou completa,
+enquanto `identity_complete` informa se todas as identidades foram resolvidas.
+Se nenhum serial puder ser associado, a publicação é recusada. Não faz associação por nome, IP ou ordem de resposta.
 
 Saída: `/var/lib/jrc-collector/snmp-fleet.json` e `snmp-fleet-status.json`.
 O estado 1 significa online, 0 sem sinal, 2 sem energia, 3 offline, conforme
@@ -27,23 +32,26 @@ Segredo: `/etc/jrc-collector/snmp_community`, 0600, não vai para argumentos/log
 Falha total ou queda >25% do inventário anterior preserva a última amostra e
 marca a última tentativa falhada. O leitor não trata essa amostra como atual.
 
-## Leitor no ACS — opt-in, ainda precisa de integração na instalação personalizada
+## Leitor no ACS — opt-in, escopo de inventário e monitoramento
 
 `lib/JrcSnmpTelemetry.php` lê somente arquivos locais. A seleção depende de
 `/etc/jrc-collector/snmp-source.enabled`. Sem esse marcador, o comportamento
-existente não é trocado. Com ele, as rotas do repositório passam a usar a fonte:
-- parsers completo e rápido (no inventário gerenciado pelo ACS);
-- cache de inventário, resumo do dashboard e enriquecimento final do cron;
-- dados ópticos de detalhe via `api/get-onu-snmp.php`, mantendo o contrato
-  JSON de `get-onu-optical.php` pelo overlay local. O endpoint legado não é
-  republicado: contém configuração sensível que não deve ser copiada ao GitHub.
+existente não é trocado. Os hooks desta etapa atingem somente:
+- `api/get-devices.php`, cache do inventário e resumo do dashboard;
+- enriquecimento final de `cron/collect-device-inventory.php`.
 
-Sem correspondência SNMP, snapshot com mais de 15 min, falha na última tentativa
-ou ONU não online, não recupera telemetria antiga do IXC/TR-069.
-Mantém `management_status` separado; nunca usa último Inform como data óptica.
-Os limiares de sinal seguem -25/-28 nos leitores existentes. A conversão segue
-a MIB AN5516, mas a validação de unidades com UNM ainda está pendente e é
-explicitada em `telemetry_unit_validation`. Não cria alerta de temperatura.
+Os parsers `GenieACS.php` e `GenieACS_Fast.php` NÃO são alterados. As rotas
+`device-detail.php`, `get-device-detail.php`, `get-onu-optical.php`, a WAN,
+IXC ao vivo, histórico óptico e ações TR-069 ficam preservadas. O endpoint
+`get-onu-snmp.php` é diagnóstico separado e NÃO substitui o detalhe.
+Rotas personalizadas `get-devices-ixc-batch.php` e `discovery-ixc-tr069.php`
+ainda precisam de adapter após conferência dos contratos reais em produção.
+
+No inventário com SNMP selecionado, sem correspondência, snapshot com mais de
+15 minutos, falha na última tentativa ou ONU não online, não recupera telemetria
+antiga do IXC/TR-069. Horário da consulta não é data da medição. Conversões
+seguem a MIB, mas ainda indicam validação pendente com UNM. Não cria alerta
+de temperatura. Não muda as fontes ou taxas dos gráficos ao vivo da WAN.
 
 ## Antes da ativação em produção
 
@@ -67,3 +75,12 @@ projetam o mesmo conjunto do seu inventário e associam por serial.
 
 Referência dos campos e enumerações:
 https://pdfcoffee.com/fiberhome-gepon-5116-5516-mib-open-interface-specifications-pdf-free.html
+
+## Identificadores hexadecimais de 12 caracteres
+
+A coleta real também apresentou identificadores como DD32e69b93a4 e 0000622f5c52.
+São preservados como identidade opaca `HEX12:...`, sem presumir que são MACs.
+A associação com ACS exige o MESMO identificador em seu campo serial. Não há
+fallback para MAC Ethernet, endereço IP, login ou nome. Ausência de correspondência
+continua sem telemetria até validar a identidade; eliminar quarentena na OLT não
+comprova cobertura do inventário ACS. Identificadores totalmente zero/FF são rejeitados.
