@@ -1,0 +1,40 @@
+name: ACS router report read-only
+on:
+  pull_request:
+    paths:
+      - 'router-report.php'
+      - 'lib/JrcRouterReportRows.php'
+      - 'assets/js/jrc-router-signal.js'
+      - 'assets/css/jrc-signal-report-blue.css'
+      - 'scripts/deploy-acs-router-report.py'
+      - 'tests/jrc-router-report.test.php'
+      - 'tests/test_deploy_acs_router_report.py'
+      - 'tests/test_jrc_router_signal_js.cjs'
+      - '.github/workflows/acs-router-report.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: mysqli
+      - name: PHP syntax and classification
+        run: |
+          php -l lib/JrcRouterReportRows.php
+          php -l router-report.php
+          php tests/jrc-router-report.test.php
+          php tests/jrc-equipment-classification.test.php
+      - name: Verify dashboard click reaches router report
+        run: |
+          node --check assets/js/jrc-router-signal.js
+          node tests/test_jrc_router_signal_js.cjs
+      - name: Verify safe overlay/upgrade (without touching ACS)
+        run: |
+          python3 tests/test_deploy_acs_router_report.py
+          python3 tests/test_deploy_acs_router_signal_v2.py

@@ -1,0 +1,80 @@
+/*
+ * JR CONECT ACS - azul padrão apenas para /view-logs.php.
+ *
+ * Loaded only by that report through the safe overlay. The CSS never
+ * changes data sources, report filters or JS event handlers. Optical
+ * status pills retain their existing state colors.
+ */
+:root {
+    --jrc-rpt-blue-bg: #0a192a;
+    --jrc-rpt-blue-surface: #0c2035;
+    --jrc-rpt-blue-row: #0d2237;
+    --jrc-rpt-blue-alt: #102740;
+    --jrc-rpt-blue-header: #12304c;
+    --jrc-rpt-blue-border: #244763;
+    --jrc-rpt-blue-text: #e5f0f9;
+    --jrc-rpt-blue-muted: #9bb9d1;
+}
+
+/* Scope to report content; sidebar/navigation elsewhere is untouched. */
+.main-content .content-wrapper .card,
+.main-content .content-wrapper :is(.report-card, .report-panel, .signal-report) {
+    background-color: var(--jrc-rpt-blue-surface) !important;
+    border-color: var(--jrc-rpt-blue-border) !important;
+    color: var(--jrc-rpt-blue-text);
+}
+.main-content .content-wrapper .card-header,
+.main-content .content-wrapper :is(.report-header, .signal-report-header) {
+    background-color: var(--jrc-rpt-blue-header) !important;
+    border-color: var(--jrc-rpt-blue-border) !important;
+    color: var(--jrc-rpt-blue-text) !important;
+}
+.main-content .content-wrapper :is(.card-body, .report-body) {
+    background-color: var(--jrc-rpt-blue-surface) !important;
+    color: var(--jrc-rpt-blue-text);
+}
+
+/* The previous report's signal list used neutral/gray row fills. */
+.main-content .content-wrapper table,
+.main-content .content-wrapper .table,
+.main-content .content-wrapper .table-responsive {
+    background-color: var(--jrc-rpt-blue-row) !important;
+    color: var(--jrc-rpt-blue-text) !important;
+    border-color: var(--jrc-rpt-blue-border) !important;
+}
+.main-content .content-wrapper :is(table, .table) thead,
+.main-content .content-wrapper :is(table, .table) thead tr,
+.main-content .content-wrapper :is(table, .table) thead th,
+.main-content .content-wrapper :is(table, .table) thead td {
+    background: var(--jrc-rpt-blue-header) !important;
+    border-color: var(--jrc-rpt-blue-border) !important;
+    color: var(--jrc-rpt-blue-muted) !important;
+}
+.main-content .content-wrapper :is(table, .table) tbody tr,
+.main-content .content-wrapper :is(table, .table) tbody td {
+    background: var(--jrc-rpt-blue-row) !important;
+    border-color: var(--jrc-rpt-blue-border) !important;
+    color: var(--jrc-rpt-blue-text) !important;
+}
+.main-content .content-wrapper :is(table, .table) tbody tr:nth-child(even),
+.main-content .content-wrapper :is(table, .table) tbody tr:nth-child(even) td {
+    background: var(--jrc-rpt-blue-alt) !important;
+}
+.main-content .content-wrapper :is(table, .table) tbody tr:hover,
+.main-content .content-wrapper :is(table, .table) tbody tr:hover td {
+    background: #173650 !important;
+}
+
+/* Keep existing red/orange/green optical badges; do not override them. */
+.main-content .content-wrapper table :is(.badge, .pill, [class*="signal-badge"]),
+.main-content .content-wrapper :is(.report-filters, .signal-filters) .badge {
+    border-color: inherit;
+}
+.main-content .content-wrapper :is(input[type="search"], input[type="text"]) {
+    border-color: #315577;
+    color: var(--jrc-rpt-blue-text);
+}
+.main-content .content-wrapper :is(input[type="search"], input[type="text"]):focus-visible {
+    outline: 2px solid #5aa8ec;
+    outline-offset: 1px;
+}

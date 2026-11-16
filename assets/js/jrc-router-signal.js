@@ -169,6 +169,33 @@
         label.textContent = 'Roteadores';
         number.textContent = counts.routers.toLocaleString('pt-BR');
         number.dataset.jrcRouterCount = '1';
+
+        // The row was cloned for styling, not behavior. The original
+        // optical "Sem leitura" click handler is NOT appropriate here:
+        // routers are classified using the GenieACS inventory snapshot.
+        // Give it an explicit, independent report destination.
+        copy.querySelectorAll('[onclick], a[href]').forEach(el => {
+            el.removeAttribute('onclick');
+            el.removeAttribute('href');
+        });
+        copy.removeAttribute('onclick');
+        copy.style.cursor = 'pointer';
+        copy.setAttribute('role', 'link');
+        copy.setAttribute('tabindex', '0');
+        copy.setAttribute('aria-label', 'Abrir relatório de roteadores');
+        function openRouters(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === 'function') {
+                event.stopImmediatePropagation();
+            }
+            window.location.assign('/router-report.php');
+        }
+        copy.addEventListener('click', openRouters, true);
+        copy.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') openRouters(event);
+        }, true);
+
         row.insertAdjacentElement('afterend', copy);
     }
 
