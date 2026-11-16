@@ -38,14 +38,16 @@ try {
         throw new RuntimeException('Config do banco ACS indisponivel');
     }
 
-    // Parse but never execute the existing optical endpoint.
+    // Load only the trusted app configuration. In production the optical
+    // endpoint uses getIxcConfig() from this configuration file.
+    // NEVER include/execute the endpoint itself.
+    require_once $dbConfigFile;
     $optical = LegacyOpticalConfig::read($configFile);
     // The existing API uses IXC "listar". This invocation is read-only.
     $ixc = (new IxcReadOnly($optical['url'], $optical['token'], false))->fleet();
     unset($optical);
 
     // Existing app config provides getDBConnection(); do not touch any flags.
-    require_once $dbConfigFile;
     $db = getDBConnection();
     $stateQuery = $db->query('SELECT snapshot_id, total FROM jrc_device_inventory_state WHERE id=1');
     $state = $stateQuery ? $stateQuery->fetch_assoc() : null;
