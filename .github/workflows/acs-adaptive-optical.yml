@@ -1,0 +1,27 @@
+name: ACS adaptive optical safe fallback
+on:
+  pull_request:
+    paths:
+      - 'lib/JrcAdaptiveOpticalRead.php'
+      - 'cron/collect-device-inventory.php'
+      - 'tests/jrc-adaptive-optical.test.php'
+      - 'scripts/deploy-acs-adaptive-optical.py'
+      - '.github/workflows/acs-adaptive-optical.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: PHP lint and synthetic ONU tests
+        run: |
+          php -l lib/JrcAdaptiveOpticalRead.php
+          php -l cron/collect-device-inventory.php
+          php -l tests/jrc-adaptive-optical.test.php
+          php tests/jrc-adaptive-optical.test.php
+      - name: Safe installer syntax
+        run: python3 -m py_compile scripts/deploy-acs-adaptive-optical.py
