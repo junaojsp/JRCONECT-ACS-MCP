@@ -11,6 +11,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -21,8 +22,18 @@ SOURCE = Path(__file__).resolve().parent.parent
 BACKUPS = Path("/var/backups/jrc-acs-router-report")
 
 JS = "assets/js/jrc-router-signal.js"
-NEW = ("lib/JrcRouterReportRows.php", "router-report.php")
-FILES = (*NEW, JS)
+VIEW = "view-logs.php"
+CSS = "assets/css/jrc-signal-report-blue.css"
+NEW = ("lib/JrcRouterReportRows.php", "router-report.php", CSS)
+FILES = (*NEW, VIEW, JS)
+
+CSS_MARK = "/assets/css/jrc-signal-report-blue.css"
+CSS_INCLUDE = 'echo \'<link rel="stylesheet" href="/assets/css/jrc-signal-report-blue.css?v=1">\';'
+HEADER_INCLUDE = re.compile(
+    r"""(?:include|require)(?:_once)?\s+__DIR__\s*\.\s*
+        (?P<q>['"])/views/layouts/header\.php(?P=q)\s*;""",
+    re.VERBOSE
+)
 # The exact Git blob of the JS deployed from the earlier v2 correction.
 INSTALLED_V2_JS_BLOB = "f652e05a39a33abe64ef629e260f480f732fc72e"
 
@@ -47,6 +58,31 @@ def syntax_check(name: str, data: bytes) -> None:
         raise UnsafeInstall("Sintaxe PHP invalida: " + name)
 
 
+def patch_existing_report(before: bytes) -> bytes:
+    try:
+        report = before.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise UnsafeInstall("Relatorio personalizado nao esta em UTF-8") from exc
+
+    if CSS_MARK in report:
+        if report.count(CSS_INCLUDE) == 1 and report.count(CSS_MARK) == 1:
+            return before
+        raise UnsafeInstall("Estilo da pagina de relatorios difere do instalador")
+
+    if "requireLogin" not in report:
+        raise UnsafeInstall("Relatorio sem autenticacao reconhecida")
+    found = list(HEADER_INCLUDE.finditer(report))
+    if len(found) != 1:
+        raise UnsafeInstall("Relatorio sem include do header unico e reconhecido")
+    match = found[0]
+    last_open = report.lower().rfind("<?php", 0, match.start())
+    last_close = report.rfind("?>", 0, match.start())
+    if last_open < 0 or last_open < last_close:
+        raise UnsafeInstall("Include do header fora do bloco PHP")
+    patched = report[:match.end()] + "\n" + CSS_INCLUDE + "\n" + report[match.end():]
+    return patched.encode("utf-8")
+
+
 def plan(root: Path, old_js_sha: str = INSTALLED_V2_JS_BLOB) -> dict[str, tuple[bytes | None, bytes]]:
     if not (root / "config/config.php").is_file():
         raise UnsafeInstall("Diretorio do ACS nao encontrado")
@@ -57,13 +93,18 @@ def plan(root: Path, old_js_sha: str = INSTALLED_V2_JS_BLOB) -> dict[str, tuple[
     changes = {}
     for name in FILES:
         target = root / name
-        source = SOURCE / name
-        if not source.is_file():
-            raise UnsafeInstall("Arquivo de origem ausente: " + name)
         if target.is_symlink() or (target.exists() and not target.is_file()):
             raise UnsafeInstall("Caminho alvo inseguro: " + name)
         old = target.read_bytes() if target.exists() else None
-        new = source.read_bytes()
+        if name == VIEW:
+            if old is None:
+                raise UnsafeInstall("Relatorio de sinal personalizado nao encontrado")
+            new = patch_existing_report(old)
+        else:
+            source = SOURCE / name
+            if not source.is_file():
+                raise UnsafeInstall("Arquivo de origem ausente: " + name)
+            new = source.read_bytes()
         if old == new:
             continue
         if name in NEW and old is not None:
@@ -144,7 +185,7 @@ def main() -> None:
     changes = plan(args.root)
     for name in changes:
         print("ARQUIVO:", name)
-    print("Mantidos: dashboard.php, Relatorios existentes, IXC, TR-069, firmware, cron e flags.")
+    print("Mantidos: dashboard.php, HTML e filtros dos Relatorios, IXC, TR-069, firmware, cron e flags.")
     if args.mode == "plan":
         print("PLAN_OK" if changes else "JA_INSTALADO")
     else:
