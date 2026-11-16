@@ -11,6 +11,48 @@ use App\GenieACS_Fast;
  */
 final class Consolidator
 {
+    /**
+     * Only a measurement parameter's own _timestamp proves measurement age.
+     * LastInform means communication, not a fresh optical/temperature sample.
+     * Return 0 when the actual measurement date cannot be verified.
+     */
+    private static function measurementTimestamp(array $raw, array $paths, mixed $parsed, int $now): int
+    {
+        if (!is_numeric((string)($parsed ?? '')) || (float)$parsed === 0.0) return 0;
+        foreach ($paths as $parts) {
+            $node = $raw;
+            foreach ($parts as $segment) {
+                if (!is_array($node) || !array_key_exists($segment, $node)) {
+                    $node = null;
+                    break;
+                }
+                $node = $node[$segment];
+            }
+            if (!is_array($node) || !isset($node['_value'], $node['_timestamp']) ||
+                !is_numeric((string)$node['_value']) || !is_string($node['_timestamp'])) continue;
+            if (abs((float)$node['_value'] - (float)$parsed) > 0.011) continue;
+            $timestamp = strtotime($node['_timestamp']);
+            if ($timestamp === false || $timestamp > $now + 300 || $timestamp < 1) continue;
+            return $timestamp;
+        }
+        return 0;
+    }
+
+    private const RX_TIMESTAMP_PATHS = [
+        ['VirtualParameters', 'RXPower'],
+        ['InternetGatewayDevice','WANDevice','1','X_CT-COM_EponInterfaceConfig','RXPower'],
+        ['Device','Optical','Interface','1','RxPower'],
+        ['InternetGatewayDevice','WANDevice','1','X_GponInterfaceConfig','RXPower'],
+        ['InternetGatewayDevice','WANDevice','1','X_FH_GponInterfaceConfig','RXPower'],
+    ];
+    private const TEMP_TIMESTAMP_PATHS = [
+        ['VirtualParameters','gettemp'],
+        ['VirtualParameters','Temperature'],
+        ['InternetGatewayDevice','DeviceInfo','Temperature'],
+        ['InternetGatewayDevice','WANDevice','1','X_GponInterfaceConfig','TransceiverTemperature'],
+        ['InternetGatewayDevice','WANDevice','1','X_FH_GponInterfaceConfig','TransceiverTemperature'],
+    ];
+
     public static function fleet(array $nbi, array $ixc, int $now, ?float $tempWarn = null): array
     {
         $seen = [];
@@ -31,9 +73,13 @@ final class Consolidator
             $last = strtotime((string)($raw['_lastInform'] ?? ''));
             $data['last_inform_timestamp'] = $last === false ? 0 : $last;
             $data['rx_source'] = 'tr069';
-            $data['rx_measured_at_epoch'] = $data['last_inform_timestamp'];
+            $data['rx_measured_at_epoch'] = self::measurementTimestamp(
+                $raw, self::RX_TIMESTAMP_PATHS, $data['rx_power'] ?? null, $now
+            );
             $data['temperature_source'] = 'tr069';
-            $data['temperature_measured_at_epoch'] = $data['last_inform_timestamp'];
+            $data['temperature_measured_at_epoch'] = self::measurementTimestamp(
+                $raw, self::TEMP_TIMESTAMP_PATHS, $data['temperature'] ?? null, $now
+            );
 
             $serial = IxcReadOnly::serial((string)($data['serial_number'] ?? ''));
             if ($serial !== '' && isset($ixc[$serial])) {
