@@ -66,7 +66,7 @@ with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as bac
     patched = dashboard.read_text()
     assert patched.count(mod.INCLUDE) == 1
     assert patched.index(mod.INCLUDE) < patched.index("include __DIR__ . '/views/layouts/footer.php';")
-    assert patched.replace(mod.INCLUDE + '\n', '').encode() == original
+    assert patched.replace(mod.PHP_SCRIPT_ECHO, '').encode() == original
     assert (backup / 'dashboard.php').read_bytes() == original
     assert not mod.plan(root), 'footer layout not idempotent'
 
@@ -79,6 +79,59 @@ with tempfile.TemporaryDirectory() as root:
     try:
         mod.plan(root)
         raise AssertionError('Unknown layout must be rejected')
+    except mod.UnsafeInstall:
+        pass
+
+
+# The real dashboard tail includes multiple echo statements before the
+# footer and unrelated HTML after the PHP block. Preserve both intact.
+with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as backups:
+    root = Path(root)
+    (root / 'config').mkdir()
+    (root / 'config/config.php').write_text('<?php // fixture\n')
+    original = (
+        "<?php\nrequire_once __DIR__ . '/config/config.php';\n"
+        "include __DIR__ . '/views/layouts/header.php';\n?>\n"
+        '<main><h1>Dashboard - Sinal da frota</h1></main>\n'
+        "<?php\n\n"
+        "/* JRC_INVENTORY_SAFE_V3_START */\n"
+        "echo '<link rel=\"stylesheet\" href=\"/assets/css/jrc-inventory-safe-v3.css\">';\n"
+        "echo '<script src=\"/assets/js/jrc-inventory-safe-v3.js\"></script>';\n"
+        "/* JRC_INVENTORY_SAFE_V3_END */\n"
+        "include __DIR__ . '/views/layouts/footer.php';\n"
+        "?>\n"
+        "<link rel=\"stylesheet\" href=\"/assets/css/jrc-inventory.css\">\n"
+    ).encode()
+    dashboard = root / 'dashboard.php'
+    dashboard.write_bytes(original)
+    planned = mod.plan(root)
+    assert set(planned) == set(mod.NEW_FILES) | {'dashboard.php'}
+    assert dashboard.read_bytes() == original, 'plan modified production-shaped dashboard'
+    applied = mod.apply(root, Path(backups), planned)
+    assert applied is not None
+    after = dashboard.read_text()
+    assert after.count(mod.PHP_SCRIPT_ECHO) == 1
+    assert after.index(mod.PHP_SCRIPT_ECHO) < after.index(
+        "include __DIR__ . '/views/layouts/footer.php';"
+    )
+    assert after.replace(mod.PHP_SCRIPT_ECHO, '').encode() == original
+    assert (applied / 'dashboard.php').read_bytes() == original
+    assert not mod.plan(root), 'non-idempotent production-shaped overlay'
+    # No other file outside the three dedicated additions and dashboard.
+    assert sorted(n.name for n in (root / 'config').iterdir()) == ['config.php']
+
+# A footer include in comments/HTML must not qualify.
+with tempfile.TemporaryDirectory() as root:
+    root = Path(root)
+    (root / 'config').mkdir()
+    (root / 'config/config.php').write_text('<?php // fixture\n')
+    (root / 'dashboard.php').write_text(
+        "<h1>Dashboard</h1>\n"
+        "include __DIR__ . '/views/layouts/footer.php';\n"
+    )
+    try:
+        mod.plan(root)
+        raise AssertionError('Footer outside PHP must be rejected')
     except mod.UnsafeInstall:
         pass
 
