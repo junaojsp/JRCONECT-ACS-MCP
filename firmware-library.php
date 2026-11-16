@@ -133,11 +133,11 @@ include __DIR__ . '/views/layouts/header.php';
 </style>
 <section class="jrc-fw-lib">
 <h2>Repositorio Central de Firmwares</h2>
-<p class="fw-muted">Biblioteca local de imagens oficiais para futura homologacao e distribuicao via GenieACS. Nenhum envio automatico as ONUs.</p>
+<p class="fw-muted">Biblioteca de imagens oficiais para homologação e atualização individual via GenieACS.</p>
 <div class="fw-grid">
 <div class="fw-card"><div class="fw-muted">Arquivos no catalogo</div><div class="fw-num"><?= count($items) ?></div></div>
 <div class="fw-card"><div class="fw-muted">Nao homologados</div><div class="fw-num"><?= count(array_filter($items, fn($x) => ($x['status'] ?? '') === 'nao_homologado')) ?></div></div>
-<div class="fw-card"><div class="fw-muted">Atualizacoes em execucao</div><div class="fw-num">0</div><div class="fw-muted">Modulo de envio nao habilitado</div></div>
+<div class="fw-card"><div class="fw-muted">Atualizações individuais</div><a href="/firmware-updates.php#history" style="color:#86caff">Consultar histórico e situação</a></div>
 </div>
 <?php if ($message): ?><div class="fw-alert" role="status"><?= fwEsc($message) ?></div><?php endif; ?>
 <?php if ($error): ?><div class="fw-alert fw-error" role="alert"><?= fwEsc($error) ?></div><?php endif; ?>
@@ -170,9 +170,11 @@ include __DIR__ . '/views/layouts/header.php';
 <td><?= fwEsc($item['version'] ?? '') ?></td>
 <td><?= fwEsc($item['original_name'] ?? '') ?><div class="fw-muted"><?= number_format(((int)($item['bytes'] ?? 0))/1048576, 2, ',', '.') ?> MiB</div></td>
 <td title="<?= fwEsc($item['sha256'] ?? '') ?>"><code><?= fwEsc(substr($item['sha256'] ?? '', 0, 16)) ?>...</code></td>
-<td class="fw-tag">Nao homologado</td>
+<td class="fw-tag"><?= fwEsc(($item['status'] ?? '') === 'homologado' ? 'Homologado' : 'Nao homologado') ?></td>
 </tr><?php endforeach; ?></tbody></table></div></div>
-<div class="fw-card"><h3>Proximas etapas</h3>
+<div class="fw-card"><h3>Atualização individual</h3>
+<p><a href="/firmware-updates.php" style="color:#86caff">Selecionar ONU, atualizar e acompanhar resultado</a></p>
+<h3>Homologação</h3>
 <p class="fw-muted">Homologacao em ONU de bancada, registro do resultado e liberacao de atualizacao individual. Atualizacoes em massa permanecem desabilitadas.</p>
 <a href="/firmware-manager.php" style="color:#86caff">Consultar interface anterior</a>
 </div></section>

@@ -1,0 +1,32 @@
+name: Firmware individual updates
+on:
+  pull_request:
+    paths:
+      - 'lib/FirmwareUpdates.php'
+      - 'firmware-*.php'
+      - 'assets/js/firmware-updates.js'
+      - 'scripts/deploy-firmware-updates.py'
+      - 'tests/firmware-updates*'
+      - '.github/workflows/firmware-updates.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl
+          tools: none
+      - run: |
+          php -l lib/FirmwareUpdates.php
+          php -l firmware-updates.php
+          php -l firmware-library.php
+          php -l firmware-homologation.php
+          php -l device-detail.php
+          node --check assets/js/firmware-updates.js
+          php tests/firmware-updates.test.php
+          python3 tests/firmware-updates-deploy.test.py
