@@ -3,7 +3,9 @@ on:
   pull_request:
     paths:
       - 'collector/**'
+      - 'scripts/jrc-collector-ixc-audit.php'
       - 'tests/jrc-collector.test.php'
+      - 'tests/jrc-collector-optical-audit.test.php'
       - '.github/workflows/jrc-collector-shadow.yml'
   workflow_dispatch:
 permissions:
@@ -21,8 +23,12 @@ jobs:
       - name: PHP syntax checks
         run: |
           for file in collector/*.php; do php -l "$file"; done
+          php -l scripts/jrc-collector-ixc-audit.php
           php -l tests/jrc-collector.test.php
+          php -l tests/jrc-collector-optical-audit.test.php
       - name: Offline diagnostic and privacy tests
-        run: php tests/jrc-collector.test.php
+        run: |
+          php tests/jrc-collector.test.php
+          php tests/jrc-collector-optical-audit.test.php
       - name: Check isolated Docker image
         run: docker build --pull --tag jrc-collector:ci --file collector/Dockerfile .
