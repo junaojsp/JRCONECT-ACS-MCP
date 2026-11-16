@@ -1,0 +1,41 @@
+name: ACS ONU optical pilot path audit
+on:
+  pull_request:
+    paths:
+      - 'lib/JrcOnuPilotPaths.php'
+      - 'scripts/audit-acs-onu-optical-pilots.php'
+      - 'tests/jrc-onu-pilot-paths.test.php'
+      - '.github/workflows/acs-onu-pilot-paths.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: mysqli,curl
+      - name: PHP syntax and safe optical path inspection
+        run: |
+          php -l lib/JrcOnuPilotPaths.php
+          php -l scripts/audit-acs-onu-optical-pilots.php
+          php -l tests/jrc-onu-pilot-paths.test.php
+          php tests/jrc-onu-pilot-paths.test.php
+      - name: Assert read-only local NBI only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('scripts/audit-acs-onu-optical-pilots.php').read_text()
+          assert 'CURLOPT_HTTPGET => true' in s
+          assert "127.0.0.1" in s
+          assert "/devices/?" in s
+          assert 'CURLOPT_POST' not in s
+          assert '/tasks' not in s and 'refreshObject' not in s
+          assert 'INSERT INTO' not in s and 'UPDATE ' not in s
+          assert 'DELETE FROM' not in s and 'CURLOPT_CUSTOMREQUEST' not in s
+          print('JRC_ONU_PILOT_READ_ONLY_GUARD_OK')
+          PY
