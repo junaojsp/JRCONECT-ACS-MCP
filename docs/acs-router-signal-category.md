@@ -87,3 +87,28 @@ Se a estrutura nao for reconhecida, a instalacao e recusada.
 Nao substitui dashboard.php pelo arquivo padrao do GitHub, nao altera
 consulta IXC/TR-069. Testes novos garantem que a unica mudanca no
 arquivo personalizado e o include JS, com backup do original.
+
+## Ajuste confirmado no ACS: bloco PHP com scripts antes do footer
+
+O servidor personalizado termina dashboard.php com um bloco PHP que
+faz echo de scripts/estilos da integracao JRC_INVENTORY_SAFE_V3 e depois
+chama include __DIR__ . '/views/layouts/footer.php'. Fora do bloco
+existem ainda estilos personalizados. Nao ha </body> nesse arquivo.
+
+O instalador anterior exigia um bloco PHP contendo somente o include
+e por isso falhou no modo plan sem alterar o ACS. O novo instalador
+procura a linha isolada e unica do include de footer, confirma que
+ela esta dentro do PHP e insere APENAS um echo de script imediatamente
+antes, preservando todos os echoes e qualquer HTML posterior.
+
+Validacoes CI adicionais reproduzem exatamente essa estrutura: plano
+sem mutacao, instalacao idempotente, copia original no backup e
+modificacao byte a byte limitada ao unico echo inserido.
+
+Passos apos merge:
+
+    cd /tmp/jrc-acs-firmware-ui && git pull --ff-only origin main && python3 scripts/deploy-acs-router-signal.py plan
+
+Somente apos PLAN_OK aplicar:
+
+    cd /tmp/jrc-acs-firmware-ui && sudo python3 scripts/deploy-acs-router-signal.py apply
