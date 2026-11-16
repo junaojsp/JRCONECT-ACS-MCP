@@ -1,0 +1,43 @@
+name: ACS ONU telemetry audit (read only)
+on:
+  pull_request:
+    paths:
+      - 'lib/JrcOnuTelemetryAudit.php'
+      - 'scripts/audit-acs-onu-telemetry.php'
+      - 'tests/jrc-onu-telemetry-audit.test.php'
+      - 'docs/acs-onu-telemetry-audit.md'
+      - '.github/workflows/acs-onu-telemetry-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: mysqli,curl
+      - name: Lint pure auditor and CLI
+        run: |
+          php -l lib/JrcOnuTelemetryAudit.php
+          php -l scripts/audit-acs-onu-telemetry.php
+          php -l tests/jrc-onu-telemetry-audit.test.php
+      - name: Model/firmware hypothesis regression tests
+        run: php tests/jrc-onu-telemetry-audit.test.php
+      - name: Verify only NBI GET and no CWMP task endpoints
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('scripts/audit-acs-onu-telemetry.php').read_text()
+          assert 'CURLOPT_HTTPGET => true' in s
+          assert "CURLOPT_TIMEOUT => 30" in s
+          assert '/devices/' in s
+          assert '/tasks' not in s and 'refreshObject' not in s
+          assert 'CURLOPT_POST' not in s and 'INSERT INTO' not in s
+          assert 'UPDATE ' not in s and 'DELETE FROM' not in s
+          assert 'echo "JRC_ONU_TELEMETRIA_AUDITORIA_OK' in s
+          print('JRC_ONU_TELEMETRY_READ_ONLY_GUARD_OK')
+          PY
