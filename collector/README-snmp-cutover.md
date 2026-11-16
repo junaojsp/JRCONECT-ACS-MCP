@@ -15,7 +15,12 @@ Até 4096 ONUs por OLT neste primeiro perfil. Não desabilita Inform/CWMP.
 
 Serial é vinculado por índice SNMP; a saída converte o prefixo hexadecimal do
 serial TR-069 em quatro letras, com sufixo hexadecimal. Serial inválido ou
-repetido rejeita a coleta. Não faz associação por nome, IP ou ordem de resposta.
+repetido vai para quarentena local por índice; ambas as ocorrências de um serial
+duplicado são excluídas da associação. Nenhuma ONU válida é descartada por uma
+identidade inválida de outra ONU. `discovered_total` inclui quarentena, `total`
+conta seriais associáveis. `success` confirma a publicação parcial ou completa,
+enquanto `identity_complete` informa se todas as identidades foram resolvidas.
+Se nenhum serial puder ser associado, a publicação é recusada. Não faz associação por nome, IP ou ordem de resposta.
 
 Saída: `/var/lib/jrc-collector/snmp-fleet.json` e `snmp-fleet-status.json`.
 O estado 1 significa online, 0 sem sinal, 2 sem energia, 3 offline, conforme

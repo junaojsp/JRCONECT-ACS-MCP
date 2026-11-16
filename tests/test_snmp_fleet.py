@@ -38,11 +38,24 @@ class FleetTests(unittest.TestCase):
         self.assertEqual(row['metrics']['rx']['raw'], '-2387')
         self.assertIsNone(row['metrics']['rx']['candidate_value'])
 
-    def test_duplicate_serial_rejects_collection(self):
+    def test_duplicate_serial_quarantines_both_indices(self):
         columns = self.columns()
         columns['serial']['values']['371196672'] = '485754438FEEDBA7'
-        with self.assertRaises(ValueError):
-            fleet.assemble(columns, 1100)
+        report = fleet.assemble(columns, 1100)
+        self.assertEqual(report['devices'], {})
+        self.assertEqual(report['quarantined_count'], 2)
+        self.assertEqual(report['discovered_total'], 2)
+        self.assertTrue(all(row['issue'] == 'serial_duplicado' for row in report['quarantined']))
+
+    def test_invalid_serial_does_not_discard_other_onus(self):
+        columns = self.columns()
+        columns['serial']['values']['371196672'] = '"0000000000000000"'
+        report = fleet.assemble(columns, 1100)
+        self.assertEqual(report['total'], 1)
+        self.assertEqual(report['discovered_total'], 2)
+        self.assertEqual(report['quarantined_count'], 1)
+        self.assertIn('HWTC8FEEDBA7', report['devices'])
+        self.assertEqual(report['quarantined'][0]['issue'], 'serial_sem_mapeamento')
 
     def test_column_boundaries_and_partial_walk(self):
         self.assertEqual(fleet.parse_column(f'{fleet.SERIAL_OID}.371196416 = "HWTC8feedba7"', fleet.SERIAL_OID),

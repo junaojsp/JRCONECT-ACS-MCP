@@ -87,12 +87,20 @@ def assemble(columns, now):
     serials = columns['serial']['values']
     rows = {}
     issues = {}
+    quarantined = []
+    groups = {}
     for index, raw_serial in serials.items():
         serial = canonical_serial(raw_serial)
-        if serial is None:
-            raise ValueError('serial_sem_mapeamento')
-        if serial in rows:
-            raise ValueError('serial_duplicado')
+        if serial is not None:
+            groups.setdefault(serial, []).append(index)
+    for index, raw_serial in serials.items():
+        serial = canonical_serial(raw_serial)
+        if serial is None or len(groups[serial]) != 1:
+            # Never guess an identity or let duplicate rows overwrite one another.
+            # Keep the evidence local for audit, excluded from the serial lookup.
+            quarantined.append({'index': index, 'raw_serial': raw_serial,
+                                'issue': 'serial_sem_mapeamento' if serial is None else 'serial_duplicado'})
+            continue
         location = columns['location']['values'].get(index, '').strip('"')
         if not re.fullmatch(r'PON [0-9]+/[0-9]+/[0-9]+', location):
             location = None
@@ -121,6 +129,8 @@ def assemble(columns, now):
     return {'schema': 2, 'source': 'olt_snmp', 'profile': 'AN5516_MIB_candidate',
             'completed_at_epoch': now, 'measurement_age_known': False,
             'unit_validation': 'pending_unm', 'total': len(rows),
+            'discovered_total': len(serials), 'quarantined': quarantined,
+            'quarantined_count': len(quarantined),
             'incomplete_identity_rows': len(issues), 'devices': rows,
             'column_stats': {key: {k: v for k, v in value.items() if k != 'values'}
                              for key, value in columns.items()}}
@@ -143,25 +153,37 @@ def run(root=ROOT):
             roots.update({name: f'{BASE}.{column}' for name, (column, _, _, _) in FIELDS.items()})
             with private_config(secret.read_text().strip()) as env:
                 # Two concurrent column walks, GETBULK max-repetitions=10.
-                # Nine columns * 45s / two workers: bounded below four minutes.
+                # Eight columns * 45s / two workers: bounded below four minutes.
                 with ThreadPoolExecutor(max_workers=2) as executor:
                     futures = {key: executor.submit(read_column, host, oid, env) for key, oid in roots.items()}
                     columns = {key: future.result() for key, future in futures.items()}
             report = assemble(columns, int(time.time()))
+            if not report['devices']:
+                raise ValueError('nenhum_serial_associavel')
             destination = root / 'snmp-fleet.json'
             if destination.exists():
                 previous = json.loads(destination.read_text())
-                if report['total'] < previous['total'] * .75:
+                if (report['total'] < previous['total'] * .75 or
+                    report['discovered_total'] < previous.get('discovered_total', previous['total']) * .75):
                     raise ValueError('queda_de_inventario')
             report['host'] = host
             report['duration_ms'] = round((time.time() - started) * 1000)
             atomic_json(destination, report)
             status.update(success=True, total=report['total'],
+                          discovered_total=report['discovered_total'],
+                          quarantined_count=report['quarantined_count'],
+                          identity_complete=report['quarantined_count'] == 0,
                           online=sum(d['state'] == 'online' for d in report['devices'].values()),
                           duration_ms=report['duration_ms'],
                           incomplete_identity_rows=report['incomplete_identity_rows'])
         except Exception as error:
             status['error_type'] = type(error).__name__
+            # Only a static allowlist of diagnostic codes may reach logs.
+            codes = {'nenhum_serial_associavel', 'queda_de_inventario', 'permissoes_comunidade',
+                     'coluna_ausente', 'coluna_vazia', 'fora_da_coluna', 'indice_invalido',
+                     'coluna_duplicada_ou_excessiva', 'resposta_invalida', 'coluna_incompleta'}
+            if str(error) in codes:
+                status['error_code'] = str(error)
         status['finished_at_epoch'] = int(time.time())
         atomic_json(root / 'snmp-fleet-status.json', status)
         print('SNMP_FLEET ' + json.dumps(status))
