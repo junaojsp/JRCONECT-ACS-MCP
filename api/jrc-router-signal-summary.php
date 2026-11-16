@@ -56,6 +56,12 @@ try {
         'total' => $totals['total'],
         'confirmed_optical' => $totals['onus'],
         'unknown_type' => $totals['desconhecidos'],
+        // Same snapshot and classification as the router count above.
+        // These are NEW independent ACS-inventory dimensions, not a
+        // replacement for the live optical/IXC fleet counter.
+        'optical_no_reading' => $totals['onus_sem_leitura'],
+        'optical_with_reading' => $totals['onus_com_rx'],
+        'unclassified_no_reading' => $totals['desconhecidos_sem_leitura'],
         'cached_at' => $state['completed_at'],
         'cache_age_seconds' => max(0, (int)$state['age_seconds']),
         'cache_stale' => (int)$state['age_seconds'] > 900
