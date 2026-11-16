@@ -76,6 +76,26 @@ echo 'MODELO='.$profile['fingerprint']['model'].' FIRMWARE='.$profile['fingerpri
 echo 'ESTADO_ANTES='.$profile['status'].' INFORM_IDADE_MIN='.$profile['last_inform_age_min']."\n";
 echo 'CAMINHO_RX='.$choice['rx_path']."\n";
 echo 'REFRESH_OBJECT='.$choice['object_name']."\n";
+// Read existing GenieACS tasks before any possible write. Never clear/delete tasks.
+$taskQuery = rawurlencode(json_encode(['device'=>$id],JSON_THROW_ON_ERROR));
+$taskResult = pilotNbi($port,$user,$pass,'GET','/tasks/?query='.$taskQuery.'&limit=100');
+if ($taskResult['status'] !== 200 || !is_array($taskResult['data']) ||
+    !array_is_list($taskResult['data'])) pilotFail('FILA_TAREFAS_NAO_VERIFICAVEL');
+if (count($taskResult['data']) >= 100) pilotFail('FILA_TAREFAS_TRUNCADA');
+$pending = array_values(array_filter($taskResult['data'],static function(mixed $task) use ($choice): bool {
+    if (!is_array($task) || ($task['name'] ?? '') !== 'refreshObject') return false;
+    // An optical parent refresh overlaps this exact optical object, too.
+    $object = (string)($task['objectName'] ?? '');
+    return $object === '' || str_starts_with($choice['object_name'],$object) ||
+           str_starts_with($object,$choice['object_name']);
+}));
+echo 'REFRESH_OPTICO_PENDENTE='.count($pending)."\n";
+if ($pending !== []) {
+    echo "RESULTADO=AGUARDAR_TAREFAS_EXISTENTES_SEM_REENFILEIRAR\n";
+    if ($args['execute']) pilotFail('REFRESH_OPTICO_JA_PENDENTE');
+    echo "MODO=PLANEJAMENTO_SEM_COMANDO\n";
+    exit(0);
+}
 if (!$args['execute']) { echo "MODO=PLANEJAMENTO_SEM_COMANDO\n"; exit(0); }
 // Refresh only the discovered optical object; no connection_request and no retry.
 // A 202 means queued, NOT that the CPE delivered a fresh reading.
