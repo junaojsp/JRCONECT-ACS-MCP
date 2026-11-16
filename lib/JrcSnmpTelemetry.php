@@ -13,12 +13,17 @@ final class JrcSnmpTelemetry
     public static function serial(string $raw): string
     {
         $raw = strtoupper(trim($raw));
+        if (str_starts_with($raw, 'HEX12:')) $raw = substr($raw, 6);
         if (preg_match('/^[0-9A-F]{16}$/D', $raw)) {
             $vendor = hex2bin(substr($raw, 0, 8));
             if ($vendor === false) return '';
             $raw = $vendor . substr($raw, 8);
         }
-        return preg_match('/^[A-Z]{4}[0-9A-F]{8}$/D', $raw) ? $raw : '';
+        if (in_array($raw, ['000000000000', 'FFFFFFFFFFFF'], true)) return '';
+        if (preg_match('/^[A-Z]{4}[0-9A-F]{8}$/D', $raw)) return $raw;
+        if (preg_match('/^[0-9A-F]{12}$/D', $raw) &&
+            !in_array($raw, ['000000000000', 'FFFFFFFFFFFF'], true)) return 'HEX12:' . $raw;
+        return '';
     }
 
     public static function load(string $root = self::ROOT): ?array

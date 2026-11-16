@@ -72,3 +72,12 @@ projetam o mesmo conjunto do seu inventário e associam por serial.
 
 Referência dos campos e enumerações:
 https://pdfcoffee.com/fiberhome-gepon-5116-5516-mib-open-interface-specifications-pdf-free.html
+
+## Identificadores hexadecimais de 12 caracteres
+
+A coleta real também apresentou identificadores como DD32e69b93a4 e 0000622f5c52.
+São preservados como identidade opaca `HEX12:...`, sem presumir que são MACs.
+A associação com ACS exige o MESMO identificador em seu campo serial. Não há
+fallback para MAC Ethernet, endereço IP, login ou nome. Ausência de correspondência
+continua sem telemetria até validar a identidade; eliminar quarentena na OLT não
+comprova cobertura do inventário ACS. Identificadores totalmente zero/FF são rejeitados.

@@ -23,13 +23,23 @@ STATE = {'0': 'sem_sinal', '1': 'online', '2': 'sem_energia', '3': 'offline'}
 
 def canonical_serial(raw):
     value = raw.strip().strip('"').upper()
+    if value.startswith('HEX12:'):
+        value = value[6:]
     if re.fullmatch(r'[0-9A-F]{16}', value):
         try:
             vendor = bytes.fromhex(value[:8]).decode('ascii')
         except (UnicodeError, ValueError):
             return None
         value = vendor + value[8:]
-    return value if re.fullmatch(r'[A-Z]{4}[0-9A-F]{8}', value) else None
+    if value in {'000000000000', 'FFFFFFFFFFFF'}:
+        return None
+    if re.fullmatch(r'[A-Z]{4}[0-9A-F]{8}', value):
+        return value
+    if (re.fullmatch(r'[0-9A-F]{12}', value) and
+            value not in {'000000000000', 'FFFFFFFFFFFF'}):
+        # OLT-supplied opaque identifier. Do not infer Ethernet MAC semantics.
+        return 'HEX12:' + value
+    return None
 
 
 def parse_column(text, root):
@@ -120,7 +130,9 @@ def assemble(columns, now):
                 item['candidate_value'] = None
                 item['issue'] = 'onu_nao_confirmada_online'
             metrics[name] = item
-        rows[serial] = {'serial': serial, 'index': index, 'location': location,
+        rows[serial] = {'serial': serial, 'raw_serial': raw_serial.strip().strip('"'),
+                        'identity_kind': 'hex12' if serial.startswith('HEX12:') else 'gpon',
+                        'index': index, 'location': location,
                         'state': state, 'state_raw': status_raw,
                         'state_polled_at_epoch': columns['state']['polled_at_epoch'],
                         'source': 'olt_snmp', 'metrics': metrics}

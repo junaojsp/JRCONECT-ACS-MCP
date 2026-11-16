@@ -14,6 +14,11 @@ class FleetTests(unittest.TestCase):
         self.assertEqual(fleet.canonical_serial('GLGAbc08fad0'), 'GLGABC08FAD0')
         self.assertEqual(fleet.canonical_serial('DLNK007f0ad3'), 'DLNK007F0AD3')
         self.assertIsNone(fleet.canonical_serial('PON 11/4/2'))
+        self.assertEqual(fleet.canonical_serial('DD32e69b93a4'), 'HEX12:DD32E69B93A4')
+        self.assertEqual(fleet.canonical_serial('0000622f5c52'), 'HEX12:0000622F5C52')
+        self.assertEqual(fleet.canonical_serial('HEX12:DD32E69B93A4'), 'HEX12:DD32E69B93A4')
+        self.assertIsNone(fleet.canonical_serial('000000000000'))
+        self.assertIsNone(fleet.canonical_serial('FFFFFFFFFFFF'))
 
     def columns(self):
         values = {'serial': 'HWTC8feedba7', 'state': '1', 'location': '"PON 11/4/2"',
@@ -29,6 +34,16 @@ class FleetTests(unittest.TestCase):
         self.assertEqual(row['metrics']['temperature']['candidate_value'], 48)
         self.assertEqual(row['state'], 'online')
         self.assertIsNone(row['metrics']['rx']['measured_at_epoch'])
+
+    def test_hex12_identity_is_exact_and_not_assumed_mac(self):
+        columns = self.columns()
+        columns['serial']['values']['371196416'] = '"DD32e69b93a4"'
+        report = fleet.assemble(columns, 1100)
+        row = report['devices']['HEX12:DD32E69B93A4']
+        self.assertEqual(row['identity_kind'], 'hex12')
+        self.assertEqual(row['raw_serial'], 'DD32e69b93a4')
+        self.assertEqual(report['quarantined_count'], 0)
+        self.assertEqual(row['metrics']['rx']['candidate_value'], -23.87)
 
     def test_offline_retained_optical_values_are_hidden(self):
         columns = self.columns()
