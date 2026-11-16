@@ -136,6 +136,7 @@ try {
     echo "MODO=SOMENTE_LEITURA_NBI; SEM_COMANDOS_TR069; SEM_IXC\n";
     echo "CPE_EXAMINADOS=$scanned\n";
     echo "ATENCAO=Inform recente nao garante que a leitura optica esteja atualizada\n";
+    echo "ATENCAO=BRUTO_OPTICO e valor SEM UNIDADE VALIDADA; nao interpretar como dBm ou Celsius\n";
 
     foreach ($models as $model) {
         echo "MODELO=$model\n";
@@ -159,7 +160,10 @@ try {
                 echo "    PARAM=" . $item['path'] .
                      " VALOR=" . $item['state'] .
                      " IDADE=" . $age .
-                     " LEITOR_ATUAL=" . ($item['mapped'] ? 'MAPEADO' : 'NAO_MAPEADO') . "\n";
+                     " LEITOR_ATUAL=" . ($item['mapped'] ? 'MAPEADO' : 'NAO_MAPEADO') .
+                     ($item['raw_optical_sample'] !== null
+                        ? " BRUTO_OPTICO=" . $item['raw_optical_sample'] : "") .
+                     "\n";
             }
         }
     }
