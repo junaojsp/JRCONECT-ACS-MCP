@@ -7,10 +7,12 @@ on:
       - 'assets/js/jrc-router-signal.js'
       - 'scripts/deploy-acs-router-signal.py'
       - 'scripts/deploy-acs-router-signal-v2.py'
+      - 'scripts/deploy-acs-no-rx-types.py'
       - 'tests/jrc-equipment-classification.test.php'
       - 'tests/test_deploy_acs_router_signal.py'
       - 'tests/test_jrc_router_signal_js.cjs'
       - 'tests/test_deploy_acs_router_signal_v2.py'
+      - 'tests/test_deploy_acs_no_rx_types.py'
       - '.github/workflows/acs-router-signal.yml'
   workflow_dispatch:
 permissions:
@@ -38,5 +40,7 @@ jobs:
         run: node tests/test_jrc_router_signal_js.cjs
       - name: Test safe upgrade of installed JS
         run: python3 tests/test_deploy_acs_router_signal_v2.py
+      - name: Verify tri-state RX classifications and guarded deployment
+        run: python3 tests/test_deploy_acs_no_rx_types.py
       - name: Test safe overlay planner
         run: python3 tests/test_deploy_acs_router_signal.py
