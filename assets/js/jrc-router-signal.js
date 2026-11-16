@@ -87,7 +87,9 @@
         const existing = document.querySelector('[data-jrc-router-summary="1"]');
         if (existing) {
             const value = existing.querySelector('[data-jrc-router-count]');
-            if (value) value.textContent = counts.routers.toLocaleString('pt-BR');
+            if (value && value.textContent !== counts.routers.toLocaleString('pt-BR')) {
+                value.textContent = counts.routers.toLocaleString('pt-BR');
+            }
             return;
         }
         const row = getNoReadingRow();
@@ -129,7 +131,7 @@
             });
             if (!response.ok) return;
             const data = await response.json();
-            if (!data.success || data.scope !== 'genieacs' ||
+            if (!data.success || data.scope !== 'genieacs' || data.cache_stale ||
                 !Number.isSafeInteger(Number(data.routers)) ||
                 Number(data.routers) < 0) return;
             counts = { routers: Number(data.routers) };
