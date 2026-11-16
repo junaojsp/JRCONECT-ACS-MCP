@@ -32,7 +32,7 @@ $genieacs = new GenieACS(
 
 // O cache e opt-in: sem snapshot valido, comportamento legado permanece.
 // O coletor e independente do browser e nunca dispara tarefas TR-069.
-if (getConfig('jrc_inventory_cache_enabled') === '1') {
+if (getConfig('jrc_inventory_cache_enabled') === '1' && ($_GET['parser'] ?? 'fast') !== 'full') {
     require_once __DIR__ . '/../lib/JrcDeviceInventoryCache.php';
     try {
         $cacheLimit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
