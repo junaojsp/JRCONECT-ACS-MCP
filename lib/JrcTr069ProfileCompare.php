@@ -130,12 +130,15 @@ final class JrcTr069ProfileCompare
                 ];
                 return;
             }
-            foreach ($keys as $k) {
-                if (!is_string($k) || $k === '' || $k[0] === '_' ||
+            foreach ($keys as $key) {
+                // Numeric instance indices (WANDevice.1, Optical.Interface.1)
+                // are integer array keys after json_decode(..., true).
+                $k = (string)$key;
+                if ($k === '' || $k[0] === '_' ||
                     strlen($k) > 90 ||
                     preg_match('/^[a-zA-Z0-9_-]+$/D', $k) !== 1 ||
                     preg_match(self::SENSITIVE_SEGMENT, $k) === 1) continue;
-                $child = $node[$k];
+                $child = $node[$key];
                 if (!is_array($child)) continue;
                 $walk($child, $path === '' ? $k : $path . '.' . $k, $depth + 1);
                 if ($truncated) return;
