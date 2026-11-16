@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 /**
  * Inspect optical parameter NAMES and value freshness in stored GenieACS JSON.
- * No live TR-069 tasks. Never prints/returns customer or CPE data values.
+ * No live TR-069 tasks. Never prints/returns customer or CPE secrets.
+ * Exposes numeric optical samples ONLY from an allowlist of RX/temperature paths,
+ * without assuming units or converting them to dBm/Celsius.
  */
 final class JrcOnuPilotPaths
 {
@@ -18,7 +20,25 @@ final class JrcOnuPilotPaths
         'InternetGatewayDevice.DeviceInfo.Temperature' => true,
     ];
 
-    /** @return array<int,array{path:string,state:string,age_minutes:?int,mapped:bool}> */
+    /**
+     * Report the raw numeric value ONLY for explicitly known optical paths.
+     * This must not act as a generic scanner dumping CPE parameter values.
+     */
+    private static function numericOpticalSample(string $path, mixed $value): ?string
+    {
+        if (!preg_match(
+            '~^InternetGatewayDevice\\.WANDevice\\.[0-9]+\\.X_(?:FH_)?GponInterfaceConfig\\.(?:RXPower|TransceiverTemperature)$~D',
+            $path
+        )) return null;
+        if (!is_scalar($value) || is_bool($value)) return null;
+        $raw = str_replace(',', '.', trim((string)$value));
+        if ($raw === '' || strlen($raw) > 32 || !is_numeric($raw)) return null;
+        $number = (float)$raw;
+        if (!is_finite($number) || abs($number) > 1000000) return null;
+        return $raw;
+    }
+
+    /** @return array<int,array{path:string,state:string,age_minutes:?int,mapped:bool,raw_optical_sample:?string}> */
     public static function inspect(array $raw, int $now, int $limit = 24): array
     {
         $results = [];
@@ -55,7 +75,10 @@ final class JrcOnuPilotPaths
                     'path' => $path,
                     'state' => !$present ? 'VAZIO' : ($numeric ? 'NUMERICO' : 'NAO_NUMERICO'),
                     'age_minutes' => $age,
-                    'mapped' => isset(self::READER_PATHS[$path])
+                    'mapped' => isset(self::READER_PATHS[$path]),
+                    'raw_optical_sample' => $numeric
+                        ? self::numericOpticalSample($path, $tree['_value'])
+                        : null,
                 ];
                 return;
             }
