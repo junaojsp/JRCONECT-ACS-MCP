@@ -1,0 +1,28 @@
+name: Device inventory search
+on:
+  pull_request:
+    paths:
+      - 'assets/js/devices-fleet.js'
+      - 'scripts/deploy-device-search.py'
+      - 'tests/devices-fleet.test.mjs'
+      - 'tests/device-search-deploy.test.py'
+      - '.github/workflows/device-search.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+      - run: |
+          node --check assets/js/devices-fleet.js
+          node --test tests/devices-fleet.test.mjs
+          python3 tests/device-search-deploy.test.py
