@@ -33,16 +33,16 @@ function rxCmp(string $branch, mixed $value, int $ageSec): array {
         ]]]]
     ];
 }
-$targetRaw = deviceCmp('485754436BCD129E', 'HG8546M', 'V3R017C00S125', 120);
-$okSameModel = deviceCmp('48575443ABCDEF00', 'HG8546M', 'V3R017C00S125',
+$targetRaw = deviceCmp('TEST_HG8546M_BAD', 'HG8546M', 'V3R017C00S125', 120);
+$okSameModel = deviceCmp('TEST_HG8546M_OK', 'HG8546M', 'V3R017C00S125',
     60, rxCmp('X_GponInterfaceConfig', -21.2, 120));
-$okOtherFirmware = deviceCmp('48575443ABCDEF11', 'HG8546M', 'V3R019C00S100',
+$okOtherFirmware = deviceCmp('TEST_HG8546M_OTHER_FW', 'HG8546M', 'V3R019C00S100',
     60, rxCmp('X_GponInterfaceConfig', -22.1, 60));
-$okOtherModel = deviceCmp('48575443ABCDEF22', 'EG8145V5', 'V5R019C00S100',
+$okOtherModel = deviceCmp('TEST_HUAWEI_OTHER', 'EG8145V5', 'V5R019C00S100',
     60, ['VirtualParameters' => ['RXPower' => [
         '_value' => -23.0, '_timestamp' => gmdate('c', $now - 60)
     ]]]);
-$stale = deviceCmp('48575443ABCDEF33', 'HG8546M', 'V3R017C00S125',
+$stale = deviceCmp('TEST_HG8546M_STALE', 'HG8546M', 'V3R017C00S125',
     60, rxCmp('X_GponInterfaceConfig', -22.3, 15 * 86400));
 $router = deviceCmp('TK181000000', 'D-LINK Router', 'v1', 60, [], 'D-LINK');
 
@@ -80,7 +80,7 @@ verifyCmp(count($diff['paths_only_reference']) === 1 &&
     str_contains($diff['paths_only_reference'][0], 'X_GponInterfaceConfig.RXPower'),
     'Caminho so na ONU funcional: possivel descoberta/provisionamento');
 
-$secret = deviceCmp('48575443ABCDEF99', 'HG8546M', 'test', 90, [
+$secret = deviceCmp('TEST_HG8546M_SECRET', 'HG8546M', 'test', 90, [
     'InternetGatewayDevice' => ['WANDevice' => ['1' => [
         'WANConnectionDevice' => ['1' => ['WANPPPConnection' => ['1' => [
             'Username' => ['_value' => 'subscriber@example.com'],
