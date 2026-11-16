@@ -1,0 +1,23 @@
+name: ACS SNMP snapshot publication
+on:
+  pull_request:
+    paths:
+      - 'scripts/run-acs-snmp-collector.py'
+      - 'scripts/inspect-acs-response-contracts.php'
+      - 'scripts/inspect-acs-snmp-cutover.php'
+      - 'tests/test_snmp_publisher.py'
+      - '.github/workflows/acs-snmp-publication.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+      - run: php -l scripts/inspect-acs-response-contracts.php
+      - run: php -l scripts/inspect-acs-snmp-cutover.php
+      - run: python3 -m unittest discover -s tests -p 'test_snmp_publisher.py' -v
