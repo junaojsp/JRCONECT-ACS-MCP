@@ -9,6 +9,7 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../lib/GenieACS.php';
 require_once __DIR__ . '/../lib/GenieACS_Fast.php';
 require_once __DIR__ . '/../lib/JrcDeviceInventoryCache.php';
+require_once __DIR__ . '/../lib/JrcAdaptiveOpticalRead.php';
 require_once __DIR__ . '/../lib/JrcIxcInventoryReader.php';
 
 $lock = fopen(sys_get_temp_dir() . '/jrc-acs-inventory-collector.lock', 'c');
@@ -37,6 +38,7 @@ try {
         }
         foreach ($response['data'] as $raw) {
             $device = App\GenieACS_Fast::parseDeviceDataFast($raw);
+            $device = JrcAdaptiveOpticalRead::enrich($raw, $device);
             $id = (string)($device['device_id'] ?? '');
             if ($id === '' || $id === 'N/A' || isset($seen[$id])) {
                 throw new RuntimeException('Dispositivo repetido ou sem ID entre paginas ACS');
