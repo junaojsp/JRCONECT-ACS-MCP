@@ -53,7 +53,7 @@ final class LegacyOpticalConfig
                 continue;
             }
             // On the installed ACS, both values are read from $ixcConfig,
-            // which itself comes from getIxcConfig() in config/config.php.
+            // which itself comes from getIxcConfig() in the installed lib/IXCConfig.php.
             if (is_array($right) && $right[0] === T_VARIABLE &&
                 $right[1] === '$ixcConfig') {
                 $bracket = self::significant($tokens, $start + 1);
