@@ -7,7 +7,6 @@ RUN apt-get update \
 WORKDIR /app
 COPY collector /app/collector
 COPY lib/GenieACS_Fast.php /app/lib/GenieACS_Fast.php
-COPY lib/JrcSnmpTelemetry.php /app/lib/JrcSnmpTelemetry.php
 USER 10001:10001
 ENTRYPOINT ["php", "/app/collector/cli.php"]
 CMD ["--check"]

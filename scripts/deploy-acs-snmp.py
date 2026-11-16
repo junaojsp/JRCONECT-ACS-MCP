@@ -11,7 +11,7 @@ import tempfile
 
 SOURCE = Path(__file__).resolve().parent.parent
 NEW_FILES = ['collector/snmp_pilot.py', 'collector/snmp_fleet.py',
-             'lib/JrcSnmpTelemetry.php', 'api/get-onu-snmp.php']
+             'lib/JrcSnmpTelemetry.php']
 
 
 def replace_once(text, needle, value):
@@ -23,10 +23,6 @@ def replace_once(text, needle, value):
 def overlay(path, text):
     if 'JrcSnmpTelemetry' in text:
         raise ValueError('hook_snmp_existente_requer_revisao')
-    if path in ['lib/GenieACS.php', 'lib/GenieACS_Fast.php']:
-        return replace_once(text, '        return $data;',
-            "        require_once __DIR__ . '/JrcSnmpTelemetry.php';\n"
-            "        return \\JrcSnmpTelemetry::apply($data);")
     if path == 'lib/JrcDeviceInventoryCache.php':
         return replace_once(text, '            $devices[] = $decoded;',
             "            require_once __DIR__ . '/JrcSnmpTelemetry.php';\n"
@@ -40,15 +36,10 @@ def overlay(path, text):
             "    require_once __DIR__ . '/../lib/JrcSnmpTelemetry.php';\n"
             "    $devices = array_map([JrcSnmpTelemetry::class, 'apply'], $devices);\n"
             '    $published = JrcDeviceInventoryCache::publish')
-    if path == 'api/get-onu-optical.php':
-        hook = "\n// JRC SNMP local snapshot source.\nrequire_once __DIR__ . '/../lib/JrcSnmpTelemetry.php';\nif (JrcSnmpTelemetry::enabled()) { require __DIR__ . '/get-onu-snmp.php'; exit; }\n"
-        # Preserve strict_types as first statement, if present.
-        declaration = re.match(r'<\?php\s*declare\s*\(\s*strict_types\s*=\s*1\s*\)\s*;', text)
-        if declaration:
-            return text[:declaration.end()] + hook + text[declaration.end():]
-        if not text.startswith('<?php') or re.search(r'declare\s*\(\s*strict_types', text):
-            raise ValueError('cabecalho_php_divergente')
-        return '<?php' + hook + text[5:]
+    if path == 'api/get-devices.php':
+        return replace_once(text, '            $devices[] = $parsed;',
+            "            require_once __DIR__ . '/../lib/JrcSnmpTelemetry.php';\n"
+            '            $devices[] = JrcSnmpTelemetry::apply($parsed);')
     raise ValueError('arquivo_nao_previsto')
 
 
@@ -61,9 +52,8 @@ def plan(root):
             # Pilot already installed from the pinned PR can remain identical.
             raise ValueError('arquivo_novo_divergente:' + relative)
         changes[relative] = content
-    for relative in ['lib/GenieACS.php', 'lib/GenieACS_Fast.php',
-                     'lib/JrcDeviceInventoryCache.php', 'lib/JrcDashboardSnapshot.php',
-                     'cron/collect-device-inventory.php', 'api/get-onu-optical.php']:
+    for relative in ['lib/JrcDeviceInventoryCache.php', 'lib/JrcDashboardSnapshot.php',
+                     'cron/collect-device-inventory.php', 'api/get-devices.php']:
         changes[relative] = overlay(relative, (root / relative).read_text()).encode()
     for relative, content in changes.items():
         if relative.endswith('.php'):

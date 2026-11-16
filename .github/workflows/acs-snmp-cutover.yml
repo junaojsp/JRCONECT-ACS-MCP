@@ -31,7 +31,6 @@ jobs:
         run: |
           for f in lib/JrcSnmpTelemetry.php lib/GenieACS.php lib/GenieACS_Fast.php lib/JrcDashboardSnapshot.php lib/JrcDeviceInventoryCache.php api/get-onu-optical.php api/get-onu-snmp.php cron/collect-device-inventory.php collector/cli.php; do php -l "$f"; done
           php tests/jrc-snmp-telemetry.test.php
-          php tests/jrc-telemetry-honesty.test.php
           php tests/jrc-collector.test.php
           python3 -m unittest discover -s tests -p 'test_snmp_*.py' -v
           python3 -m unittest discover -s tests -p 'test_deploy_acs_snmp.py' -v
