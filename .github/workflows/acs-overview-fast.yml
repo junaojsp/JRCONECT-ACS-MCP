@@ -1,0 +1,34 @@
+name: ACS overview cache fast path
+on:
+  pull_request:
+    paths:
+      - 'lib/JrcDashboardSnapshot.php'
+      - 'api/dashboard-stats.php'
+      - 'api/uplink-stats.php'
+      - 'api/recent-devices.php'
+      - 'scripts/deploy-acs-overview-fast.py'
+      - 'tests/jrc-dashboard-snapshot.test.php'
+      - 'tests/test_deploy_acs_overview.py'
+      - '.github/workflows/acs-overview-fast.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+          extensions: mysqli, curl
+      - run: |
+          php -l lib/JrcDashboardSnapshot.php
+          php -l api/dashboard-stats.php
+          php -l api/uplink-stats.php
+          php -l api/recent-devices.php
+          php tests/jrc-dashboard-snapshot.test.php
+      - run: |
+          python3 -m py_compile scripts/deploy-acs-overview-fast.py
+          python3 -m unittest discover -s tests -p 'test_deploy_acs_overview.py' -v
