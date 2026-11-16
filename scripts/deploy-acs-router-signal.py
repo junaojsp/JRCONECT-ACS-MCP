@@ -27,11 +27,14 @@ NEW_FILES = (
 DASHBOARD = 'dashboard.php'
 INCLUDE = '<script defer src="/assets/js/jrc-router-signal.js?v=1"></script>'
 MARK = '/assets/js/jrc-router-signal.js'
-# The customized dashboard delegates </body> to the shared footer PHP.
+# Match exactly one standalone footer include line inside the existing PHP block.
+# The actual customized dashboard has echo statements BEFORE this include.
 FOOTER_INCLUDE = re.compile(
-    r'''(?is)<\?php\s*(?:include|require)(?:_once)?\s+__DIR__\s*\.\s*(['"])/views/layouts/footer\.php\1\s*;\s*\?>'''
+    r"""(?m)^[ \t]*(?:include|require)(?:_once)?[ \t]+__DIR__[ \t]*\.[ \t]*
+    (?P<quote>['"])/views/layouts/footer\.php(?P=quote)[ \t]*;[ \t]*(?:\r?\n|$)""",
+    re.VERBOSE,
 )
-
+PHP_SCRIPT_ECHO = "echo '" + INCLUDE + "';\n"
 
 class UnsafeInstall(RuntimeError):
     pass
@@ -68,16 +71,26 @@ def dashboard_patch(before: bytes) -> bytes:
         # Self-contained HTML dashboard.
         insert_at = text.lower().rfind('</body>')
     elif body_count == 0:
-        # Customized ACS uses include __DIR__ . '/views/layouts/footer.php';
-        # and </body> is inside the separate footer template. Insert the
-        # JavaScript *before* that isolated footer PHP block. No footer file
-        # or existing dashboard logic is modified.
+        # Customized ACS closes the HTML in views/layouts/footer.php.
+        # Its dashboard.php already contains a PHP block with other echo
+        # statements before a standalone footer include. Insert a PHP echo
+        # on the line immediately BEFORE that include, not a bare HTML tag
+        # outside the closing PHP block and never into the footer template.
         matches = list(FOOTER_INCLUDE.finditer(text))
         if len(matches) != 1:
             raise UnsafeInstall(
-                'Dashboard sem </body> ou include de footer reconhecido: nao modificar'
+                'Dashboard sem </body> ou include de footer unico: nao modificar'
             )
         insert_at = matches[0].start()
+        # Confirm that the matched include appears inside an existing PHP
+        # block; never inject a PHP command into HTML, JS or a string.
+        php_open = text.lower().rfind('<?php', 0, insert_at)
+        php_close = text.rfind('?>', 0, insert_at)
+        if php_open < 0 or php_open < php_close:
+            raise UnsafeInstall('Include de footer fora do bloco PHP')
+        return (
+            text[:insert_at] + PHP_SCRIPT_ECHO + text[insert_at:]
+        ).encode('utf-8')
     else:
         raise UnsafeInstall('Dashboard com multiplos </body>: nao modificar')
 
