@@ -8,6 +8,7 @@ on:
       - 'scripts/deploy-acs-router-signal.py'
       - 'tests/jrc-equipment-classification.test.php'
       - 'tests/test_deploy_acs_router_signal.py'
+      - 'tests/test_jrc_router_signal_js.cjs'
       - '.github/workflows/acs-router-signal.yml'
   workflow_dispatch:
 permissions:
@@ -31,5 +32,7 @@ jobs:
         run: php tests/jrc-equipment-classification.test.php
       - name: JS syntax check
         run: node --check assets/js/jrc-router-signal.js
+      - name: Test dashboard router badges and sidebar with fake DOM
+        run: node tests/test_jrc_router_signal_js.cjs
       - name: Test safe overlay planner
         run: python3 tests/test_deploy_acs_router_signal.py
