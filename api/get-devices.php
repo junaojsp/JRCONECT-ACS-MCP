@@ -30,6 +30,23 @@ $genieacs = new GenieACS(
     $credentials['password']
 );
 
+// O cache e opt-in: sem snapshot valido, comportamento legado permanece.
+// O coletor e independente do browser e nunca dispara tarefas TR-069.
+if (getConfig('jrc_inventory_cache_enabled') === '1') {
+    require_once __DIR__ . '/../lib/JrcDeviceInventoryCache.php';
+    try {
+        $cacheLimit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
+        $cacheSkip = isset($_GET['skip']) ? (int)$_GET['skip'] : 0;
+        $cached = JrcDeviceInventoryCache::page($conn, $cacheLimit, $cacheSkip);
+        if ($cached !== null) {
+            header('Cache-Control: private, no-store');
+            jsonResponse($cached);
+        }
+    } catch (Throwable $cacheError) {
+        error_log('JRC inventory cache fallback: ' . $cacheError->getMessage());
+    }
+}
+
 // Get pagination parameters (optional)
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100; // Default limit to 100 for performance
 $skip = isset($_GET['skip']) ? (int)$_GET['skip'] : 0;
