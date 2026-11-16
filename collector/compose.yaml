@@ -1,0 +1,32 @@
+# Opt-in only: the "shadow" profile prevents accidental container startup.
+# Network host is required only when NBI/MySQL bind localhost; restrict
+# outbound access and NBI rights with host firewall/read-only proxy.
+services:
+  jrc-collector:
+    profiles: ["shadow"]
+    build:
+      context: ..
+      dockerfile: collector/Dockerfile
+    image: jrc-collector:shadow-v1
+    network_mode: host
+    init: true
+    restart: "no"
+    read_only: true
+    user: "10001:10001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 512m
+    cpus: 0.75
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=16m
+    env_file:
+      - /etc/jrc-collector/config.env
+    volumes:
+      - type: bind
+        source: /etc/jrc-collector/secrets
+        target: /run/jrc-collector-secrets
+        read_only: true
+    command: ["--check"]
