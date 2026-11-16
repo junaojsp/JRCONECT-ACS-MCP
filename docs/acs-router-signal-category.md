@@ -70,3 +70,20 @@ Nao altera APIS atuais, IXC, TR-069, calculos legados de sinal,
 firmware, reboot, configuracoes da ONU, cron, MCP, nem o
 coletor atual. O novo recurso apenas apresenta classes/contagem
 em um escopo claramente identificado.
+
+
+## ACS personalizado sem fechamento body no dashboard.php
+
+A simulacao no servidor identificou o layout real: o dashboard.php
+nao contem fechamento body, pois o arquivo views/layouts/footer.php
+e incluido no final da pagina e fecha o HTML.
+
+O instalador agora reconhece dois formatos:
+1. Dashboard independente, com um unico fechamento body: injeta antes.
+2. Dashboard com include/require isolado de views/layouts/footer.php:
+   injeta antes do bloco PHP do footer, sem modificar o arquivo footer.
+
+Se a estrutura nao for reconhecida, a instalacao e recusada.
+Nao substitui dashboard.php pelo arquivo padrao do GitHub, nao altera
+consulta IXC/TR-069. Testes novos garantem que a unica mudanca no
+arquivo personalizado e o include JS, com backup do original.

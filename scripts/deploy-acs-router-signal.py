@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -26,6 +27,10 @@ NEW_FILES = (
 DASHBOARD = 'dashboard.php'
 INCLUDE = '<script defer src="/assets/js/jrc-router-signal.js?v=1"></script>'
 MARK = '/assets/js/jrc-router-signal.js'
+# The customized dashboard delegates </body> to the shared footer PHP.
+FOOTER_INCLUDE = re.compile(
+    r'''(?is)<\?php\s*(?:include|require)(?:_once)?\s+__DIR__\s*\.\s*(['"])/views/layouts/footer\.php\1\s*;\s*\?>'''
+)
 
 
 class UnsafeInstall(RuntimeError):
@@ -55,12 +60,28 @@ def dashboard_patch(before: bytes) -> bytes:
         if text.count(INCLUDE) != 1 or text.count(MARK) != 1:
             raise UnsafeInstall('Marcador encontrado, mas script diferente: nao sobrepor')
         return before
-    if text.lower().count('</body>') != 1:
-        raise UnsafeInstall('Dashboard sem </body> unico: nao modificar')
     if 'dashboard' not in text.lower():
         raise UnsafeInstall('Pagina inesperada: dashboard')
-    close = text.lower().rfind('</body>')
-    return (text[:close] + INCLUDE + '\n' + text[close:]).encode('utf-8')
+
+    body_count = text.lower().count('</body>')
+    if body_count == 1:
+        # Self-contained HTML dashboard.
+        insert_at = text.lower().rfind('</body>')
+    elif body_count == 0:
+        # Customized ACS uses include __DIR__ . '/views/layouts/footer.php';
+        # and </body> is inside the separate footer template. Insert the
+        # JavaScript *before* that isolated footer PHP block. No footer file
+        # or existing dashboard logic is modified.
+        matches = list(FOOTER_INCLUDE.finditer(text))
+        if len(matches) != 1:
+            raise UnsafeInstall(
+                'Dashboard sem </body> ou include de footer reconhecido: nao modificar'
+            )
+        insert_at = matches[0].start()
+    else:
+        raise UnsafeInstall('Dashboard com multiplos </body>: nao modificar')
+
+    return (text[:insert_at] + INCLUDE + '\n' + text[insert_at:]).encode('utf-8')
 
 
 def plan(root: Path) -> dict[str, tuple[bytes | None, bytes]]:

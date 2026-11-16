@@ -41,4 +41,45 @@ with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as bac
     except mod.UnsafeInstall:
         pass
 
+
+# Production-shaped dashboard.php delegates </body> to a shared footer.
+# The installer must add one include before the footer PHP statement,
+# without modifying the footer, existing JS, or the dashboard structure.
+with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as backups:
+    root = Path(root)
+    (root / 'config').mkdir()
+    (root / 'config/config.php').write_text('<?php // fixture\n')
+    original = (
+        "<?php\nrequire_once __DIR__ . '/config/config.php';\n"
+        "include __DIR__ . '/views/layouts/header.php';\n?>\n"
+        '<div>Dashboard - Sinal da frota</div>\n'
+        '<script>console.log("existing");</script>\n'
+        "<?php\n\ninclude __DIR__ . '/views/layouts/footer.php';\n\n?>\n"
+    ).encode()
+    dashboard = root / 'dashboard.php'
+    dashboard.write_bytes(original)
+    changes = mod.plan(root)
+    assert set(changes) == set(mod.NEW_FILES) | {'dashboard.php'}, changes
+    assert dashboard.read_bytes() == original, 'plan modified footer-based dashboard'
+    backup = mod.apply(root, Path(backups), changes)
+    assert backup is not None
+    patched = dashboard.read_text()
+    assert patched.count(mod.INCLUDE) == 1
+    assert patched.index(mod.INCLUDE) < patched.index("include __DIR__ . '/views/layouts/footer.php';")
+    assert patched.replace(mod.INCLUDE + '\n', '').encode() == original
+    assert (backup / 'dashboard.php').read_bytes() == original
+    assert not mod.plan(root), 'footer layout not idempotent'
+
+# Unknown layouts must still be refused; do not insert blindly.
+with tempfile.TemporaryDirectory() as root:
+    root = Path(root)
+    (root / 'config').mkdir()
+    (root / 'config/config.php').write_text('<?php // fixture\n')
+    (root / 'dashboard.php').write_text('<?php // Dashboard without footer ?>')
+    try:
+        mod.plan(root)
+        raise AssertionError('Unknown layout must be rejected')
+    except mod.UnsafeInstall:
+        pass
+
 print('JRC_ROUTER_DEPLOY_TESTS_OK')
