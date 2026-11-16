@@ -23,7 +23,7 @@ final class Diagnostics
 
         $rx = self::number($device['rx_power'] ?? null, -80, -0.00001);
         $source = (string)($device['rx_source'] ?? 'tr069');
-        $sampleAt = (int)($device['rx_measured_at_epoch'] ?? $lastInform);
+        $sampleAt = (int)($device['rx_measured_at_epoch'] ?? 0);
         // Data from offline or ancient ONUs is not a current signal measurement.
         $fresh = $online && $rx !== null && $sampleAt > 0 &&
                  $now - $sampleAt <= 900 && $sampleAt <= $now + 300;
@@ -32,9 +32,22 @@ final class Diagnostics
             $signal = $rx < -28 ? 'critico' : ($rx <= -25 ? 'fraco' : 'normal');
         }
 
+        // Distinguish an absent RX parameter from a stale or unverified sample.
+        // This is diagnostic metadata; no unavailable measurement becomes "normal".
+        $rxIssue = null;
+        if ($signal === 'sem_dados') {
+            if (!$online) $rxIssue = 'sem_comunicacao_recente';
+            elseif (($device['rx_power'] ?? null) === null || ($device['rx_power'] ?? '') === '') {
+                $rxIssue = 'parametro_ou_valor_ausente';
+            } elseif ($rx === null) $rxIssue = 'valor_invalido';
+            elseif ($sampleAt <= 0) $rxIssue = 'sem_timestamp_da_medicao';
+            elseif ($sampleAt > $now + 300) $rxIssue = 'timestamp_futuro';
+            else $rxIssue = 'leitura_desatualizada';
+        }
+
         $temp = self::number($device['temperature'] ?? null, -30, 130);
         $tempSource = (string)($device['temperature_source'] ?? 'tr069');
-        $tempMeasured = (int)($device['temperature_measured_at_epoch'] ?? $lastInform);
+        $tempMeasured = (int)($device['temperature_measured_at_epoch'] ?? 0);
         $tempFresh = $online && $temp !== null && $tempMeasured > 0 &&
                      $now - $tempMeasured <= 900 && $tempMeasured <= $now + 300;
         $temperature = !$tempFresh ? 'sem_dados'
@@ -56,6 +69,7 @@ final class Diagnostics
         return [
             'status' => $status,
             'rx_status' => $signal,
+            'rx_issue' => $rxIssue,
             'temperature_status' => $temperature,
             'warnings' => $warnings
         ];
