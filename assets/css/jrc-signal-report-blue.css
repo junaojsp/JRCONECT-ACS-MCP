@@ -78,3 +78,47 @@
     outline: 2px solid #5aa8ec;
     outline-offset: 1px;
 }
+
+/* Optical report readability refinements. Only loaded by /view-logs.php.
+   This must not change threshold/status semantics or any device data. */
+@media (min-width: 1000px) {
+  .main-content .content-wrapper :is(.card-body, .report-body) {
+    padding: 18px 20px;
+  }
+}
+.main-content .content-wrapper :is(.card, .report-card, .report-panel) {
+  border-radius: 12px;
+  overflow: hidden;
+}
+.main-content .content-wrapper :is(table, .table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.main-content .content-wrapper :is(table, .table) th,
+.main-content .content-wrapper :is(table, .table) td {
+  padding: 11px 12px !important;
+  vertical-align: middle;
+  line-height: 1.45;
+}
+.main-content .content-wrapper :is(table, .table) td {
+  overflow-wrap: anywhere;
+}
+.main-content .content-wrapper :is(.table-responsive, .report-table-wrap) {
+  overflow-x: auto;
+}
+.main-content .content-wrapper :is(button, .btn, input, select) {
+  min-height: 34px;
+}
+.main-content .content-wrapper :is(button, .btn):focus-visible {
+  outline: 2px solid #62b4f3;
+  outline-offset: 2px;
+}
+@media (max-width: 700px) {
+  .main-content .content-wrapper :is(table, .table) {
+    min-width: 620px;
+  }
+  .main-content .content-wrapper :is(.card-body, .report-body) {
+    padding: 12px;
+  }
+}
