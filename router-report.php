@@ -140,7 +140,7 @@ include __DIR__ . '/views/layouts/header.php';
                     Sem exigir leitura óptica de dispositivos que não possuem ONU integrada.
                 </p>
             </div>
-            <a class="jrc-router-btn secondary" href="/view-logs.php">Voltar aos relatórios</a>
+            <a class="jrc-router-btn secondary" href="/reports-hub.php">Voltar aos relatórios</a>
         </div>
         <div class="jrc-router-actions" style="margin-top: 16px;">
             <strong>Roteadores: <?= jrcRouterEsc($totalRouters) ?></strong>
