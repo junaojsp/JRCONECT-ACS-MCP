@@ -113,21 +113,12 @@ class GenieACS_Fast {
             $data['status'] = 'offline';
         }
 
-        // Ping - estimate based on inform freshness
-        if ($data['status'] === 'online' && $lastInformTimestamp) {
-            $timeSinceInform = time() - $lastInformTimestamp;
-            if ($timeSinceInform < 30) {
-                $data['ping'] = rand(1, 5);
-            } elseif ($timeSinceInform < 60) {
-                $data['ping'] = rand(5, 15);
-            } elseif ($timeSinceInform < 120) {
-                $data['ping'] = rand(15, 50);
-            } else {
-                $data['ping'] = rand(50, 200);
-            }
-        } else {
-            $data['ping'] = null;
-        }
+        // Inform freshness is connectivity evidence, never a latency measurement.
+        // Legacy VirtualParameters have no verified measurement contract either.
+        $data['ping'] = null;
+        $data['ping_source'] = null;
+        $data['ping_measured_at_epoch'] = 0;
+        $data['ping_issue'] = 'medicao_nao_verificada';
 
         // IP Address - multiple paths
         $connectionUrl =
@@ -181,10 +172,9 @@ class GenieACS_Fast {
 
         if ($rxPower !== null && is_numeric($rxPower)) {
             $rxPower = floatval($rxPower);
-            if ($rxPower > 100) {
-                $rxPower = ($rxPower / 100) - 40;
-            }
-            $data['rx_power'] = number_format($rxPower, 2);
+            // Raw positive units require a validated vendor/model conversion.
+            $data['rx_power'] = is_finite($rxPower) && $rxPower < 0 && $rxPower >= -80
+                ? number_format($rxPower, 2, '.', '') : 'N/A';
         } else {
             $data['rx_power'] = 'N/A';
         }
@@ -262,6 +252,7 @@ class GenieACS_Fast {
         }
         $data['tags'] = $tags;
 
-        return $data;
+        require_once __DIR__ . '/JrcSnmpTelemetry.php';
+        return \JrcSnmpTelemetry::apply($data);
     }
 }

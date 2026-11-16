@@ -501,37 +501,12 @@ class GenieACS {
             $data['status'] = 'offline';
         }
 
-        // Ping/Latency - try to get actual ping from VirtualParameters
-        // GenieACS stores ping result in VirtualParameters.Ping
-        $ping = $getParam('VirtualParameters.Ping') ??
-                $getParam('VirtualParameters.ping') ??
-                $getParam('VirtualParameters.PingResult');
-
-        if ($data['status'] === 'online') {
-            // If ping value exists and is numeric, use it
-            if ($ping !== null && is_numeric($ping)) {
-                $data['ping'] = intval($ping);
-            } else {
-                // Fallback: estimate based on inform freshness if actual ping not available
-                if ($lastInformTimestamp) {
-                    $timeSinceInform = time() - $lastInformTimestamp;
-
-                    if ($timeSinceInform < 30) {
-                        $data['ping'] = rand(1, 5);
-                    } elseif ($timeSinceInform < 60) {
-                        $data['ping'] = rand(5, 15);
-                    } elseif ($timeSinceInform < 120) {
-                        $data['ping'] = rand(15, 50);
-                    } else {
-                        $data['ping'] = rand(50, 200);
-                    }
-                } else {
-                    $data['ping'] = null;
-                }
-            }
-        } else {
-            $data['ping'] = null;
-        }
+        // Inform freshness is connectivity evidence, never a latency measurement.
+        // Legacy VirtualParameters have no verified measurement contract either.
+        $data['ping'] = null;
+        $data['ping_source'] = null;
+        $data['ping_measured_at_epoch'] = 0;
+        $data['ping_issue'] = 'medicao_nao_verificada';
 
         // Network info
         $connectionUrl = $getParam('InternetGatewayDevice.ManagementServer.ConnectionRequestURL') ??
@@ -575,13 +550,12 @@ class GenieACS {
                    $getParam('InternetGatewayDevice.WANDevice.1.X_CT-COM_EponInterfaceConfig.RXPower') ??
                    $getParam('Device.Optical.Interface.1.RxPower');
 
-        // Convert raw value to dBm if needed
+        // Reject unvalidated raw units instead of guessing a dBm conversion.
         if ($rxPower !== null && is_numeric($rxPower)) {
             $rxPower = floatval($rxPower);
-            if ($rxPower > 100) {
-                $rxPower = ($rxPower / 100) - 40;
-            }
-            $data['rx_power'] = number_format($rxPower, 2);
+            // Raw positive units require a validated vendor/model conversion.
+            $data['rx_power'] = is_finite($rxPower) && $rxPower < 0 && $rxPower >= -80
+                ? number_format($rxPower, 2, '.', '') : 'N/A';
         } else {
             $data['rx_power'] = $rxPower ?? 'N/A';
         }
@@ -1045,6 +1019,7 @@ class GenieACS {
         // Tags
         $data['tags'] = $device['_tags'] ?? [];
 
-        return $data;
+        require_once __DIR__ . '/JrcSnmpTelemetry.php';
+        return \JrcSnmpTelemetry::apply($data);
     }
 }
