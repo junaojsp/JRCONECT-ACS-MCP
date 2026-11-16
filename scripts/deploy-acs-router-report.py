@@ -47,7 +47,7 @@ def syntax_check(name: str, data: bytes) -> None:
         raise UnsafeInstall("Sintaxe PHP invalida: " + name)
 
 
-def plan(root: Path) -> dict[str, tuple[bytes | None, bytes]]:
+def plan(root: Path, old_js_sha: str = INSTALLED_V2_JS_BLOB) -> dict[str, tuple[bytes | None, bytes]]:
     if not (root / "config/config.php").is_file():
         raise UnsafeInstall("Diretorio do ACS nao encontrado")
     dashboard = root / "dashboard.php"
@@ -71,7 +71,7 @@ def plan(root: Path) -> dict[str, tuple[bytes | None, bytes]]:
         if name == JS:
             if old is None:
                 raise UnsafeInstall("JS da etapa anterior ausente")
-            if git_blob_sha(old) != INSTALLED_V2_JS_BLOB:
+            if git_blob_sha(old) != old_js_sha:
                 raise UnsafeInstall("JS difere da versao v2 homologada; nao sobrepor")
         syntax_check(name, new)
         changes[name] = (old, new)
