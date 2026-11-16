@@ -15,6 +15,8 @@ class El {
         this.dataset = {};
         this.attributes = {};
         this.title = '';
+        this.style = {};
+        this.handlers = {};
     }
     append(...elements) {
         for (const item of elements) {
@@ -58,6 +60,18 @@ class El {
         return this.querySelectorAll(selector)[0] || null;
     }
     removeAttribute(name) { delete this.attributes[name]; }
+    setAttribute(name, value) { this.attributes[name] = String(value); }
+    addEventListener(event, callback) {
+        this.handlers[event] = this.handlers[event] || [];
+        this.handlers[event].push(callback);
+    }
+    dispatch(event, key = null) {
+        const e = {
+            key, preventDefault() {}, stopPropagation() {},
+            stopImmediatePropagation() {}
+        };
+        for (const cb of this.handlers[event] || []) cb(e);
+    }
     cloneNode(deep = false) {
         const copy = new El(this.tagName, this.ownText, this.className);
         copy.title = this.title;
@@ -99,6 +113,7 @@ grid.append(router.item, onuMissing.item, onuWithRx.item);
 body.append(grid);
 
 let observer;
+let lastNavigation = '';
 const document = {
     readyState: 'complete',
     body,
@@ -107,7 +122,7 @@ const document = {
 };
 const context = {
     document,
-    window: {requestAnimationFrame: cb => cb()},
+    window: {requestAnimationFrame: cb => cb(), location: {assign: url => { lastNavigation = url; }}},
     MutationObserver: class {
         constructor(callback) { observer = callback; }
         observe() {}
@@ -139,6 +154,13 @@ vm.runInNewContext(source, context);
     assert.equal(sidebarRow.className, signalRow.className, 'same styled row structure');
     assert.equal(sidebarRow.children[0].textContent, 'Roteadores', 'label aligned');
     assert.equal(sidebarRow.children[1].textContent, '5', 'value aligned');
+    assert.equal(sidebarRow.attributes.role, 'link', 'accessible clickable router row');
+    assert.equal(sidebarRow.attributes.tabindex, '0', 'keyboard reachable');
+    sidebarRow.dispatch('click');
+    assert.equal(lastNavigation, '/router-report.php', 'router click opens report');
+    lastNavigation = '';
+    sidebarRow.dispatch('keydown', 'Enter');
+    assert.equal(lastNavigation, '/router-report.php', 'keyboard Enter opens report');
     assert.equal(signalRow.children[0].textContent, 'Sem leitura', 'original label unchanged');
     assert.equal(signalRow.children[1].textContent, '1', 'original value unchanged');
 
