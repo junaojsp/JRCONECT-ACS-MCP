@@ -15,35 +15,76 @@
         return String(s || '').replace(/\s+/g, ' ').trim();
     }
 
-    // Product/type evidence only; missing RX alone does not mean "router".
-    function isExplicitRouter(model) {
-        return routerModel.test(model) && !opticalModel.test(model);
+    // A missing RX is only a symptom, not enough to infer equipment type.
+    // Match the read-only backend classifier: optical evidence wins if the
+    // product offers router functions and an ONT/ONU in the same device.
+    function equipmentClass(model) {
+        if (opticalModel.test(model)) return 'onu';
+        if (routerModel.test(model)) return 'roteador';
+        return 'desconhecido';
     }
 
-    // Keep the existing RX value if the ONU/IXC provided one.
-    // Some customized dashboards render the Equipment rows as DIVs rather
-    // than a semantic TABLE; both layouts must be supported.
-    function replaceNoReadingBadge(root) {
+    const missingLabels = {
+        roteador: {
+            text: 'Roteador',
+            tip: 'Roteador comum: sinal óptico não se aplica ao próprio equipamento'
+        },
+        onu: {
+            text: 'ONU sem leitura',
+            tip: 'ONU óptica identificada, mas sem medição de potência RX disponível'
+        },
+        desconhecido: {
+            text: 'Tipo a confirmar',
+            tip: 'Sem potência RX e sem identificação segura como roteador ou ONU'
+        }
+    };
+
+    function replaceNoReadingBadge(root, deviceClass) {
+        const item = missingLabels[deviceClass];
+        if (!item || !root) return false;
         const elements = [root, ...root.querySelectorAll('span, small, strong, td, div, .badge')];
-        // Prefer the innermost matching node, preserving the surrounding row.
         for (let i = elements.length - 1; i >= 0; --i) {
             const node = elements[i];
             const label = normalized(node.textContent);
             if (label.length > 32 || !badSignal.test(label) ||
                 /dBm/i.test(label) || node.dataset?.jrcRouterSignal === '1') continue;
-            // Do not replace an ancestor when its child already has the label.
             if (Array.from(node.children).some(child =>
                 badSignal.test(normalized(child.textContent)))) continue;
-            node.textContent = 'Roteador';
-            node.title = 'Roteador comum; não possui leitura óptica própria neste ACS';
+            node.textContent = item.text;
+            node.title = item.tip;
             node.dataset.jrcRouterSignal = '1';
+            node.dataset.jrcEquipmentType = deviceClass;
             return true;
         }
         return false;
     }
 
+    function signalRootForRow(row) {
+        // Prefer a node identifying the RX/signal field. Never replace
+        // a missing TEMPERATURE measurement as though it were optical RX.
+        const fields = Array.from(row.querySelectorAll(
+            '[class*="rx"], [class*="signal"], [data-signal-rx]'
+        ));
+        for (const field of fields) {
+            if (field === row) continue;
+            if (badSignal.test(normalized(field.textContent))) return field;
+        }
+
+        // If any genuine RX in dBm exists on the row, the remaining missing
+        // values are other telemetry fields: leave them untouched.
+        if (/[-+]?\d+(?:[.,]\d+)?\s*dBm/i.test(row.textContent)) return null;
+
+        // Fallback only when EXACTLY ONE missing field is visible, avoiding
+        // accidental edits to unrelated missing temperature/SSID data.
+        const leaves = Array.from(row.querySelectorAll('span, small, strong, td, div'))
+            .filter(node => node.children.length === 0 &&
+                badSignal.test(normalized(node.textContent)));
+        return leaves.length === 1 ? leaves[0] : null;
+    }
+
     function updateTableBadges() {
-        // Semantic tables: map RX column by its heading.
+        // Semantic tables: use the actual "Sinal RX" column, never other
+        // columns (temperature, Wi-Fi etc.) that may also say "Sem dado".
         for (const table of document.querySelectorAll('table')) {
             const heads = Array.from(table.querySelectorAll('thead th'));
             if (!heads.length) continue;
@@ -52,50 +93,53 @@
             const deviceIndex = heads.findIndex(h =>
                 /equipamento|modelo/i.test(normalized(h.textContent)));
             if (rxIndex < 0 || deviceIndex < 0) continue;
+
             for (const tr of table.querySelectorAll('tbody tr')) {
                 const cells = tr.querySelectorAll('td');
                 if (cells.length <= Math.max(rxIndex, deviceIndex)) continue;
-                if (!isExplicitRouter(normalized(cells[deviceIndex].textContent))) continue;
-                replaceNoReadingBadge(cells[rxIndex]);
+                const model = normalized(cells[deviceIndex].textContent);
+                if (!model || /^(?:n\/a|n\/d|--)$/i.test(model)) continue;
+                replaceNoReadingBadge(cells[rxIndex], equipmentClass(model));
             }
         }
 
-        // Customized card/grid rows: the deployed dashboard can render its
-        // "Equipamentos" list without <table>/<thead>. Find a short explicit
-        // model label and its *nearest bounded row* containing "Sem dado".
-        // Never search the whole dashboard container for a badge.
+        // Customized DIV grids: use a bounded single-equipment row.
         const models = document.querySelectorAll(
             'strong, b, a, td:first-child, [class*="device-name"], [class*="equipment-name"]'
         );
         for (const modelEl of models) {
             const model = normalized(modelEl.textContent);
-            if (model.length < 3 || model.length > 90 || !isExplicitRouter(model)) continue;
+            if (model.length < 3 || model.length > 90) continue;
+            const deviceClass = equipmentClass(model);
+            const parentClass = String(modelEl.parentElement?.className || '').toLowerCase();
+            const ownClass = String(modelEl.className || '').toLowerCase();
+            // For an unknown model, require an explicit device-name container
+            // so a customer name or unrelated bold text is never misclassified.
+            if (deviceClass === 'desconhecido' &&
+                !/(?:device-name|equipment-name)/.test(parentClass + ' ' + ownClass)) {
+                continue;
+            }
+
             let row = modelEl.parentElement;
             for (let depth = 0; depth < 7 && row; depth++, row = row.parentElement) {
                 const text = normalized(row.textContent);
                 if (text.length > 800) break;
-
-                // Stop at a row that has ALREADY been decorated, rather than
-                // ascending into the list and changing a neighboring ONU.
                 if (Array.from(row.querySelectorAll('*')).some(node =>
                     node.dataset?.jrcRouterSignal === '1')) break;
 
-                // If more than one device title is inside this ancestor, it
-                // is a MULTI-ROW wrapper. Never apply a router badge there.
                 const deviceTitles = Array.from(row.querySelectorAll('strong, b'))
                     .map(node => normalized(node.textContent))
                     .filter(name => name.length < 90 &&
                         (routerModel.test(name) || opticalModel.test(name)));
                 if (deviceTitles.length > 1) break;
 
-                if (badSignal.test(text) && replaceNoReadingBadge(row)) break;
-
-                // Recognized single equipment row, but no missing RX: do not
-                // continue climbing to the next equipment's signal.
                 const css = String(row.className || '').toLowerCase()
                     .replace(/[-_]/g, ' ');
-                if (/(?:^|\s)(?:row|item|entry|record)(?:\s|$)/.test(css) &&
-                    !/(?:container|grid|wrapper|list)/.test(css)) break;
+                const isRow = /(?:^|\s)(?:row|item|entry|record)(?:\s|$)/.test(css) &&
+                    !/(?:container|grid|wrapper|list)/.test(css);
+                const signalField = signalRootForRow(row);
+                if (signalField && replaceNoReadingBadge(signalField, deviceClass)) break;
+                if (isRow) break;
             }
         }
     }
