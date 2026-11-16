@@ -77,3 +77,23 @@ obtém os valores da funcao de configuracao ja utilizada pela API, sem
 exibir tokens, executar `get-onu-optical.php`, mudar credenciais, ou
 escrever no banco. Testes validam o caso real e rejeitam origem diferente
 ou configuracao incompleta.
+
+## Correcao para instalacao personalizada: lib/IXCConfig.php
+
+A execucao de 16/11/2026 identificou a funcao getIxcConfig() em
+`/var/www/gacs/lib/IXCConfig.php`. O arquivo nao faz parte da versao
+padrao deste repositorio, mas existe na instalacao personalizada.
+
+O script de auditoria agora carrega o `config/config.php` ja existente
+e, se a funcao ainda nao estiver disponivel, inclui exclusivamente
+`lib/IXCConfig.php`, a definicao encontrada pelo administrador.
+Nao copia tokens, nao executa `api/get-onu-optical.php`, nao altera
+o arquivo de configuracao, o painel nem os comandos de ONU.
+
+Para homologar depois do merge:
+
+```bash
+cd /tmp/jrc-acs-firmware-ui && git pull --ff-only origin main && php scripts/jrc-collector-ixc-audit.php
+```
+
+O comando e somente leitura e retorna apenas contagens agregadas.

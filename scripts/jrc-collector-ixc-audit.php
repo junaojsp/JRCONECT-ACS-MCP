@@ -38,10 +38,20 @@ try {
         throw new RuntimeException('Config do banco ACS indisponivel');
     }
 
-    // Load only the trusted app configuration. In production the optical
-    // endpoint uses getIxcConfig() from this configuration file.
-    // NEVER include/execute the endpoint itself.
+    // The customized ACS defines getIxcConfig() in lib/IXCConfig.php,
+    // not in config/config.php. Load both trusted configuration files;
+    // NEVER include/execute the optical HTTP endpoint itself.
     require_once $dbConfigFile;
+    if (!function_exists('getIxcConfig')) {
+        $ixcProviderFile = rtrim($root, '/') . '/lib/IXCConfig.php';
+        if (!is_file($ixcProviderFile) || !is_readable($ixcProviderFile)) {
+            throw new RuntimeException('Provedor IXC nao encontrado em lib/IXCConfig.php');
+        }
+        require_once $ixcProviderFile;
+    }
+    if (!function_exists('getIxcConfig')) {
+        throw new RuntimeException('Provedor IXC carregado sem getIxcConfig()');
+    }
     $optical = LegacyOpticalConfig::read($configFile);
     // The existing API uses IXC "listar". This invocation is read-only.
     $ixc = (new IxcReadOnly($optical['url'], $optical['token'], false))->fleet();
