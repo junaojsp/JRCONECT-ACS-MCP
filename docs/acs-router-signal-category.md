@@ -135,6 +135,18 @@ O novo teste JS sem dependencias simula o DOM personalizado, troca
 das linhas a cada atualizacao, ONU sem RX, RX real e o quadro lateral.
 Os testes e a instalacao seguem sem alterar APIs, tasks ou dashboard.
 
-Depois do merge, o overlay seguro ja instalado atualiza somente
-assets/js/jrc-router-signal.js, preservando o mesmo include da PR anterior.
-Use primeiro modo plan e depois apply com backup se PLAN_OK.
+Depois do merge, utilizar **o instalador de upgrade isolado**
+scripts/deploy-acs-router-signal-v2.py, nao o instalador original.
+Ele compara o SHA do JS ja instalado com a versao inicial da PR #189,
+recusa conteudo inesperado, preserva backup e substitui APENAS
+assets/js/jrc-router-signal.js; nao reescreve dashboard.php nem footer.php.
+
+    cd /tmp/jrc-acs-firmware-ui && git pull --ff-only origin main && python3 scripts/deploy-acs-router-signal-v2.py plan
+
+Somente apos PLAN_OK, aplicar:
+
+    cd /tmp/jrc-acs-firmware-ui && sudo python3 scripts/deploy-acs-router-signal-v2.py apply
+
+Depois, Ctrl+F5 e conferir D-LINK Router -> Roteador, RX real intacto,
+linha Roteadores alinhada no quadro Sinal da frota. O caminho do backup
+aparece em APLICADO_OK.
