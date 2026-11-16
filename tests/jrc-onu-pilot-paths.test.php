@@ -56,6 +56,10 @@ assertPilot(isset($byPath[$h]), 'Huawei RX must be discovered beneath a timestam
 assertPilot($byPath[$h]['mapped'] === false, 'Huawei path not mapped by current fast parser');
 assertPilot($byPath[$h]['state'] === 'NUMERICO', 'Huawei numeric RX only state, not raw value');
 assertPilot($byPath[$h]['age_minutes'] === 3, 'Timestamp age should be 3 min');
+assertPilot($byPath[$h]['raw_optical_sample'] === '-22.60', 'Raw RX sample, units unverified');
+assertPilot($byPath[$f]['raw_optical_sample'] === null, 'Empty FiberHome RX has no sample');
+assertPilot($byPath['InternetGatewayDevice.WANDevice.1.X_GponInterfaceConfig.TransceiverTemperature']['raw_optical_sample'] === '36.4', 'Huawei raw temperature sample');
+assertPilot($byPath['VirtualParameters.RXPower']['raw_optical_sample'] === null, 'Generic virtual params never expose raw values');
 assertPilot(isset($byPath[$f]) && $byPath[$f]['state'] === 'VAZIO',
     'Fiberhome RX path present but empty must not be absent');
 assertPilot(isset($byPath['VirtualParameters.RXPower']) &&
@@ -65,7 +69,7 @@ assertPilot($byPath['VirtualParameters.gettemp']['state'] === 'NAO_NUMERICO',
     'Invalid temperature is not numeric');
 $encoded = json_encode($paths);
 assertPilot(is_string($encoded), 'JSON encoding');
-foreach (['SECRET_EXCLUDE', 'leak_user', 'leak_pass', '-22.60', '-23.2'] as $secret) {
+foreach (['SECRET_EXCLUDE', 'leak_user', 'leak_pass', '-23.2'] as $secret) {
     assertPilot(!str_contains($encoded, $secret), 'No raw values in audit output');
 }
 assertPilot(!str_contains($encoded, 'SecretToken'), 'Sensitive path suppressed');
