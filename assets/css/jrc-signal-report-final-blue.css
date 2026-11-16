@@ -60,7 +60,3 @@ body .main-content .content-wrapper .signal-report {
   background: var(--jrc-signal-panel) !important;
   border-color: var(--jrc-signal-outline) !important;
 }
-body .main-content .content-wrapper table :is(.badge, .pill, [class*="signal-badge"]) {
-  /* Preserve red/orange/green severity indicators. */
-  background-color: revert-layer;
-}
