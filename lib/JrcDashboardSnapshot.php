@@ -99,7 +99,7 @@ final class JrcDashboardSnapshot
     }
 
     /**
-     * APCu is optional. Cache only aggregated dashboard responses for 8 seconds,
+     * APCu is optional. Cache only aggregated statistics (not recent-device rows) for 8 seconds,
      * never raw device records or credentials. Version by inventory generation
      * AND SNMP overlay files to avoid cross-source or old-generation leakage.
      */
@@ -143,7 +143,7 @@ final class JrcDashboardSnapshot
         require_once __DIR__ . '/JrcSnmpTelemetry.php';
         $key = self::cacheKey($state, $kind);
         $rows = null;
-        if (self::canUseCache()) {
+        if ($kind !== 'recent' && self::canUseCache()) {
             $success = false;
             $hit = apcu_fetch($key, $success);
             if ($success && is_array($hit)) $rows = $hit;
@@ -155,7 +155,7 @@ final class JrcDashboardSnapshot
             $rows = self::calculate($snapshot['devices'], $kind);
             // A concurrent collection may have replaced the generation.
             // Only cache when the computed generation matches the initial one.
-            if (self::canUseCache() &&
+            if ($kind !== 'recent' && self::canUseCache() &&
                 $snapshot['state']['snapshot_id'] === $state['snapshot_id']) {
                 apcu_store($key, $rows, 8);
             }
