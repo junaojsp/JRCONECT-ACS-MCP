@@ -13,5 +13,8 @@
     <!-- JR Conect ACS 2.0: approved NOC palette on device list only. -->
     <link rel="stylesheet" href="/assets/css/jrc-devices-noc-20.css?v=1">
     <?php endif; ?>
+<!-- JRC_APPROVED_SHARED_THEME_V1 -->
+<link id="jrc-approved-acs-theme" rel="stylesheet" href="/assets/css/jrc-approved-acs.css?v=1">
+<script id="jrc-approved-acs-init">document.documentElement.classList.add("jrc-approved-acs");</script>
 </body>
 </html>
