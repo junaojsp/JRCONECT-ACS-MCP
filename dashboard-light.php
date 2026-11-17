@@ -20,7 +20,7 @@ include __DIR__.'/views/layouts/header.php';
     </article>
     <article class="j4-mini j4-mini-green"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-clock-history"></i></span><span>Última coleta</span></div><div class="j4-mini-value j4-date" id="jrc-overview-age">—</div><p>Inventário armazenado</p></article>
     <article class="j4-mini j4-mini-orange"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-shield-check"></i></span><span>Estado do inventário</span></div><div class="j4-mini-value" id="jrc-overview-state">—</div><p>Validade do snapshot</p></article>
-    <article class="j4-mini j4-mini-purple"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-diagram-3"></i></span><span>Cobertura TR-069</span></div><div class="j4-mini-value" id="jrc20-tr069-rate">—</div><p>Clientes únicos com PPPoE no IXC</p></article>
+    <article class="j4-mini j4-mini-purple"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-diagram-3"></i></span><span>Comunicação TR-069</span></div><div class="j4-mini-value" id="jrc20-tr069-rate">—</div><p>Inform nas 24h da coleta</p></article>
   </section>
   <section class="j4-analytics" aria-label="Análise do inventário">
     <article class="j4-panel j4-manufacturers">
@@ -30,12 +30,12 @@ include __DIR__.'/views/layouts/header.php';
       <footer id="jrc-makers-note" class="j4-panel-foot">Aguardando dados do cache</footer>
     </article>
     <article class="j4-panel j4-coverage">
-      <div class="j4-panel-head"><div><span class="j4-panel-icon purple"><i class="bi bi-broadcast"></i></span><div><h2>Clientes e TR-069</h2><p>Cobertura por cliente único</p></div></div><span class="j4-chip">IXC + ACS</span></div>
+      <div class="j4-panel-head"><div><span class="j4-panel-icon purple"><i class="bi bi-broadcast"></i></span><div><h2>Comunicação TR-069</h2><p>Último Inform no inventário ACS</p></div></div><span class="j4-chip">GenieACS</span></div>
       <div class="j4-coverage-content">
-        <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Clientes</small></div></div>
-        <div id="jrc-coverage-legend" class="reference-legend"><span>Coleta pendente. Nenhuma estimativa será exibida.</span></div>
+        <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Dispositivos</small></div></div>
+        <div id="jrc-coverage-legend" class="reference-legend"><span>Aguardando dados do Inform no snapshot ACS.</span></div>
       </div>
-      <footer id="jrc-coverage-note" class="j4-panel-foot">Base: clientes distintos com PPPoE no IXC, sem contratos.</footer>
+      <footer id="jrc-coverage-note" class="j4-panel-foot">Base: dispositivos do ACS · referência histórica do snapshot.</footer>
     </article>
   </section>
   <section class="j4-lower" aria-label="Modelos e operação">
@@ -56,5 +56,5 @@ include __DIR__.'/views/layouts/header.php';
   </section>
   <footer class="j4-footer">JRCONECT ACS · Visão de inventário em cache <span>Dados de dispositivos não são coletados durante a abertura desta página.</span></footer>
 </main>
-<script src="/assets/js/jrc-dashboard-light.js?v=6" defer></script>
+<script src="/assets/js/jrc-dashboard-light.js?v=7" defer></script>
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
