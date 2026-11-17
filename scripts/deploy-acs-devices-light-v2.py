@@ -10,7 +10,7 @@ FILES={
  'devices-light.php':('jrc-devices-light.js?v=1','jrc-devices-light.js?v=2'),
  'assets/js/jrc-devices-light.js':('lightweight device directory.', 'light CPE list v2'),
  'api/jrc-devices-light.php':('Inventario desatualizado; nao mostrar valores como atuais',
-                              'inventario historico'),
+                              "'stale'=>$stale"),
 }
 def fail(message): raise SystemExit('BLOQUEADO: '+message)
 def changes():
