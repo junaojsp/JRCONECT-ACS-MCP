@@ -49,7 +49,7 @@ include __DIR__.'/views/layouts/header.php';
 .jrc-overview-light .reference-label{color:#9ebbd0;font-size:11px;margin-top:8px}
 @media(max-width:980px){.jrc-overview-light .reference-grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="/assets/css/jrc-dashboard-20.css?v=3">
+<link rel="stylesheet" href="/assets/css/jrc-dashboard-20.css?v=4">
 <section class="jrc-overview-light">
   <div class="head">
     <div><span class="jrc20-eyebrow">JR CONECT · ACS 2.0</span><h2>Visão geral da rede</h2><p class="sub">Inventário em cache · detalhes técnicos sob demanda</p></div>
@@ -59,6 +59,7 @@ include __DIR__.'/views/layouts/header.php';
     <div class="metric"><i class="bi bi-router metric-icon"></i><div><div class="value" id="jrc-overview-total">—</div><div class="label">CPEs no inventário ACS</div></div></div>
     <div class="metric"><i class="bi bi-clock-history metric-icon"></i><div><div class="value jrc20-date" id="jrc-overview-age">—</div><div class="label">Último inventário</div></div></div>
     <div class="metric"><i class="bi bi-database-check metric-icon"></i><div><div class="value" id="jrc-overview-state">—</div><div class="label">Condição do snapshot</div></div></div>
+    <div class="metric"><i class="bi bi-diagram-3 metric-icon"></i><div><div class="value" id="jrc20-tr069-rate">—</div><div class="label">Clientes com TR-069 · IXC</div></div></div>
   </div>
   <section class="reference-panel jrc20-wide" aria-label="Visão analítica do inventário">
     <div class="jrc20-panel-heading"><div><h3><i class="bi bi-activity"></i> Visão analítica da frota</h3><p>Distribuição por fabricante no último inventário; não é histórico de conexões</p></div><span class="jrc20-meta" id="jrc20-fleet-note">Aguardando snapshot</span></div>
@@ -90,5 +91,5 @@ include __DIR__.'/views/layouts/header.php';
   </div>
   <p class="jrc20-footer">Dados provenientes do último inventário armazenado. Esta tela não consulta ONUs, RX, temperatura, IXC ou TR-069 ao abrir.</p>
 </section>
-<script src="/assets/js/jrc-dashboard-light.js?v=4" defer></script>
+<script src="/assets/js/jrc-dashboard-light.js?v=5" defer></script>
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
