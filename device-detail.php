@@ -4,6 +4,7 @@ requireLogin();
 
 $pageTitle = 'Detalhes do Equipamento';
 $currentPage = 'devices';
+$bodyClass = 'm4g'; // tema escuro estilo Made4Graph (assets/css/jrc-made4graph.css)
 
 $genieacsConfigured = isGenieACSConfigured();
 
@@ -27,6 +28,14 @@ include __DIR__ . '/views/layouts/header.php';
     </div>
 
 <?php else: ?>
+
+    <!-- Cabecalho do equipamento (preenchido por device-detail.js) -->
+    <div class="m4-devhead">
+        <div>
+            <h1 id="m4-dev-title">Equipamento</h1>
+            <p id="m4-dev-sub">Carregando...</p>
+        </div>
+    </div>
 
     <!-- =====================================================
          BOTOES SUPERIORES
