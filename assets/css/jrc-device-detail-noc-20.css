@@ -1,0 +1,34 @@
+/* ACS 2.0 device-detail: reference-inspired dark NOC polish. Only active with JS markup guard. */
+body.jrc-device-detail-page{background:#10141f!important;color:#e7f3ff}
+body.jrc-device-detail-page .main-content,body.jrc-device-detail-page .content-wrapper{background:#10141f!important}
+body.jrc-device-detail-page .footer{background:#10141f!important;border-top:1px solid #2b3950!important;box-shadow:none!important}
+.jrc-device-detail-noc{--noc-bg:#10141f;--noc-card:#1b2231;--noc-border:#2b3950;--noc-blue:#3499f5;--noc-teal:#20cab9;--noc-orange:#ff9f35;background:transparent!important;border:0!important;color:#eaf5ff!important;box-shadow:none!important}
+.jrc-device-detail-noc>.card-header{padding:15px 18px!important;background:linear-gradient(120deg,#1c2d43,#1b2231)!important;border:1px solid #33455d!important;border-radius:12px 12px 0 0!important;font-size:17px!important;color:#f4f9ff!important}
+.jrc-device-detail-noc>.card-header>.bi-router{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:10px;background:#1b699f;color:#b6e9ff;box-shadow:0 0 20px #3499f542;margin-right:8px}
+.jrc-device-detail-noc>.card-body{background:#10141f!important;border:0!important;padding:15px 0!important}
+.jrc-device-detail-grid{display:grid;grid-template-columns:205px minmax(0,1fr);gap:15px;align-items:start}
+.jrc-device-detail-sidebar{background:#1b2231;border:1px solid #2b3950;border-radius:12px;padding:12px;position:sticky;top:15px;min-width:0}
+.jrc-device-detail-sidebar-heading{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#91abc7;margin:5px 5px 13px}
+.jrc-device-detail-noc #deviceTabs.jrc-device-detail-menu{display:flex!important;flex-direction:column!important;gap:6px!important;border:none!important;margin:0!important;max-width:none!important}
+.jrc-device-detail-noc #deviceTabs .nav-item{display:block;width:100%}
+.jrc-device-detail-noc #deviceTabs .nav-link{width:100%;display:flex;gap:8px;align-items:center;text-align:left;border:1px solid transparent!important;border-radius:9px!important;background:transparent!important;color:#adc1d7!important;padding:11px 12px!important;min-height:42px;font-size:12px!important}
+.jrc-device-detail-noc #deviceTabs .nav-link i{color:#86badc}
+.jrc-device-detail-noc #deviceTabs .nav-link.active{background:#253954!important;color:#fff!important;border-color:#395777!important;box-shadow:inset 3px 0 0 #3499f5}
+.jrc-device-detail-noc #deviceTabs .nav-link:hover{background:#23354a!important;color:white!important}
+.jrc-device-detail-noc #deviceTabs .jrc-detail-nav-label{display:none}
+.jrc-device-detail-noc #deviceTabContent{min-width:0}
+.jrc-device-detail-noc #deviceTabContent .card,.jrc-device-detail-noc #deviceTabContent [class*="panel"]{border-radius:12px}
+.jrc-device-detail-noc #deviceTabContent .card{background:#1b2231!important;border:1px solid #2b3950!important;color:#eaf5ff!important;box-shadow:0 12px 28px #080d1926!important}
+.jrc-device-detail-noc #deviceTabContent .card-header{background:#202c3f!important;border-bottom:1px solid #32425b!important;color:#f4f8ff!important;padding:14px 18px!important}
+.jrc-device-detail-noc #deviceTabContent .card-body{background:transparent!important;padding:17px!important}
+.jrc-device-detail-noc #deviceTabContent .table{--bs-table-bg:transparent;--bs-table-color:#dbe9fa;--bs-table-striped-bg:#222d3e;--bs-table-hover-bg:#2b4057;color:#e5f1ff!important}
+.jrc-device-detail-noc #deviceTabContent .table th{background:#23334a!important;color:#b7cce4!important;border-color:#32435a!important}
+.jrc-device-detail-noc #deviceTabContent .table td{border-color:#2d3b50!important;color:#e4efff!important}
+.jrc-device-detail-noc #deviceTabContent .btn{border-radius:8px!important}
+.jrc-device-detail-noc #deviceTabContent .form-control,.jrc-device-detail-noc #deviceTabContent .form-select{background:#17283a!important;color:#e9f3ff!important;border-color:#39526a!important;border-radius:9px!important}
+.jrc-device-detail-noc #deviceTabContent .form-control:focus,.jrc-device-detail-noc #deviceTabContent .form-select:focus{box-shadow:0 0 0 3px #3499f526!important;border-color:#3499f5!important}
+.jrc-device-detail-noc #deviceTabContent .badge{border-radius:7px}
+body.jrc-device-detail-page .jrc-device-back{border-radius:9px!important;background:#253850!important;border:1px solid #3a526a!important;color:#d8ebff!important}
+body.jrc-device-detail-page #device-id-badge{background:#253a52!important;color:#b5defb!important;border:1px solid #37526e}
+@media(max-width:1000px){.jrc-device-detail-grid{grid-template-columns:160px minmax(0,1fr)}}
+@media(max-width:760px){.jrc-device-detail-grid{grid-template-columns:1fr}.jrc-device-detail-sidebar{position:static}.jrc-device-detail-noc #deviceTabs.jrc-device-detail-menu{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important}.jrc-device-detail-noc #deviceTabs .nav-item{width:auto}.jrc-device-detail-noc #deviceTabs .nav-link{min-height:38px}}
