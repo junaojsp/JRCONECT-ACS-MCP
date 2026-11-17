@@ -26,6 +26,28 @@ include __DIR__.'/views/layouts/header.php';
 .jrc-overview-light .notice{padding:10px 12px;border-radius:7px;background:#3b2b1a;border:1px solid #876137;color:#ffd390;font-size:12px;margin-top:12px}
 .jrc-overview-light .btn-alt{border:1px solid #386587;color:#b8d9ed;text-decoration:none;border-radius:7px;padding:8px 11px;font-size:12px}
 @media(max-width:900px){.jrc-overview-light .cards,.jrc-overview-light .shortcut-grid{grid-template-columns:1fr}}
+
+/* Reference-inspired layout: two large donut panels, two compact ranked tables. */
+.jrc-overview-light .reference-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.jrc-overview-light .reference-panel{background:#0c2137;border:1px solid #215176;border-radius:11px;padding:18px;min-height:250px}
+.jrc-overview-light .reference-panel h3{font-size:15px;color:#edf8ff;margin:0 0 14px;font-weight:650}
+.jrc-overview-light .reference-body{display:flex;gap:20px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:192px}
+.jrc-overview-light .reference-ring{width:180px;height:180px;border-radius:50%;background:#18435d;display:grid;place-items:center;flex:none}
+.jrc-overview-light .reference-hole{background:#0c2137;width:112px;height:112px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.jrc-overview-light .reference-hole b{font-size:24px;color:#f1faff}
+.jrc-overview-light .reference-hole small{font-size:10px;color:#aac3d8}
+.jrc-overview-light .reference-legend{display:grid;gap:8px;font-size:12px;min-width:135px}
+.jrc-overview-light .reference-legend-item{display:flex;gap:9px;align-items:center;color:#d4e8f5}
+.jrc-overview-light .reference-dot{width:10px;height:10px;border-radius:50%;flex:none}
+.jrc-overview-light .reference-note{font-size:12px;color:#a5c6da;text-align:center;max-width:340px}
+.jrc-overview-light .reference-table{width:100%;border-collapse:collapse;font-size:12px}
+.jrc-overview-light .reference-table th,.jrc-overview-light .reference-table td{padding:10px;border-bottom:1px solid #244964;text-align:left}
+.jrc-overview-light .reference-table th{color:#b7d9ec;background:#15405d}
+.jrc-overview-light .reference-table td{color:#daeffd}
+.jrc-overview-light .reference-table tbody tr:hover{background:#173650}
+.jrc-overview-light .reference-table a{color:#76ccff;text-decoration:none}
+.jrc-overview-light .reference-label{color:#9ebbd0;font-size:11px;margin-top:8px}
+@media(max-width:980px){.jrc-overview-light .reference-grid{grid-template-columns:1fr}}
 </style>
 <section class="jrc-overview-light">
   <div class="head">
@@ -36,6 +58,32 @@ include __DIR__.'/views/layouts/header.php';
     <div class="metric"><i class="bi bi-router metric-icon"></i><div class="value" id="jrc-overview-total">—</div><div class="label">Equipamentos no inventario</div></div>
     <div class="metric"><i class="bi bi-clock-history metric-icon"></i><div class="value" id="jrc-overview-age">—</div><div class="label">Ultimo inventario</div></div>
     <div class="metric"><i class="bi bi-database-check metric-icon"></i><div class="value" id="jrc-overview-state">—</div><div class="label">Estado do snapshot</div></div>
+  </div>
+  <div class="reference-grid">
+    <section class="reference-panel" aria-label="Distribuicao por fabricante">
+      <h3>Fabricantes</h3>
+      <div class="reference-body">
+        <div id="jrc-makers-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-makers-total">—</b><small>CPEs</small></div></div>
+        <div id="jrc-makers-legend" class="reference-legend" aria-live="polite">Carregando fabricantes...</div>
+      </div>
+      <p class="reference-label" id="jrc-makers-note">Distribuicao do inventario armazenado.</p>
+    </section>
+    <section class="reference-panel" aria-label="Clientes com e sem TR-069">
+      <h3>Clientes com e sem TR-069</h3>
+      <div class="reference-body">
+        <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Clientes</small></div></div>
+        <div id="jrc-coverage-legend" class="reference-legend"><div class="reference-note">Aguardando total de clientes elegiveis no IXC e vinculacao unica aos equipamentos TR-069. Sem estimativas.</div></div>
+      </div>
+      <p class="reference-label" id="jrc-coverage-note">Nao confundir quantidade de ONUs com quantidade de clientes.</p>
+    </section>
+    <section class="reference-panel">
+      <h3>Modelos de CPE</h3>
+      <table class="reference-table"><thead><tr><th>Modelo</th><th>Total</th></tr></thead><tbody id="jrc-models-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
+    </section>
+    <section class="reference-panel">
+      <h3>Fabricantes — detalhamento</h3>
+      <table class="reference-table"><thead><tr><th>Fabricante</th><th>Total</th></tr></thead><tbody id="jrc-makers-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
+    </section>
   </div>
   <div class="panel">
     <strong>Acessos rapidos</strong>
@@ -48,5 +96,5 @@ include __DIR__.'/views/layouts/header.php';
   </div>
   <p class="sub">Esta tela consulta apenas o estado do inventario armazenado. Nao consulta ONUs, sinal RX, temperatura ou IXC ao abrir.</p>
 </section>
-<script src="/assets/js/jrc-dashboard-light.js?v=1" defer></script>
+<script src="/assets/js/jrc-dashboard-light.js?v=2" defer></script>
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
