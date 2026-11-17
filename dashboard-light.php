@@ -49,10 +49,11 @@ include __DIR__.'/views/layouts/header.php';
 .jrc-overview-light .reference-label{color:#9ebbd0;font-size:11px;margin-top:8px}
 @media(max-width:980px){.jrc-overview-light .reference-grid{grid-template-columns:1fr}}
 </style>
+<link rel="stylesheet" href="/assets/css/jrc-dashboard-20.css?v=1">
 <section class="jrc-overview-light">
   <div class="head">
-    <div><h2>Visao geral</h2><p class="sub">Acesso rapido ao ACS · diagnosticos detalhados somente quando necessarios</p></div>
-    <a class="btn-alt" href="/dashboard.php">Dashboard anterior</a>
+    <div><span class="jrc20-eyebrow">JR CONECT · ACS 2.0</span><h2>Visão geral da rede</h2><p class="sub">Inventário em cache · detalhes técnicos sob demanda</p></div>
+    <div class="jrc20-actions"><a href="/dashboard.php">Versão anterior</a><button type="button" id="jrc20-refresh">Atualizar visualização</button></div>
   </div>
   <div class="cards">
     <div class="metric"><i class="bi bi-router metric-icon"></i><div class="value" id="jrc-overview-total">—</div><div class="label">Equipamentos no inventario</div></div>
@@ -94,7 +95,7 @@ include __DIR__.'/views/layouts/header.php';
     </div>
     <div id="jrc-overview-warning" class="notice" hidden></div>
   </div>
-  <p class="sub">Esta tela consulta apenas o estado do inventario armazenado. Nao consulta ONUs, sinal RX, temperatura ou IXC ao abrir.</p>
+  <p class="jrc20-footer">Dados provenientes do último inventário armazenado. Esta tela não consulta ONUs, RX, temperatura, IXC ou TR-069 ao abrir.</p>
 </section>
 <script src="/assets/js/jrc-dashboard-light.js?v=2" defer></script>
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
