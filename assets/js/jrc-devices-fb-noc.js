@@ -54,13 +54,13 @@ const hideRx=()=>{
  const isOnu=!onu||onu.classList.contains('active');
  const heads=[...table.querySelectorAll('thead tr:last-child th')];
  let idx=heads.findIndex(th=>/^rx$|^sinal\s*rx$|^rx\s*power$/i.test(th.textContent.trim().replace(/[↕↑↓]/g,'')));
- if(idx<0)idx=7; // Existing ONU renderer has RX as column 8.
+ if(idx<0 && heads.length>=12)idx=7; // Legacy full-width ONU renderer only.
  const cells=[...table.querySelectorAll('tr')];
  for(const tr of cells){
   for(const td of tr.children){
    if(td.classList.contains('jdn-rx-hidden'))td.classList.remove('jdn-rx-hidden');
   }
-  if(isOnu&&tr.children.length>=10&&tr.children[idx])tr.children[idx].classList.add('jdn-rx-hidden');
+  if(isOnu&&idx>=0&&tr.children.length===heads.length&&tr.children[idx])tr.children[idx].classList.add('jdn-rx-hidden');
  }
 };
 const thead=document.getElementById('table-header')||table.tHead;
