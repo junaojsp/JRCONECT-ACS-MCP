@@ -15,10 +15,10 @@ FILES = ('dashboard-light.php', 'assets/js/jrc-dashboard-light.js',
          'api/jrc-dashboard-reference-charts.php',
          'cron/collect-client-tr069-coverage.php')
 ANCHORS = {
-    'dashboard-light.php': ('jrc20-eyebrow', 'jrc20-fleet-bars', 'jrc-dashboard-light.js?v=3'),
+    'dashboard-light.php': ('jrc20-eyebrow', 'jrc20-fleet-bars'),
     'assets/js/jrc-dashboard-light.js': ('jrc-dashboard-reference-charts.php', 'jrc20-refresh', 'Promise.allSettled'),
     'assets/css/jrc-dashboard-20.css': ('JR Conect ACS 2.0 - interface piloto isolada.', '--jrc20-card:#1b2231', '.jrc-overview-light .jrc20-footer'),
-    'api/jrc-dashboard-reference-charts.php': ('jrc_background_inventory', 'client_tr069_coverage', 'ixc_distinct_eligible_clients_not_integrated'),
+    'api/jrc-dashboard-reference-charts.php': ('jrc_background_inventory', 'client_tr069_coverage'),
 }
 
 def check():
