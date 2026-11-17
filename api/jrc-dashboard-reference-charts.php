@@ -2,8 +2,8 @@
 declare(strict_types=1);
 /**
  * Only inventory snapshot aggregates. No GenieACS, IXC or ONU requests.
- * "Clientes com/sem TR-069" needs distinct eligible-client totals from IXC;
- * do not mistake inventory device count or ixc_matched for that denominator.
+ * TR-069 indicator is computed only from GenieACS device inventory.
+ * It reports recent Inform at the collection time, not IXC clients.
  */
 require_once __DIR__.'/../config/config.php';
 requireLogin();
@@ -20,7 +20,7 @@ try {
         jsonResponse(['success'=>false,'message'=>'Inventario indisponivel'],503);
     }
     $generation=(string)$state['snapshot_id'];
-    $cacheKey='jrc:overview:reference:v1:'.$generation;
+    $cacheKey='jrc:overview:reference:v2:'.$generation;
     $cached=null;
     if (function_exists('apcu_fetch') && (!function_exists('apcu_enabled') || apcu_enabled())) {
         $hit=false;
@@ -54,39 +54,54 @@ try {
         if ($counted!==(int)$state['total']) {
             throw new RuntimeException('Snapshot incompleto durante agregacao');
         }
-        arsort($makers,SORT_NUMERIC);arsort($models,SORT_NUMERIC);
+        // TR-069 communications recorded in the same ACS snapshot.
+        // Compare with snapshot completion, never wall-clock time, so historical
+        // data is never presented as a live online state.
+        $informStmt=$db->prepare('SELECT payload_json FROM jrc_device_inventory_rows WHERE snapshot_id=?');
+        $informStmt->bind_param('s',$generation);
+        $informStmt->execute();
+        $informRows=$informStmt->get_result();
+        $recentInform=0;$olderInform=0;$unknownInform=0;$inspected=0;
+        $snapshotAt=strtotime((string)$state['completed_at']);
+        if($snapshotAt===false)throw new RuntimeException('Data da coleta invalida');
+        while($informRow=$informRows->fetch_assoc()){
+            $inspected++;
+            $record=json_decode((string)$informRow['payload_json'],true);
+            if(!is_array($record))throw new RuntimeException('Dispositivo invalido');
+            $inform=$record['last_inform']??null;
+            $time=is_string($inform)?strtotime($inform):false;
+            if($time===false || $time>$snapshotAt+300){
+                $unknownInform++;
+            } elseif($time >= $snapshotAt-86400){
+                $recentInform++;
+            } else {
+                $olderInform++;
+            }
+        }
+        $informStmt->close();
+        if($inspected!==(int)$state['total'] ||
+           $recentInform+$olderInform+$unknownInform!==$inspected)
+            throw new RuntimeException('Contagem de Inform incompleta');
+                arsort($makers,SORT_NUMERIC);arsort($models,SORT_NUMERIC);
         $cached=[
             'manufacturers'=>array_map(static fn($name,$n)=>['name'=>$name,'count'=>$n],
                 array_keys($makers),array_values($makers)),
             'models'=>array_map(static fn($name,$n)=>['name'=>$name,'count'=>$n],
                 array_keys($models),array_values($models)),
+            'tr069_inform'=>[
+                'ready'=>true,
+                'recent'=>$recentInform,
+                'older'=>$olderInform,
+                'unknown'=>$unknownInform,
+                'total'=>$inspected,
+                'window_hours'=>24,
+                'basis'=>'genieacs_inventory_snapshot',
+                'as_of'=>$state['completed_at']
+            ],
         ];
         if (function_exists('apcu_store') && (!function_exists('apcu_enabled') || apcu_enabled())) {
             apcu_store($cacheKey,$cached,300);
         }
-    }
-    // Separate precomputed collector. A missing, stale or mismatched generation
-    // remains explicitly unavailable instead of fabricating client percentages.
-    $coverage=['ready'=>false,'reason'=>'ixc_client_snapshot_pending',
-               'with_tr069'=>null,'without_tr069'=>null];
-    try {
-        $row=$db->query('SELECT snapshot_id,total,with_tr069,without_tr069,collected_at
-                         FROM jrc_client_tr069_coverage WHERE id=1')->fetch_assoc();
-        if($row) {
-            $ageCoverage=time()-strtotime((string)$row['collected_at']);
-            $clientsTotal=(int)$row['total'];
-            $yes=(int)$row['with_tr069'];$no=(int)$row['without_tr069'];
-            if($row['snapshot_id']===$generation && $ageCoverage>=0 &&
-               $ageCoverage<=3600 && $clientsTotal>0 && $yes>=0 && $no>=0 &&
-               $yes+$no===$clientsTotal) {
-                $coverage=['ready'=>true,'total'=>$clientsTotal,'with_tr069'=>$yes,
-                           'without_tr069'=>$no,'basis'=>'ixc_clients_with_pppoe_login',
-                           'collected_at'=>$row['collected_at']];
-            } else $coverage['reason']='coverage_snapshot_stale_or_mismatched';
-        }
-    } catch(Throwable $coverageError) {
-        // Table not yet created or inaccessible: leave graph pending.
-        $coverage['reason']='coverage_not_collected';
     }
     $age=time()-strtotime((string)$state['completed_at']);
     jsonResponse([
@@ -98,7 +113,7 @@ try {
         'total'=>(int)$state['total'],
         'manufacturers'=>$cached['manufacturers'],
         'models'=>$cached['models'],
-        'client_tr069_coverage'=>$coverage
+        'tr069_inform'=>$cached['tr069_inform']??['ready'=>false]
     ]);
 } catch (Throwable $e) {
     error_log('JRC dashboard chart snapshot: '.get_class($e));
