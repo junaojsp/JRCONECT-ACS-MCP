@@ -1,0 +1,82 @@
+/* Loaded last, exclusively on device-detail.php. Native tab IDs and controls stay intact. */
+.acs-device-tabs-wrap{--ref-bg:#10141f;--ref-panel:#1b2231;--ref-border:#2c394e;--ref-muted:#9bb1cb;display:grid!important;grid-template-columns:180px minmax(0,1fr);gap:18px;align-items:start;background:var(--ref-bg);padding:16px;border-radius:14px}
+.acs-device-tabs-wrap #loading-spinner{grid-column:1/-1}
+.acs-device-tabs-wrap #deviceTabs{grid-column:1;grid-row:2;flex-direction:column!important;flex-wrap:nowrap!important;gap:5px;padding:10px!important;margin:0!important;background:var(--ref-panel);border:1px solid var(--ref-border)!important;border-radius:12px;position:sticky;top:16px}
+.acs-device-tabs-wrap #deviceTabs .nav-item{width:100%}
+.acs-device-tabs-wrap #deviceTabs .nav-link{width:100%;text-align:left!important;border:1px solid transparent!important;border-radius:7px!important;color:#aebed1!important;padding:10px 12px!important;font-size:12px!important;white-space:normal}
+.acs-device-tabs-wrap #deviceTabs .nav-link.active{background:#28364a!important;border-color:#405777!important;color:#eff7ff!important;box-shadow:inset 3px 0 #3499f5}
+.acs-device-tabs-wrap #deviceTabContent{grid-column:2;grid-row:2;margin:0!important;min-width:0}
+.acs-device-tabs-wrap .fb-source-line{grid-column:1/-1;grid-row:1;margin:0}
+#wan-content .jrc-wan-ref-section{display:none}
+#wan-content .acs-wan-page-header,#wifi .acs-overview-card-header{background:#1b2231!important;border:1px solid #2c394e!important;border-radius:10px!important;padding:16px 18px!important;margin-bottom:14px!important}
+#wan-content .acs-wan-page-header h4{font-size:18px!important;color:#edf4ff!important;margin:0}
+#wan-content .acs-wan-page-header .acs-kicker,#wan-content .acs-wan-summary-pill{display:none!important}
+#wan-content .acs-wan-page-header p{font-size:11px;color:#9bb1cb;margin:4px 0 0}
+#wan-content .acs-wan-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important}
+#wan-content .acs-wan-card{position:relative!important;background:#1b2231!important;border:1px solid #2c394e!important;border-radius:11px!important;padding:18px!important;box-shadow:none!important;min-width:0;overflow-wrap:anywhere}
+#wan-content .acs-wan-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-right:155px}
+#wan-content .acs-wan-card-identity{display:flex;align-items:center;gap:10px}
+#wan-content .acs-wan-card-icon{background:#2269b2!important;color:white!important;width:34px;height:34px;border-radius:9px;display:grid;place-items:center}
+#wan-content .acs-wan-index{display:none}
+#wan-content .acs-wan-card h5{font-size:15px;color:#eff5ff;margin:0}
+#wan-content .acs-wan-tags{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 16px;color:#9bb1cb;font-size:11px}
+#wan-content .acs-wan-hero{background:#202a3a!important;border:1px solid #2c394e!important;border-radius:7px!important;padding:12px!important;margin:0 0 8px!important}
+#wan-content .acs-wan-hero>span{display:block;color:#9bb1cb!important;font-size:10px}
+#wan-content .acs-wan-hero strong{font-size:16px!important;color:#edf5ff}
+#wan-content .acs-wan-details{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+#wan-content .acs-wan-details>div{background:#202a3a!important;border:1px solid #2c394e!important;border-radius:7px!important;padding:12px!important;display:block!important;min-width:0}
+#wan-content .acs-wan-details span{display:block;color:#9bb1cb!important;font-size:10px!important;margin-bottom:5px}
+#wan-content .acs-wan-details strong{display:block;color:#eaf3ff!important;font-size:12px!important;overflow-wrap:anywhere}
+#wan-content .acs-wan-card-actions{position:absolute;right:18px;top:18px;display:flex;gap:6px;border:0!important;margin:0!important;padding:0!important}
+#wan-content .acs-wan-card-actions button,#wan-content .acs-wan-primary-btn{border:1px solid #40516a;background:#29374b;color:#eaf3ff;border-radius:6px;padding:7px 10px;font-size:11px}
+#wan-content .acs-wan-card-actions button.danger{background:#642c38;border-color:#864354}
+#wan-content .jr-wan-usage-card .acs-wan-card-top{padding-right:0}
+.jrc-ref-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.jrc-ref-summary article{background:linear-gradient(140deg,#202b3d,#1b2231);border:1px solid #2c394e;border-radius:11px;padding:17px;min-width:0}
+.jrc-ref-summary article:first-child{background:linear-gradient(140deg,#173730,#1b2231)}
+.jrc-ref-summary article>div{display:flex;justify-content:space-between;gap:8px;color:#b0c3dc;font-size:11px}
+.jrc-ref-summary i{color:#3499f5}.jrc-ref-summary strong{display:block;font-size:24px;color:#edf6ff;margin:17px 0 4px}.jrc-ref-summary small{color:#9bb1cb;font-size:10px}
+#dhcp-content .jrc-ref-lan-config,#dhcp-content .jrc-ref-ports{padding:18px;background:#1b2231;border:1px solid #2c394e;border-radius:11px;margin-bottom:14px;color:#eaf3ff}
+#dhcp-content .card,#dhcp-content .card-header,#dhcp-content .card-body{background:transparent!important;border:0!important;color:#eaf3ff!important;box-shadow:none!important}
+#dhcp-content .card-body{padding:12px 0!important}
+#dhcp-content .card-body table,#dhcp-content .card-body tbody{display:block}
+#dhcp-content .card-body tbody{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#dhcp-content .card-body tr{display:flex;flex-direction:column;gap:5px;padding:12px;background:#202a3a;border:1px solid #2c394e;border-radius:7px}
+#dhcp-content .card-body th,#dhcp-content .card-body td{display:block;width:auto!important;padding:0!important;border:0!important;background:transparent!important;color:#eaf3ff!important;overflow-wrap:anywhere}
+#dhcp-content .card-body th{color:#9bb1cb!important;font-size:10px}
+#dhcp-content .acs-physical-ports{background:transparent!important;border:0!important}
+#dhcp-content .acs-physical-ports-grid{display:flex!important;justify-content:center;flex-wrap:wrap;gap:18px;padding:24px;border:1px solid #344258;border-radius:10px;margin:16px 0}
+#dhcp-content .acs-lan-port{background:#202a3a;border:2px solid #455164;border-radius:11px;padding:12px;min-width:70px;text-align:center}
+#dhcp-content .acs-lan-port strong,#dhcp-content .acs-lan-port span{display:block;font-size:11px}
+#dhcp-content .acs-lan-port-icon{font-size:26px}
+#dhcp-content .acs-lan-port.link-up{background:#123e34;border-color:#219e7d;color:#42dba4}
+#dhcp-content .table{--bs-table-bg:transparent;--bs-table-color:#d9eaff;--bs-table-border-color:#2c394e;font-size:11px}
+#devices-content>h6{background:#1b2231;border:1px solid #2c394e;padding:18px;border-radius:10px;font-size:17px;color:#edf6ff}
+#devices-content #connected-devices-table{display:block!important;border:0!important;background:transparent!important;margin:0}
+#devices-content #connected-devices-table thead{display:none}
+#devices-content #connected-devices-table tbody{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#devices-content #connected-devices-table tr{display:flex!important;flex-wrap:wrap;align-content:start;gap:9px;padding:17px!important;background:#1b2231!important;border:1px solid #2c394e!important;border-top:3px solid #3499f5!important;border-radius:11px;min-width:0}
+#devices-content #connected-devices-table td{display:block;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;color:#eaf3ff!important;font-size:11px;overflow-wrap:anywhere;min-width:0}
+#devices-content #connected-devices-table td:first-child{display:none}
+#devices-content #connected-devices-table td:nth-child(2){width:100%;font-size:14px;margin-bottom:7px}
+#devices-content #connected-devices-table td:nth-child(4){width:100%}
+#devices-content #connected-devices-table td:nth-child(7),#devices-content #connected-devices-table td:nth-child(8){width:100%;border-top:1px solid #2c394e!important;padding-top:8px!important;color:#9bb1cb!important}
+#devices-content .hotspot-user:before{content:'Hotspot: ';font-size:10px}#devices-content .hotspot-traffic:before{content:'Tráfego RX / TX: ';font-size:10px}
+#wifi .acs-approved-wifi{display:flex!important;flex-direction:column}
+#wifi .acs-overview-card-header{order:0}
+#wifi .acs-wifi-reference-grid{display:contents!important}
+#wifi .jrc-wifi-ref-kpis{order:-1}
+#wifi .acs-wifi-health-list{order:1}
+#wifi .acs-wifi-health-footer{order:2}
+#wifi .acs-wifi-health-row{min-height:215px!important;border-radius:10px!important;box-shadow:none!important}
+#editWiFiModal .modal-content{background:#1b2231;color:#edf6ff;border:1px solid #3b4960;border-radius:12px}
+#editWiFiModal .modal-header,#editWiFiModal .modal-footer{border-color:#2c394e}
+#editWiFiModal .modal-title{font-size:17px}
+#editWiFiModal .form-control,#editWiFiModal .form-select{background:#232e40;border-color:#3b4960;color:#edf6ff}
+#editWiFiModal .form-text{color:#9bb1cb}
+#editWiFiModal .alert{background:#192d43;border-color:#31577c;color:#bddcff;font-size:12px}
+#editWiFiModal .btn-close{filter:invert(1)}
+@media(min-width:850px){#editWiFiModal #editWiFiForm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}#editWiFiModal .modal-dialog{max-width:610px}}
+@media(max-width:1200px){.jrc-ref-summary{grid-template-columns:repeat(2,minmax(0,1fr))}#devices-content #connected-devices-table tbody{grid-template-columns:repeat(2,minmax(0,1fr))}#dhcp-content .card-body tbody{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){.acs-device-tabs-wrap{grid-template-columns:minmax(0,1fr);padding:10px}.acs-device-tabs-wrap #deviceTabs{grid-column:1;grid-row:2;position:static;flex-direction:row!important;flex-wrap:wrap!important}.acs-device-tabs-wrap #deviceTabs .nav-item{width:auto}.acs-device-tabs-wrap #deviceTabContent{grid-column:1;grid-row:3}#wan-content .acs-wan-card-top{padding-right:0;flex-wrap:wrap}#wan-content .acs-wan-card-actions{position:static;margin-top:14px!important}}
+@media(max-width:570px){.jrc-ref-summary,#wan-content .acs-wan-details,#devices-content #connected-devices-table tbody,#dhcp-content .card-body tbody{grid-template-columns:minmax(0,1fr)!important}}
