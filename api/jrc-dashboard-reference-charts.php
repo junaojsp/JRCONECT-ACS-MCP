@@ -65,6 +65,29 @@ try {
             apcu_store($cacheKey,$cached,300);
         }
     }
+    // Separate precomputed collector. A missing, stale or mismatched generation
+    // remains explicitly unavailable instead of fabricating client percentages.
+    $coverage=['ready'=>false,'reason'=>'ixc_client_snapshot_pending',
+               'with_tr069'=>null,'without_tr069'=>null];
+    try {
+        $row=$db->query('SELECT snapshot_id,total,with_tr069,without_tr069,collected_at
+                         FROM jrc_client_tr069_coverage WHERE id=1')->fetch_assoc();
+        if($row) {
+            $ageCoverage=time()-strtotime((string)$row['collected_at']);
+            $clientsTotal=(int)$row['total'];
+            $yes=(int)$row['with_tr069'];$no=(int)$row['without_tr069'];
+            if($row['snapshot_id']===$generation && $ageCoverage>=0 &&
+               $ageCoverage<=3600 && $clientsTotal>0 && $yes>=0 && $no>=0 &&
+               $yes+$no===$clientsTotal) {
+                $coverage=['ready'=>true,'total'=>$clientsTotal,'with_tr069'=>$yes,
+                           'without_tr069'=>$no,'basis'=>'ixc_clients_with_pppoe_login',
+                           'collected_at'=>$row['collected_at']];
+            } else $coverage['reason']='coverage_snapshot_stale_or_mismatched';
+        }
+    } catch(Throwable $coverageError) {
+        // Table not yet created or inaccessible: leave graph pending.
+        $coverage['reason']='coverage_not_collected';
+    }
     $age=time()-strtotime((string)$state['completed_at']);
     jsonResponse([
         'success'=>true,
@@ -75,12 +98,7 @@ try {
         'total'=>(int)$state['total'],
         'manufacturers'=>$cached['manufacturers'],
         'models'=>$cached['models'],
-        'client_tr069_coverage'=>[
-            'ready'=>false,
-            'reason'=>'ixc_distinct_eligible_clients_not_integrated',
-            'with_tr069'=>null,
-            'without_tr069'=>null
-        ]
+        'client_tr069_coverage'=>$coverage
     ]);
 } catch (Throwable $e) {
     error_log('JRC dashboard chart snapshot: '.get_class($e));
