@@ -49,7 +49,7 @@ include __DIR__.'/views/layouts/header.php';
 .jrc-overview-light .reference-label{color:#9ebbd0;font-size:11px;margin-top:8px}
 @media(max-width:980px){.jrc-overview-light .reference-grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="/assets/css/jrc-dashboard-20.css?v=2">
+<link rel="stylesheet" href="/assets/css/jrc-dashboard-20.css?v=3">
 <section class="jrc-overview-light">
   <div class="head">
     <div><span class="jrc20-eyebrow">JR CONECT · ACS 2.0</span><h2>Visão geral da rede</h2><p class="sub">Inventário em cache · detalhes técnicos sob demanda</p></div>
@@ -65,43 +65,30 @@ include __DIR__.'/views/layouts/header.php';
     <div id="jrc20-fleet-bars" class="jrc20-fleet-bars" aria-live="polite"><p class="reference-note">Carregando distribuição da frota...</p></div>
     <div class="jrc20-wide-foot"><span id="jrc-makers-note">Aguardando inventário armazenado</span><span>Fonte: GenieACS · cache local</span></div>
   </section>
-  <div class="jrc20-two">
-    <section class="reference-panel" aria-label="Distribuição por fabricante">
-      <div class="jrc20-panel-heading"><h3><i class="bi bi-pie-chart"></i> Fabricantes</h3><span class="jrc20-meta">Inventário ACS</span></div>
-      <div class="reference-body">
-        <div id="jrc-makers-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-makers-total">—</b><small>CPEs</small></div></div>
-        <div id="jrc-makers-legend" class="reference-legend" aria-live="polite">Carregando fabricantes...</div>
-      </div>
-    </section>
-    <section class="reference-panel" aria-label="Clientes com e sem TR-069">
-      <div class="jrc20-panel-heading"><h3><i class="bi bi-diagram-3"></i> Cobertura TR-069</h3><span class="jrc20-meta">Clientes IXC</span></div>
+  <div class="jrc20-two jrc20-secondary">
+    <section class="reference-panel" aria-label="Cobertura TR-069">
+      <div class="jrc20-panel-heading"><h3><i class="bi bi-diagram-3"></i> Clientes com e sem TR-069</h3><span class="jrc20-meta">Base IXC · sem contratos</span></div>
       <div class="reference-body">
         <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Clientes</small></div></div>
-        <div id="jrc-coverage-legend" class="reference-legend"><div class="reference-note">Aguardando vinculação única de clientes IXC e dispositivos TR-069. Sem estimativas.</div></div>
+        <div id="jrc-coverage-legend" class="reference-legend"><div class="reference-note">Coleta de clientes únicos IXC pendente. Sem estimativas.</div></div>
       </div>
-      <p class="reference-label" id="jrc-coverage-note">Sem consultas a contratos. Total de ONUs não representa clientes únicos.</p>
+      <p class="reference-label" id="jrc-coverage-note">O total de ONUs não representa clientes únicos.</p>
     </section>
-  </div>
-  <div class="jrc20-three">
     <section class="reference-panel">
-      <div class="jrc20-panel-heading"><h3><i class="bi bi-cpu"></i> Modelos de CPE</h3></div>
+      <div class="jrc20-panel-heading"><h3><i class="bi bi-cpu"></i> Modelos de CPE</h3><span class="jrc20-meta">Inventário ACS</span></div>
       <table class="reference-table"><thead><tr><th>Modelo</th><th>Total</th></tr></thead><tbody id="jrc-models-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
     </section>
-    <section class="reference-panel">
-      <div class="jrc20-panel-heading"><h3><i class="bi bi-hdd-stack"></i> Fabricantes</h3></div>
-      <table class="reference-table"><thead><tr><th>Fabricante</th><th>Total</th></tr></thead><tbody id="jrc-makers-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
-    </section>
-    <section class="reference-panel jrc20-links">
-      <div class="jrc20-panel-heading"><h3><i class="bi bi-grid"></i> Acesso operacional</h3></div>
-      <div class="shortcut-grid">
-        <a class="shortcut" href="/devices-light.php"><i class="bi bi-search"></i><span><strong>Dispositivos</strong><small>Pesquisar equipamentos e abrir detalhes técnicos</small></span></a>
-        <a class="shortcut" href="/view-logs.php"><i class="bi bi-activity"></i><span><strong>Relatórios</strong><small>Histórico e sinal óptico</small></span></a>
-        <a class="shortcut" href="/configuration.php"><i class="bi bi-sliders"></i><span><strong>Configurações</strong><small>Administração ACS</small></span></a>
-      </div>
-      <div id="jrc-overview-warning" class="notice" hidden></div>
-    </section>
+  </div>
+  <div class="panel jrc20-quicklinks">
+    <strong>Acessos operacionais</strong>
+    <div class="shortcut-grid">
+      <a class="shortcut" href="/devices-light.php"><i class="bi bi-search"></i><span><strong>Dispositivos</strong><small>Pesquisar CPEs e abrir detalhes</small></span></a>
+      <a class="shortcut" href="/view-logs.php"><i class="bi bi-activity"></i><span><strong>Relatórios</strong><small>Sinal óptico e histórico</small></span></a>
+      <a class="shortcut" href="/configuration.php"><i class="bi bi-sliders"></i><span><strong>Configurações</strong><small>Gerenciamento ACS</small></span></a>
+    </div>
+    <div id="jrc-overview-warning" class="notice" hidden></div>
   </div>
   <p class="jrc20-footer">Dados provenientes do último inventário armazenado. Esta tela não consulta ONUs, RX, temperatura, IXC ou TR-069 ao abrir.</p>
 </section>
-<script src="/assets/js/jrc-dashboard-light.js?v=3" defer></script>
+<script src="/assets/js/jrc-dashboard-light.js?v=4" defer></script>
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
