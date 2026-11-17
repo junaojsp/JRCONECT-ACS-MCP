@@ -1,0 +1,35 @@
+/* ACS Wi-Fi native tab, reference cards — never affects WAN, overview, or menu. */
+#wifi .acs-approved-wifi{--w-panel:#1b2231;--w-border:#2c394e;--w-mute:#9bb1cb;--w-accent:#3499f5;--w-mint:#20cab9;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+#wifi .acs-approved-wifi>.acs-overview-card-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px;background:#1b2231!important;border:1px solid var(--w-border)!important;border-radius:12px!important;padding:17px 20px!important;margin:0 0 14px!important}
+#wifi .acs-approved-wifi>.acs-overview-card-header .acs-kicker{display:block;color:#e7f2ff!important;font-size:15px!important;font-weight:770;letter-spacing:normal}
+#wifi .acs-approved-wifi>.acs-overview-card-header small{color:var(--w-mute)!important;font-size:11px!important;margin-top:4px}
+#wifi .acs-approved-wifi .acs-toolbar-action.fb-primary{background:#226ab9!important;color:white!important;border:1px solid #397cc5!important;border-radius:8px!important;padding:9px 15px!important;white-space:nowrap}
+#wifi .jrc-wifi-ref-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 15px}
+#wifi .jrc-wifi-ref-kpi{background:linear-gradient(140deg,#202b3d,#1b2231);border:1px solid var(--w-border);border-radius:12px;padding:17px 18px;min-height:118px;min-width:0}
+#wifi .jrc-wifi-ref-kpi:first-child{background:linear-gradient(140deg,#16392f,#1b2231)}
+#wifi .jrc-wifi-ref-label{display:flex;justify-content:space-between;gap:9px;color:#b0c3dc;font-size:12px;font-weight:680}
+#wifi .jrc-wifi-ref-label i{color:#3499f5;font-size:18px}
+#wifi .jrc-wifi-ref-kpi:first-child .jrc-wifi-ref-label i{color:#20cab9}
+#wifi .jrc-wifi-ref-kpi>strong{display:block;margin:15px 0 4px;color:#f0f8ff;font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+#wifi .jrc-wifi-ref-kpi>small{font-size:10px;color:#95b0cc}
+#wifi .acs-wifi-health-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;padding:0!important;background:transparent!important;border:0!important}
+#wifi .acs-wifi-health-row{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;align-items:stretch!important;min-width:0!important;min-height:250px!important;background:#1b2231!important;border:1px solid #33435b!important;border-top:3px solid #20cab9!important;border-radius:13px!important;padding:17px 18px!important;box-shadow:0 9px 27px #050a1329!important}
+#wifi .acs-wifi-health-row:nth-child(2){border-top-color:#9769f8!important}
+#wifi .acs-wifi-health-state{grid-column:1/-1;display:flex!important;align-items:center!important;gap:11px!important;padding-bottom:13px!important;border-bottom:1px solid #304058!important}
+#wifi .acs-wifi-health-state>i{display:grid;place-items:center;background:#0d745f!important;color:#a5f8de!important;width:38px;height:38px;font-size:19px;border-radius:10px;flex:0 0 38px}
+#wifi .acs-wifi-health-row:nth-child(2) .acs-wifi-health-state>i{background:#553192!important;color:#e2cbff!important}
+#wifi .acs-wifi-health-state strong{display:block!important;font-size:15px!important;color:#f3f8ff!important}
+#wifi .acs-wifi-health-state span{font-size:10px!important;color:#32d9a3!important}
+#wifi .acs-wifi-health-detail{padding:10px 11px!important;background:#243043!important;border:1px solid #32425a!important;border-radius:9px!important;min-width:0!important}
+#wifi .acs-wifi-health-detail small{display:block!important;color:#9eb6d0!important;font-size:10px!important;letter-spacing:.2px;margin-bottom:6px}
+#wifi .acs-wifi-health-detail strong{display:block!important;word-break:break-word!important;color:#e9f6ff!important;font-size:12px!important;font-weight:720!important}
+#wifi .acs-wifi-health-detail:nth-of-type(2){grid-column:span 2}
+#wifi .acs-wifi-edit-btn{grid-column:1/-1;justify-self:end;align-self:end;background:#233a57!important;border:1px solid #45658a!important;color:#cce8ff!important;padding:9px 16px!important;border-radius:8px!important;font-weight:690!important}
+#wifi .acs-wifi-edit-btn:hover{background:#225d9b!important;color:white!important}
+#wifi .acs-wifi-unified-row{grid-column:1/-1!important;min-height:auto!important;border-top-color:#3499f5!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#wifi .acs-wifi-unified-row .acs-wifi-health-state{grid-column:1/-1}
+#wifi .acs-wifi-unified-row .acs-wifi-health-detail:nth-of-type(2){grid-column:auto}
+#wifi .acs-wifi-health-footer{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:12px!important;margin:14px 0 0!important;padding:15px 18px!important;border:1px solid var(--w-border)!important;border-radius:11px!important;background:#1b2231!important;color:#98b2cd!important;font-size:11px}
+#wifi .acs-wifi-health-footer>button{margin-left:auto;border:1px solid #385574!important;border-radius:8px!important;padding:8px 12px!important}
+@media(max-width:1120px){#wifi .jrc-wifi-ref-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}#wifi .acs-wifi-health-list{grid-template-columns:1fr!important}}
+@media(max-width:630px){#wifi .jrc-wifi-ref-kpis{grid-template-columns:1fr}#wifi .acs-wifi-health-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}#wifi .acs-approved-wifi>.acs-overview-card-header{flex-wrap:wrap!important}#wifi .acs-wifi-unified-row{grid-template-columns:1fr!important}}
