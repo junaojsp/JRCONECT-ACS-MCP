@@ -18,6 +18,7 @@
   let inFlight = null;
   let cached = null;
   let cachedUntil = 0;
+  let retryAfter = 0;
   const now = () => Date.now();
 
   function target(input, init) {
@@ -34,6 +35,7 @@
   }
 
   async function bundle() {
+    if (retryAfter > now()) throw new Error('bundle temporarily disabled');
     if (cached && cachedUntil > now()) return cached;
     if (inFlight) return inFlight;
     inFlight = (async () => {
@@ -67,6 +69,7 @@
       return data;
     })();
     try { return await inFlight; }
+    catch (error) { retryAfter = now() + 60000; throw error; }
     finally { inFlight = null; }
   }
 
