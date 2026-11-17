@@ -64,6 +64,30 @@
     }
     ring.style.background=total>0&&head.length ? 'conic-gradient('+stops.join(',')+')' : '#214563';
   }
+  function fleetBars(items,total){
+    const host=document.getElementById('jrc20-fleet-bars');
+    const note=document.getElementById('jrc20-fleet-note');
+    if(!host)return;
+    host.replaceChildren();
+    const ranked=items.slice(0,6);
+    const remaining=items.slice(6).reduce((n,x)=>n+Number(x.count),0);
+    if(remaining>0)ranked.push({name:'Outros',count:remaining});
+    const max=Math.max(1,...ranked.map(x=>Number(x.count)));
+    for(const [i,item] of ranked.entries()){
+      const n=Number(item.count);
+      const line=document.createElement('div');line.className='jrc20-fleet-line';
+      const label=document.createElement('span');label.className='jrc20-fleet-name';
+      label.textContent=String(item.name||'Não identificado');label.title=label.textContent;
+      const track=document.createElement('div');track.className='jrc20-track';
+      const fill=document.createElement('div');fill.className='jrc20-fill';
+      fill.style.width=(100*n/max).toFixed(2)+'%';fill.style.background=palette[i%palette.length];
+      track.append(fill);
+      const count=document.createElement('span');count.className='jrc20-fleet-number';
+      count.textContent=n.toLocaleString('pt-BR');
+      line.append(label,track,count);host.append(line);
+    }
+    if(note)note.textContent=total.toLocaleString('pt-BR')+' CPEs no snapshot';
+  }
   async function loadCharts(){
     try {
       const response=await fetch('/api/jrc-dashboard-reference-charts.php',{credentials:'same-origin',cache:'no-store'});
@@ -73,6 +97,7 @@
       const total=Number(data.total);
       if(!Number.isSafeInteger(total)||total<=0 ||
          data.manufacturers.reduce((n,x)=>n+Number(x.count),0)!==total)throw Error('inconsistent');
+      fleetBars(data.manufacturers,total);
       donut('jrc-makers-ring','jrc-makers-total','jrc-makers-legend',data.manufacturers,total);
       table('jrc-models-rows',data.models,'model');
       table('jrc-makers-rows',data.manufacturers,'manufacturer');
