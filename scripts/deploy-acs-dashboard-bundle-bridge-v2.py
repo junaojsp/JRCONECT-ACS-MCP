@@ -54,7 +54,7 @@ def prepare(root):
         # TR-069 helper <script>. Insert the bridge immediately after it, so
         # it is registered before the dashboard's later inline fetch routines.
         # Never depend on the footer's PHP formatting.
-        pattern = r'(?m)^[ \\t]*<script[ \\t]+src=[\\x22\\x27]/assets/js/jrc-tr069-apto\\.js\\?v=[^\\x22\\x27]+[\\x22\\x27][ \\t]*></script>[ \\t]*(?:\\r?\\n|$)'
+        pattern = r'(?m)^[ \t]*<script[ \t]+src="/assets/js/jrc-tr069-apto\.js\?v=[^"]+"[ \t]*></script>[ \t]*(?:\r?\n|$)'
         matches = list(re.finditer(pattern, text))
         if len(matches) != 1:
             fail('Script de referencia TR-069 nao encontrado de forma unica')
