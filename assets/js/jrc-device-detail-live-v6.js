@@ -35,7 +35,8 @@
   {key:'uptime',label:'Uptime',prefix:/^uptime\b/i,icon:'bi-clock-history'},
   {key:'temp',label:'Temperatura',prefix:/^temperatura\b/i,icon:'bi-thermometer-half'},
   {key:'rx',label:'Sinal óptico (RX)',prefix:/^sinal\s+[óo]ptico\s*\(rx\)|^rx\s*$/i,icon:'bi-reception-4'},
-  {key:'hosts',label:'Hosts conectados',prefix:/^hosts\s+conectados/i,icon:'bi-diagram-3'}
+  {key:'hosts',label:'Hosts conectados',prefix:/^hosts\s+conectados/i,icon:'bi-diagram-3'},
+  {key:'wan',label:'Conexão WAN',prefix:/^conex[aã]o\s+WAN/i,icon:'bi-globe2'}
  ];
  function render(){
   for(const el of panes.querySelectorAll('.fb-section-title'))el.classList.add('jrc-live-section-title');
