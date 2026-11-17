@@ -64,6 +64,30 @@
     }
     ring.style.background=total>0&&head.length ? 'conic-gradient('+stops.join(',')+')' : '#214563';
   }
+  function fleetBars(items,total){
+    const host=document.getElementById('jrc20-fleet-bars');
+    const note=document.getElementById('jrc20-fleet-note');
+    if(!host)return;
+    host.replaceChildren();
+    const ranked=items.slice(0,6);
+    const remaining=items.slice(6).reduce((n,x)=>n+Number(x.count),0);
+    if(remaining>0)ranked.push({name:'Outros',count:remaining});
+    const max=Math.max(1,...ranked.map(x=>Number(x.count)));
+    for(const [i,item] of ranked.entries()){
+      const n=Number(item.count);
+      const line=document.createElement('div');line.className='jrc20-fleet-line';
+      const label=document.createElement('span');label.className='jrc20-fleet-name';
+      label.textContent=String(item.name||'Não identificado');label.title=label.textContent;
+      const track=document.createElement('div');track.className='jrc20-track';
+      const fill=document.createElement('div');fill.className='jrc20-fill';
+      fill.style.width=(100*n/max).toFixed(2)+'%';fill.style.background=palette[i%palette.length];
+      track.append(fill);
+      const count=document.createElement('span');count.className='jrc20-fleet-number';
+      count.textContent=n.toLocaleString('pt-BR');
+      line.append(label,track,count);host.append(line);
+    }
+    if(note)note.textContent=total.toLocaleString('pt-BR')+' CPEs no snapshot';
+  }
   async function loadCharts(){
     try {
       const response=await fetch('/api/jrc-dashboard-reference-charts.php',{credentials:'same-origin',cache:'no-store'});
@@ -73,9 +97,8 @@
       const total=Number(data.total);
       if(!Number.isSafeInteger(total)||total<=0 ||
          data.manufacturers.reduce((n,x)=>n+Number(x.count),0)!==total)throw Error('inconsistent');
-      donut('jrc-makers-ring','jrc-makers-total','jrc-makers-legend',data.manufacturers,total);
+      fleetBars(data.manufacturers,total);
       table('jrc-models-rows',data.models,'model');
-      table('jrc-makers-rows',data.manufacturers,'manufacturer');
       const note=document.getElementById('jrc-makers-note');
       if(note)note.textContent=(data.stale?'Inventario historico · ':'')+'Coleta: '+String(data.cached_at||'indisponivel');
       const coverage=data.client_tr069_coverage;
@@ -84,17 +107,31 @@
         if(Number.isSafeInteger(yes)&&Number.isSafeInteger(no)&&yes>=0&&no>=0&&yes+no>0) {
           donut('jrc-coverage-ring','jrc-coverage-total','jrc-coverage-legend',
             [{name:'Com TR-069',count:yes},{name:'Sem TR-069',count:no}],yes+no);
+          const kpi=document.getElementById('jrc20-tr069-rate');
+          if(kpi)kpi.textContent=(100*yes/(yes+no)).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+          const noteCoverage=document.getElementById('jrc-coverage-note');
+          if(noteCoverage)noteCoverage.textContent='Clientes distintos com login PPPoE no IXC · coleta: '+String(coverage.collected_at||'não informada')+' · não consulta contratos.';
         }
+      } else {
+        const kpi=document.getElementById('jrc20-tr069-rate');
+        if(kpi)kpi.textContent='Pendente';
+        const legend=document.getElementById('jrc-coverage-legend');
+        if(legend)legend.textContent='Coleta IXC/ACS indisponível ou desatualizada. Sem estimativas.';
       }
     } catch (_) {
       const legend=document.getElementById('jrc-makers-legend');
       if(legend)legend.textContent='Dados do inventario indisponiveis';
-      for(const id of ['jrc-models-rows','jrc-makers-rows']) {
+      for(const id of ['jrc-models-rows']) {
         const body=document.getElementById(id);
         if(body){body.replaceChildren();const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=2;td.textContent='Sem dados';tr.append(td);body.append(tr);}
       }
     }
   }
+  const refresh=document.getElementById('jrc20-refresh');
+  if(refresh) refresh.addEventListener('click',()=>{
+    refresh.disabled=true;
+    Promise.allSettled([loadCharts(),load()]).finally(()=>{ refresh.disabled=false; });
+  });
   loadCharts();
   load();
 })();
