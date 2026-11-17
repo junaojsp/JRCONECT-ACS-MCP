@@ -1,0 +1,38 @@
+/* JR Conect ACS 2.0 - isolated NOC device detail pilot */
+.jrc-noc{--noc-bg:#10141f;--noc-card:#1b2231;--noc-border:#2b3950;--noc-muted:#a0b0c9;--noc-blue:#3499f5;--noc-green:#20cab9;--noc-orange:#ff9f35;--noc-violet:#8b5cf6;color:#e6f3ff;font-family:Inter,system-ui,"Segoe UI",sans-serif;width:100%;max-width:none;padding:4px 2px 35px}
+.jrc-noc *{box-sizing:border-box}
+.jrc-noc-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px;border-bottom:1px solid var(--noc-border);padding:4px 0 20px;margin-bottom:16px}
+.jrc-noc-back{font-size:12px;text-decoration:none;color:#a9c4e2;display:inline-block;margin-bottom:14px}
+.jrc-noc-back:hover{color:#fff}
+.jrc-noc-kicker{color:#5eb9ff;font-size:10px;letter-spacing:2px;font-weight:800;margin-bottom:6px}
+.jrc-noc h1{font-weight:760;font-size:24px;letter-spacing:-.5px;color:#f1f7ff;margin:0 0 5px}
+.jrc-noc-head p{font-size:12px;color:var(--noc-muted);margin:0}
+.jrc-noc-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.jrc-noc-toolbar button,.jrc-noc-toolbar a,.jrc-noc-action{background:#25415d;border:1px solid #375571;border-radius:9px;padding:10px 12px;font-size:12px;color:#fff;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.jrc-noc-toolbar button{background:#257ccb;border-color:#3499f5}
+.jrc-noc-toolbar button:disabled{opacity:.5;cursor:wait}
+.jrc-noc-toolbar a:hover,.jrc-noc-action:hover{background:#30577a;color:#fff}
+.jrc-noc-pill{font-size:11px;background:#273447;border:1px solid #394e68;color:#c5d2e8;border-radius:99px;padding:6px 11px}
+.jrc-noc-pill.online{color:#5ee7bf;background:#123c35;border-color:#246f59}
+.jrc-noc-pill.offline{color:#ffba8c;background:#48291f;border-color:#7b4534}
+.jrc-noc-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:16px 0}
+.jrc-noc-card{min-width:0;min-height:135px;display:flex;flex-direction:column;align-items:flex-start;border:1px solid var(--noc-border);background:var(--noc-card);padding:19px;border-radius:13px;box-shadow:0 9px 30px #090d1830}
+.jrc-noc-card i{font-size:17px;background:#23344a;color:var(--noc-blue);width:35px;height:35px;display:grid;place-items:center;border-radius:10px;margin-bottom:9px}
+.jrc-noc-card.green i{color:var(--noc-green);background:#173b39}.jrc-noc-card.orange i{color:var(--noc-orange);background:#483523}.jrc-noc-card.violet i{color:var(--noc-violet);background:#352d4e}
+.jrc-noc-card span{font-size:12px;color:#abbdd4}.jrc-noc-card strong{font-size:24px;line-height:1.4;color:#edf6ff;font-variant-numeric:tabular-nums}.jrc-noc-card small{font-size:10px;color:#91a4bd}
+.jrc-noc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.jrc-noc-panel{background:var(--noc-card);border:1px solid var(--noc-border);border-radius:13px;padding:19px;min-width:0}
+.jrc-noc-panel h2{font-size:15px;font-weight:700;margin:0 0 18px;color:#ebf5ff;display:flex;align-items:center;gap:9px}
+.jrc-noc-panel h2 i{width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#123f6c;color:#49b5f8;box-shadow:0 0 20px #2a91e71e}
+.jrc-noc-panel dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:0}
+.jrc-noc-panel dl div{border-bottom:1px solid #303d52;padding:5px 0 12px;min-width:0}
+.jrc-noc-panel dt{color:#91a8c3;font-size:11px;font-weight:500;margin:0 0 5px}
+.jrc-noc-panel dd{font-size:13px;color:#e8f3ff;font-weight:600;margin:0;overflow-wrap:anywhere}
+.jrc-noc-note{font-size:11px;color:#a5b6ce;line-height:1.6;margin:16px 0}
+.jrc-noc-action{font-size:11px;padding:9px 11px}
+.jrc-noc-diagnostic{display:flex;align-items:center;justify-content:space-between;border:1px solid #344761;background:#202d40;border-radius:9px;padding:11px 13px;font-size:12px;color:#bdcfe5;margin-bottom:15px}
+.jrc-noc-foot{color:#95a8c0;font-size:11px;padding:16px 2px}
+.jrc-noc-alert{padding:11px 13px;border:1px solid #835a35;border-radius:8px;background:#422f22;color:#ffd6a6;font-size:12px}
+@media(max-width:1100px){.jrc-noc-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.jrc-noc-cards,.jrc-noc-grid,.jrc-noc-panel dl{grid-template-columns:1fr}.jrc-noc-head{align-items:flex-start}.jrc-noc-panel{padding:15px}}
+@media(prefers-reduced-motion:no-preference){.jrc-noc-toolbar button,.jrc-noc-toolbar a,.jrc-noc-action{transition:background .18s,transform .18s}.jrc-noc-toolbar button:hover:not(:disabled),.jrc-noc-action:hover{transform:translateY(-1px)}}
