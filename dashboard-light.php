@@ -10,7 +10,7 @@ include __DIR__.'/views/layouts/header.php';
 <main class="jrc-overview-light jrc-ref-layout">
  <header class="jr-head">
   <div><span class="jr-eyebrow">JR CONECT TELECOM · NETWORK OPERATIONS</span><h1>Dashboard ACS 2.0</h1><p>Monitoramento do inventário TR-069 · dados reais armazenados</p></div>
-  <div class="jr-head-actions"><span class="jr-source"><span></span> GENIEACS</span><a href="/dashboard.php">Versão anterior</a><button id="jrc20-refresh" type="button"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
+  <div class="jr-head-actions"><span class="jr-source"><span></span> GENIEACS</span><a href="/dashboard-legacy.php">Versão anterior</a><button id="jrc20-refresh" type="button"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
  </header>
  <section class="jr-panel jr-timeseries" aria-label="Histórico do inventário ACS">
   <div class="jr-panel-heading">
