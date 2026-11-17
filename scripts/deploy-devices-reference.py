@@ -41,7 +41,7 @@ def layout(text):
         list = Array.from(new Set(list));
         if (!list.length) return { text: '' };
         var remaining = list.slice(1);
-        return { html: '<span class="jrc-dns-first" title="' + esc(list[0]) + '">' + esc(list[0]) + '</span>' +
+        return { text: list.join(', '), html: '<span class="jrc-dns-first" title="' + esc(list[0]) + '">' + esc(list[0]) + '</span>' +
             (remaining.length ? ' <span class="jrc-dns-more" tabindex="0" title="' + esc(remaining.join(', ')) + '" aria-label="Outros DNS: ' + esc(remaining.join(', ')) + '">+' + remaining.length + '</span>' : '') };
     }
     function distinctBootstrap(d) {
