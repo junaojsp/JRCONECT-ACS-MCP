@@ -7,15 +7,16 @@ $currentPage='dashboard';
 include __DIR__.'/views/layouts/header.php';
 ?>
 <link rel="stylesheet" href="/assets/css/jrc-dashboard-made4.css?v=1">
-<main class="jrc-overview-light jrc-made4">
+<link rel="stylesheet" href="/assets/css/jrc-dashboard-premium.css?v=1">
+<main class="jrc-overview-light jrc-made4 jrc-premium">
   <header class="j4-header">
-    <div><div class="j4-kicker">JRCONECT <span>TELECOM</span> / CENTRO DE OPERAÇÕES</div><h1>Dashboard da rede</h1><p>Visão do inventário ACS · dados consolidados em cache</p></div>
-    <div class="j4-header-actions"><span class="j4-live"><span></span> Painel operacional</span><a href="/dashboard.php">Versão anterior</a><button id="jrc20-refresh" type="button"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
+    <div><div class="j4-kicker">JRCONECT <span>TELECOM</span> / NETWORK OPERATIONS</div><h1>Visão geral da rede <span class="j5-title-accent">/ ACS</span></h1><p>Inteligência operacional e inventário TR-069, com dados rastreáveis do cache</p></div>
+    <div class="j4-header-actions"><span class="j4-live"><span></span> VISÃO DE INVENTÁRIO</span><a href="/dashboard.php">Versão anterior</a><button id="jrc20-refresh" type="button"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
   </header>
   <section class="j4-hero" aria-label="Indicadores da rede">
     <article class="j4-hero-main">
       <div class="j4-hero-tag"><i class="bi bi-hdd-network"></i> INVENTÁRIO TR-069</div>
-      <div class="j4-hero-content"><div><span class="j4-muted">Equipamentos no inventário</span><div class="j4-number" id="jrc-overview-total">—</div><span class="j4-cue"><i class="bi bi-database"></i> GenieACS · snapshot armazenado</span></div><div class="j4-hero-symbol"><i class="bi bi-router"></i></div></div>
+      <div class="j4-hero-content"><div><span class="j4-muted">Equipamentos cadastrados</span><div class="j4-number" id="jrc-overview-total">—</div><span class="j4-cue"><i class="bi bi-database"></i> GenieACS · snapshot armazenado</span></div><div class="j5-hero-orbit" aria-hidden="true"><div class="j5-orbit-ring j5-orbit-outer"></div><div class="j5-orbit-ring j5-orbit-inner"></div><div class="j5-orbit-center"><i class="bi bi-router"></i></div><span class="j5-orbit-dot"></span></div></div>
       <div class="j4-hero-bottom"><span id="jrc20-fleet-note">Aguardando inventário</span><a href="/devices-light.php">Consultar dispositivos <i class="bi bi-arrow-up-right"></i></a></div>
     </article>
     <article class="j4-mini j4-mini-green"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-clock-history"></i></span><span>Última coleta</span></div><div class="j4-mini-value j4-date" id="jrc-overview-age">—</div><p>Inventário armazenado</p></article>
@@ -24,13 +25,13 @@ include __DIR__.'/views/layouts/header.php';
   </section>
   <section class="j4-analytics" aria-label="Análise do inventário">
     <article class="j4-panel j4-manufacturers">
-      <div class="j4-panel-head"><div><span class="j4-panel-icon blue"><i class="bi bi-bar-chart-fill"></i></span><div><h2>Fabricantes</h2><p>Participação na frota cadastrada</p></div></div><span class="j4-chip">GenieACS</span></div>
-      <div class="j4-fleet-total"><span>Distribuição por fabricante</span><strong>INVENTÁRIO</strong></div>
+      <div class="j4-panel-head"><div><span class="j4-panel-icon blue"><i class="bi bi-bar-chart-fill"></i></span><div><h2>Fabricantes</h2><p>Participação na frota cadastrada</p></div></div><span class="j4-chip"><i class="bi bi-database-check"></i> GenieACS</span></div>
+      <div class="j4-fleet-total"><span>Distribuição por fabricante</span><strong>COMPOSIÇÃO DA FROTA</strong></div>
       <div id="jrc20-fleet-bars" class="jrc20-fleet-bars" aria-live="polite">Carregando fabricantes...</div>
       <footer id="jrc-makers-note" class="j4-panel-foot">Aguardando dados do cache</footer>
     </article>
     <article class="j4-panel j4-coverage">
-      <div class="j4-panel-head"><div><span class="j4-panel-icon purple"><i class="bi bi-broadcast"></i></span><div><h2>Clientes e TR-069</h2><p>Cobertura por cliente único</p></div></div><span class="j4-chip">IXC + ACS</span></div>
+      <div class="j4-panel-head"><div><span class="j4-panel-icon purple"><i class="bi bi-broadcast"></i></span><div><h2>Clientes e TR-069</h2><p>Cobertura por cliente único</p></div></div><span class="j4-chip"><i class="bi bi-diagram-3"></i> IXC + ACS</span></div>
       <div class="j4-coverage-content">
         <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Clientes</small></div></div>
         <div id="jrc-coverage-legend" class="reference-legend"><span>Coleta pendente. Nenhuma estimativa será exibida.</span></div>
