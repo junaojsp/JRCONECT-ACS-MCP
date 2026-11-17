@@ -1,0 +1,6 @@
+/* Only the duplicated WAN chart on the device's general overview.
+   The real WAN/PPPoE tab and its interactive charts are untouched.
+   Keep DOM IDs mounted for existing refresh/telemetry routines. */
+#overview-content .jrc-ref-device .jrc-ref-traffic-panel {
+    display: none !important;
+}
