@@ -12,8 +12,8 @@ SOURCE=Path(__file__).resolve().parent.parent
 WEB=Path('/var/www/gacs')
 FOOTER=WEB/'views/layouts/footer.php'
 FILES=('assets/css/jrc-device-detail-noc-v3.css','assets/js/jrc-device-detail-noc-v3.js')
-OLD_CSS=b'/assets/css/jrc-device-detail-noc-20.css?v=1'
-OLD_JS=b'/assets/js/jrc-device-detail-noc-20.js?v=1'
+OLD_CSS=b'/assets/css/jrc-device-detail-noc-v2.css?v=1'
+OLD_JS=b'/assets/js/jrc-device-detail-noc-v2.js?v=1'
 NEW_CSS=b'/assets/css/jrc-device-detail-noc-v3.css?v=1'
 NEW_JS=b'/assets/js/jrc-device-detail-noc-v3.js?v=1'
 MARKER=b'<!-- JRC device detail dark NOC v1 -->'
