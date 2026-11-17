@@ -19,10 +19,10 @@ try {
         jsonResponse(['success'=>false,'message'=>'Inventario ainda nao coletado'],503);
     }
     $age = time() - strtotime((string)$meta['completed_at']);
-    if ($age < 0 || $age > 900) {
-        jsonResponse(['success'=>false,'message'=>'Inventario desatualizado; nao mostrar valores como atuais',
-            'cached_at'=>$meta['completed_at']],503);
-    }
+    // This is a directory, not a live status monitor. Allow a stale
+    // directory snapshot with conspicuous stale labeling; never claim
+    // that status, RX or last inform is current.
+    $stale = ($age < 0 || $age > 900);
     $search = trim((string)($_GET['q'] ?? ''));
     $manufacturer = trim((string)($_GET['manufacturer'] ?? ''));
     $model = trim((string)($_GET['model'] ?? ''));
@@ -32,7 +32,7 @@ try {
         mb_strlen($model) > 70) {
         jsonResponse(['success'=>false,'message'=>'Filtro invalido'],400);
     }
-    $limit = 30;
+    $limit = 10;
     $offset = ($page - 1) * $limit;
     // Fields are indexed only by serial; JSON fields are filtered on request,
     // never computed at dashboard opening. Bound parameters prevent injection.
@@ -91,7 +91,7 @@ try {
     $stmt->close();
     jsonResponse([
         'success'=>true,'source'=>'jrc_background_inventory','snapshot'=>$meta['snapshot_id'],
-        'cached_at'=>$meta['completed_at'],'total'=>$total,'page'=>$page,'per_page'=>$limit,
+        'cached_at'=>$meta['completed_at'],'stale'=>$stale,'total'=>$total,'page'=>$page,'per_page'=>$limit,
         'pages'=>(int)ceil($total/$limit),'items'=>$items
     ]);
 } catch (Throwable $error) {
