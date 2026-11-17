@@ -6,7 +6,7 @@ $pageTitle='Dashboard ACS 2.0';
 $currentPage='dashboard';
 include __DIR__.'/views/layouts/header.php';
 ?>
-<link rel="stylesheet" href="/assets/css/jrc-dashboard-reference.css?v=1">
+<link rel="stylesheet" href="/assets/css/jrc-dashboard-reference.css?v=2">
 <main class="jrc-overview-light jrc-ref-layout">
  <header class="jr-head">
   <div><span class="jr-eyebrow">JR CONECT TELECOM · NETWORK OPERATIONS</span><h1>Dashboard ACS 2.0</h1><p>Monitoramento do inventário TR-069 · dados reais armazenados</p></div>
