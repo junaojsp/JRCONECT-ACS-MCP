@@ -98,9 +98,7 @@
       if(!Number.isSafeInteger(total)||total<=0 ||
          data.manufacturers.reduce((n,x)=>n+Number(x.count),0)!==total)throw Error('inconsistent');
       fleetBars(data.manufacturers,total);
-      donut('jrc-makers-ring','jrc-makers-total','jrc-makers-legend',data.manufacturers,total);
       table('jrc-models-rows',data.models,'model');
-      table('jrc-makers-rows',data.manufacturers,'manufacturer');
       const note=document.getElementById('jrc-makers-note');
       if(note)note.textContent=(data.stale?'Inventario historico · ':'')+'Coleta: '+String(data.cached_at||'indisponivel');
       const coverage=data.client_tr069_coverage;
@@ -114,7 +112,7 @@
     } catch (_) {
       const legend=document.getElementById('jrc-makers-legend');
       if(legend)legend.textContent='Dados do inventario indisponiveis';
-      for(const id of ['jrc-models-rows','jrc-makers-rows']) {
+      for(const id of ['jrc-models-rows']) {
         const body=document.getElementById(id);
         if(body){body.replaceChildren();const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=2;td.textContent='Sem dados';tr.append(td);body.append(tr);}
       }
