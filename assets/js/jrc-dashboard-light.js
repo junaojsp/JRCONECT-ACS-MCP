@@ -38,10 +38,6 @@
     for (const item of entries.slice(0,9)) {
       const tr=document.createElement('tr');
       const td=document.createElement('td');td.textContent=String(item.name||'Nao identificado');
-      // Link into the filtered lightweight directory, never full fleet scan.
-      const a=document.createElement('a');
-      a.href='/devices-light.php?'+new URLSearchParams({[field]:String(item.name||'')});
-      a.textContent=td.textContent;td.replaceChildren(a);
       const n=document.createElement('td');n.textContent=Number(item.count).toLocaleString('pt-BR');
       tr.append(td,n);body.append(tr);
     }
