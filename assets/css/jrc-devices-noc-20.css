@@ -51,3 +51,31 @@ body .jrc-inventory-page:has(#onu-tab.active) #devices-table tbody td:nth-child(
   display:none!important;
 }
 /* A remoção da coluna não afeta abas de OLT/ODC/ODP/Servidor. */
+
+/* Reference composition: inventory title / filters / technical list, using existing markup. */
+body .jrc-inventory-page>.card>.card-header{
+  min-height:105px;
+  display:flex;
+  align-items:center;
+  background:linear-gradient(110deg,#1c2b43 0%,#1b2231 72%)!important;
+}
+body .jrc-inventory-page>.card>.card-header>.d-flex{width:100%;gap:14px;flex-wrap:wrap}
+body .jrc-inventory-page>.card>.card-header #device-stats-badges{
+  display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;margin-left:12px!important;
+}
+body .jrc-inventory-page>.card>.card-body>.row.mb-3{
+  border:1px solid #2b3950;
+  background:#1b2231;
+  border-radius:11px;
+  padding:18px 8px;
+  align-items:center;
+  margin:3px 0 18px!important;
+}
+body .jrc-inventory-page #search-input{
+  min-height:44px!important;
+  font-size:13px;
+}
+body .jrc-inventory-page #devices-table-wrap{
+  box-shadow:inset 0 1px 0 #ffffff07;
+}
+body .jrc-inventory-page #device-count{color:#a9c7e4!important;font-size:11px}
