@@ -27,8 +27,7 @@ def get_changes():
     # checking 'acs-wan-page' in PHP always rejected this valid installation.
     page_required=(b'id="deviceTabs"', b'id="deviceTabContent"',
                    b'id="overview-tab"', b'id="wan-tab"',
-                   b'id="wifi-tab"', b'id="devices-tab"',
-                   b'fb-diag-item')
+                   b'id="wifi-tab"', b'id="devices-tab"')
     missing_page=[x.decode('ascii') for x in page_required if x not in page]
     if missing_page:
         raise RuntimeError('Detalhamento nao reconhecido no PHP: '+', '.join(missing_page))
@@ -36,8 +35,8 @@ def get_changes():
     if not renderer.is_file() or renderer.is_symlink():
         raise RuntimeError('Renderizador de detalhes ausente ou inseguro')
     renderer_code=renderer.read_bytes()
-    renderer_required=(b'acs-wan-page', b'renderWANDetailsTab',
-                       b'overview-content')
+    renderer_required=(b'acs-wan-page', b'fb-diag-item',
+                       b'renderWANDetailsTab', b'overview-content')
     missing_renderer=[x.decode('ascii') for x in renderer_required
                       if x not in renderer_code]
     if missing_renderer:
