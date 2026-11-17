@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Safe deployment for parallel, read-only NOC device pilot."""
+"""Safe deployment for parallel, read-only NOC device pilot. Never touches existing device-noc.php."""
 import argparse
 import os
 import shutil
@@ -10,7 +10,7 @@ from pathlib import Path
 
 SOURCE=Path(__file__).resolve().parent.parent
 TARGET=Path('/var/www/gacs')
-FILES=('device-noc.php','assets/css/jrc-device-noc.css','assets/js/jrc-device-noc.js')
+FILES=('device-noc-v2.php','assets/css/jrc-device-noc.css','assets/js/jrc-device-noc.js')
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('mode',choices=('plan','apply'))
@@ -54,7 +54,7 @@ def main():
             finally:
                 if os.path.exists(temporary):os.unlink(temporary)
         print('APLICADO_OK')
-        print('NAO ALTERADOS: device-detail.php, WAN, Wi-Fi, reboot, senha, firmware e endpoints')
+        print('NAO ALTERADOS: device-noc.php, device-detail.php, WAN, Wi-Fi, reboot, senha, firmware e endpoints')
     except BaseException:
         for dst in reversed(created):dst.unlink(missing_ok=True)
         raise
