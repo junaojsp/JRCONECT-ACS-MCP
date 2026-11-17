@@ -1,52 +1,89 @@
-/* JR Conect ACS — lightweight device directory. No telemetry requests. */
+/* JR Conect - light CPE list v2; snapshot only, no optical polling. */
 (() => {
  'use strict';
- const form=document.getElementById('light-filter');
- if(!form) return;
- const q=document.getElementById('light-search'),maker=document.getElementById('light-maker'),model=document.getElementById('light-model');
- const rows=document.getElementById('light-rows'),count=document.getElementById('light-count'),age=document.getElementById('light-age');
- const prev=document.getElementById('light-prev'),next=document.getElementById('light-next'),pagination=document.getElementById('light-pagination');
- let page=1,serial=0,controller=null;
- function cell(row,text){
+ const $=id=>document.getElementById(id);
+ const form=$('light-filter'), q=$('light-search'), maker=$('light-maker'), model=$('light-model');
+ const rows=$('light-rows'), count=$('light-count'), age=$('light-age'), stale=$('light-stale');
+ const prev=$('light-prev'), next=$('light-next'), pagination=$('light-pagination');
+ const per=$('light-per-page'), reload=$('dir-reload'), cols=$('dir-columns'), table=$('dir-table');
+ if(!form || !rows) return;
+ let page=1,token=0,controller=null;
+ function cell(tr,value,optional=false){
    const td=document.createElement('td');
-   td.textContent=String(text??'') || '—';
-   row.append(td);return td;
+   td.textContent=String(value??'') || '—';
+   if(optional) td.className='jrc-dir-optional';
+   tr.append(td); return td;
+ }
+ function line(message){
+   rows.replaceChildren();
+   const tr=document.createElement('tr');
+   cell(tr,message).colSpan=7;rows.append(tr);
+ }
+ function option(select,value){
+   const el=document.createElement('option');el.value=value;el.textContent=value;select.append(el);
+ }
+ async function filters(){
+   try{
+     const reply=await fetch('/api/jrc-devices-light.php?filters=1',{credentials:'same-origin',cache:'no-store'});
+     if(!reply.ok) return;
+     const result=await reply.json();
+     if(!result.success)return;
+     for(const item of result.manufacturers||[])option(maker,item);
+     for(const item of result.models||[])option(model,item);
+   }catch(_){}
  }
  async function load(){
-   const sequence=++serial;
-   controller?.abort();controller=new AbortController();
-   rows.replaceChildren();
-   const tr=document.createElement('tr');cell(tr,'Carregando...').colSpan=6;rows.append(tr);
-   const params=new URLSearchParams({page:String(page),q:q.value.trim(),manufacturer:maker.value.trim(),model:model.value.trim()});
+   const current=++token;
+   controller?.abort(); controller=new AbortController();
+   line('Carregando equipamentos...');
+   const params=new URLSearchParams({page:String(page),per_page:per.value,q:q.value.trim(),manufacturer:maker.value,model:model.value});
    try{
-     const res=await fetch('/api/jrc-devices-light.php?'+params.toString(),{credentials:'same-origin',cache:'no-store',signal:controller.signal});
-     const body=await res.json();
-     if(sequence!==serial)return;
-     if(!res.ok||!body.success)throw Error(body.message||'Falha ao consultar inventario');
+     const response=await fetch('/api/jrc-devices-light.php?'+params.toString(),{
+       credentials:'same-origin',cache:'no-store',signal:controller.signal});
+     const data=await response.json();
+     if(current!==token)return;
+     if(!response.ok||!data.success)throw Error(data.message||'Inventario indisponivel');
      rows.replaceChildren();
-     for(const item of body.items){
+     for(const item of data.items){
        const tr=document.createElement('tr');
-       const td=cell(tr,item.model||'Modelo nao informado');
-       const small=document.createElement('small');small.style.display='block';small.textContent=item.serial||'';td.append(small);
-       cell(tr,item.client||item.pppoe||'—');
-       cell(tr,item.mac);cell(tr,item.ip);cell(tr,item.last_inform);
-       const action=document.createElement('td'),a=document.createElement('a');
-       a.href='/device-detail.php?id='+encodeURIComponent(item.id);
-       a.className='btn btn-sm btn-primary';a.textContent='Abrir dispositivo';action.append(a);tr.append(action);rows.append(tr);
+       cell(tr,item.last_inform);
+       const who=cell(tr,item.pppoe||item.client||'—');
+       if(item.pppoe && item.client && item.client!==item.pppoe){
+         const secondary=document.createElement('small');
+         secondary.style.display='block';secondary.style.opacity='.72';secondary.textContent=item.client;who.append(secondary);
+       }
+       cell(tr,item.mac,true);cell(tr,item.ip,true);
+       cell(tr,item.manufacturer);
+       const product=cell(tr,item.model);
+       const serial=document.createElement('small');serial.style.display='block';serial.style.opacity='.72';serial.textContent=item.serial||'';
+       product.append(serial);
+       const td=document.createElement('td');td.className='jrc-dir-actions';
+       const a=document.createElement('a');
+       a.className='jrc-dir-open';a.textContent='Acoes';a.href='/device-detail.php?id='+encodeURIComponent(item.id);
+       a.title='Abrir detalhes do dispositivo';td.append(a);tr.append(td);rows.append(tr);
      }
-     if(!body.items.length){const tr=document.createElement('tr');cell(tr,'Nenhum dispositivo encontrado.').colSpan=6;rows.append(tr);}
-     count.textContent=Number(body.total).toLocaleString('pt-BR')+' equipamentos encontrados';
-     age.textContent='Snapshot: '+String(body.cached_at||'indisponivel');
-     pagination.textContent='Pagina '+body.page+' de '+Math.max(1,body.pages);
-     prev.disabled=page<=1;next.disabled=page>=body.pages;
+     if(!data.items.length)line('Nenhum equipamento encontrado.');
+     const total=Number(data.total)||0;
+     count.textContent='Mostrando '+(total ? (page-1)*Number(data.per_page)+1 : 0)+' a '+Math.min(page*Number(data.per_page),total)+' de '+total.toLocaleString('pt-BR')+' registros';
+     pagination.textContent='Pagina '+data.page+' de '+Math.max(1,data.pages);
+     age.textContent='Inventario: '+(data.cached_at||'desconhecido');
+     stale.hidden=!data.stale;
+     stale.textContent=data.stale?'Atencao: inventario historico, atualizado em '+data.cached_at+'. Nao representa estado atual das ONUs.':'';
+     prev.disabled=page<=1;next.disabled=page>=data.pages;
    }catch(error){
      if(error.name==='AbortError')return;
-     rows.replaceChildren();const tr=document.createElement('tr');cell(tr,error.message).colSpan=6;rows.append(tr);
-     count.textContent='Consulta indisponivel';age.textContent='';prev.disabled=next.disabled=true;
+     line(error.message);
+     count.textContent='Consulta indisponivel';age.textContent='';
+     stale.hidden=true;prev.disabled=true;next.disabled=true;
    }
  }
- form.addEventListener('submit',event=>{event.preventDefault();page=1;load();});
+ form.addEventListener('submit',e=>{e.preventDefault();page=1;load();});
+ maker.addEventListener('change',()=>{page=1;load();});
+ model.addEventListener('change',()=>{page=1;load();});
+ per.addEventListener('change',()=>{page=1;load();});
+ reload.addEventListener('click',load);
+ cols.addEventListener('click',()=>{table.classList.toggle('jrc-dir-optional-hide');});
  prev.addEventListener('click',()=>{if(page>1){page--;load();}});
  next.addEventListener('click',()=>{page++;load();});
- load();
+ filters();load();
 })();
