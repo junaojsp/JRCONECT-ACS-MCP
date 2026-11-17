@@ -42,3 +42,12 @@ body .jrc-inventory-page .text-muted{color:#97adc5!important}
 body .jrc-inventory-page .spinner{border-top-color:#3499f5!important}
 @media(max-width:700px){body .jrc-inventory-page .card-body{padding:12px!important}body .jrc-inventory-page .card-header{padding:13px!important}body .jrc-inventory-page #devices-table thead th,body .jrc-inventory-page #devices-table tbody td{padding:10px!important}}
 @media(prefers-reduced-motion:no-preference){body .jrc-inventory-page .btn,body .jrc-inventory-page .nav-link{transition:background .15s,border-color .15s}}
+
+/* Lista: sem leitura de sinal RX. A referência é estrutural, não exige telemetria
+   óptica. Para ONU, o campo RX é a oitava coluna do renderer existente.
+   O detalhe do dispositivo continua íntegro. */
+body .jrc-inventory-page:has(#onu-tab.active) #devices-table thead th:nth-child(8),
+body .jrc-inventory-page:has(#onu-tab.active) #devices-table tbody td:nth-child(8){
+  display:none!important;
+}
+/* A remoção da coluna não afeta abas de OLT/ODC/ODP/Servidor. */
