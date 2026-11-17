@@ -33,8 +33,7 @@ def plan():
         after = new_link.encode()
         if current.count(before) != 1 or current.count(after) != 0:
             raise RuntimeError('Menu modificado fora do esperado, nao sobrescrito: ' + name)
-        if name == 'views/layouts/header.php' and b'>Vis\xc3\xa3o Geral</span>' not in current:
-            raise RuntimeError('Menu atual nao reconhecido')
+        # Preserve customized sidebar markup; only the unique href is replaced.
         # Do not overwrite site-specific customizations. Patch only one known target.
         replacement = current.replace(before, after, 1)
         if subprocess.run(['php', '-l'], input=replacement, capture_output=True).returncode:
