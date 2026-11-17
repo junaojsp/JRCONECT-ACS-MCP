@@ -1,0 +1,14 @@
+/* Minimal rules observed in authenticated production, retained as cascade regressions. */
+html.jrc-alertas-page body,html.jrc-alertas-page .main-content{background:#101114!important}
+html.jrc-ipam-page body,html.jrc-ipam-page .main-content{background:#101114!important}
+body.jrc-mcp-standalone{background:#0b0d10!important}
+body.jrc-mcp-standalone .jrc-mcp-hub{background:#111318!important}
+body.jrc-mcp-standalone .jrc-mcp-hub__section{background:#111318!important}
+#mcp-config .card{background:#14161b!important}
+.jrc-ip-card{background:#17191e;border:1px solid #2a2d34}
+button.jrc-al-stat{background:#1a1c21;border:1px solid #2a2d34}
+body .main-content .content-wrapper .card{background:var(--jrc-signal-panel)!important}
+body .main-content .content-wrapper .table tbody tr:nth-child(even)>td{background:var(--jrc-signal-row-alt)!important}
+.jra .jra-input.jra-input{background-color:#101114!important}
+.jra .jra-run{background:#e10600}
+.jra .jra-run.is-danger{background:linear-gradient(180deg,#d2160d,#9d0b05)}
