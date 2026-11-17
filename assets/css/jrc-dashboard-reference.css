@@ -76,3 +76,118 @@ body:has(.jrc-ref-layout){background:#10141f}
 .jrc-ref-layout .jr-footnote{font-size:10px;color:#8194ac;margin:14px 0}
 @media(max-width:1000px){.jrc-ref-layout .jr-duo,.jrc-ref-layout .jr-bottom{grid-template-columns:1fr}}
 @media(max-width:610px){.jrc-ref-layout .jr-head{align-items:flex-start}.jrc-ref-layout .jr-history-top>div:first-child{flex-direction:column;gap:1px}.jrc-ref-layout .jr-history-top strong{font-size:22px}.jrc-ref-layout .jr-kpis{grid-template-columns:1fr}.jrc-ref-layout .jr-panel{padding:14px}.jrc-ref-layout .jrc20-fleet-line{grid-template-columns:85px 1fr 32px}}
+
+
+/* Production polish v2 - approved JR Conect palette, dashboard only.
+   Base #10141F, cards #1B2231, primary #3499F5, teal #20CAB9, amber #FF9F35. */
+body:has(.jrc-ref-layout),
+body:has(.jrc-ref-layout) .main-content,
+body:has(.jrc-ref-layout) .content-wrapper {
+  background:#10141f!important;
+}
+body:has(.jrc-ref-layout) .footer {
+  background:#10141f!important;
+  border-top:1px solid #2b3950!important;
+  box-shadow:none!important;
+  color:#91a6c2!important;
+  margin-top:10px!important;
+  padding:12px 18px 16px!important;
+  min-height:0!important;
+}
+body:has(.jrc-ref-layout) .footer img {
+  max-height:26px!important;
+  width:auto!important;
+  opacity:.78;
+}
+.jrc-ref-layout .jr-bottom {
+  align-items:stretch;
+  gap:14px;
+}
+.jrc-ref-layout .jr-bottom .jr-panel {
+  background:linear-gradient(155deg,#1b2231 0%,#192130 100%)!important;
+  border:1px solid #2b3950!important;
+  border-radius:13px;
+  box-shadow:0 12px 30px #060b182e;
+}
+.jrc-ref-layout .jr-bottom .jr-panel-heading {
+  border-bottom:1px solid #2b3950;
+  padding-bottom:13px;
+  margin-bottom:11px;
+}
+.jrc-ref-layout .jr-models .reference-table {
+  border-collapse:separate;
+  border-spacing:0;
+  font-size:12px;
+}
+.jrc-ref-layout .jr-models .reference-table thead th {
+  background:#232f43!important;
+  border-top:1px solid #35465d;
+  border-bottom:1px solid #35465d;
+  color:#aec2da!important;
+  font-weight:700;
+  letter-spacing:.45px;
+}
+.jrc-ref-layout .jr-models .reference-table thead th:first-child {
+  border-left:1px solid #35465d;
+  border-radius:7px 0 0 0;
+}
+.jrc-ref-layout .jr-models .reference-table thead th:last-child {
+  border-right:1px solid #35465d;
+  border-radius:0 7px 0 0;
+}
+.jrc-ref-layout .jr-models .reference-table tbody tr {
+  background:#1b2231!important;
+}
+.jrc-ref-layout .jr-models .reference-table tbody tr:nth-child(even) {
+  background:#1d2839!important;
+}
+.jrc-ref-layout .jr-models .reference-table tbody tr:hover {
+  background:#253750!important;
+}
+.jrc-ref-layout .jr-models .reference-table tbody td {
+  border-bottom:1px solid #2b3950!important;
+  color:#dceaf9!important;
+  padding:12px 13px;
+}
+.jrc-ref-layout .jr-models .reference-table tbody td:last-child {
+  color:#a7d8ff!important;
+  font-weight:650;
+  font-variant-numeric:tabular-nums;
+}
+.jrc-ref-layout .jr-kpis > div {
+  background:#232f43!important;
+  border:1px solid #34475e!important;
+  box-shadow:inset 0 1px 0 #ffffff08;
+}
+.jrc-ref-layout .jr-links a {
+  background:#202d40!important;
+  border:1px solid #34475e!important;
+  border-radius:9px;
+  color:#e6f3ff!important;
+}
+.jrc-ref-layout .jr-links a:hover,
+.jrc-ref-layout .jr-links a:focus-visible {
+  background:#29415d!important;
+  border-color:#3499f5!important;
+}
+.jrc-ref-layout .jr-warning {
+  background:#3a3025!important;
+  border:1px solid #8a6736!important;
+  border-left:3px solid #ff9f35!important;
+  color:#fbd7a6!important;
+  border-radius:8px;
+  line-height:1.55;
+  box-shadow:inset 0 1px 0 #ffffff06;
+}
+.jrc-ref-layout .jr-footnote {
+  color:#91a6c2!important;
+  background:transparent!important;
+  margin:13px 0 8px!important;
+  border-top:1px solid #2b3950;
+  padding:13px 3px 0;
+  line-height:1.55;
+}
+@media(max-width:650px) {
+  .jrc-ref-layout .jr-models .reference-table tbody td {padding:10px 8px}
+  body:has(.jrc-ref-layout) .footer {padding:10px 12px!important}
+}
