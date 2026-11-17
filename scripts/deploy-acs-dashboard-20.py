@@ -13,6 +13,10 @@ TARGET = Path('/var/www/gacs')
 FILES = ('dashboard-light.php', 'assets/js/jrc-dashboard-light.js',
          'assets/css/jrc-dashboard-20.css', 'assets/css/jrc-dashboard-made4.css',
          'assets/css/jrc-dashboard-premium.css',
+         'assets/css/jrc-dashboard-reference.css',
+         'assets/js/jrc-dashboard-history.js',
+         'api/jrc-dashboard-inventory-history.php',
+         'cron/collect-dashboard-inventory-history.php',
          'api/jrc-dashboard-reference-charts.php',
          'cron/collect-client-tr069-coverage.php')
 ANCHORS = {
@@ -38,7 +42,9 @@ def check():
         current = dst.read_bytes() if dst.is_file() else None
         if current == incoming:
             continue
-        if current is None and relative not in ('assets/css/jrc-dashboard-20.css', 'assets/css/jrc-dashboard-made4.css', 'assets/css/jrc-dashboard-premium.css', 'cron/collect-client-tr069-coverage.php'):
+        if current is None and relative not in ('assets/css/jrc-dashboard-20.css', 'assets/css/jrc-dashboard-made4.css', 'assets/css/jrc-dashboard-premium.css', 'assets/css/jrc-dashboard-reference.css',
+                                            'assets/js/jrc-dashboard-history.js', 'api/jrc-dashboard-inventory-history.php',
+                                            'cron/collect-dashboard-inventory-history.php', 'cron/collect-client-tr069-coverage.php'):
             raise RuntimeError('Pagina piloto nao instalada: ' + relative)
         if current is not None and relative in ANCHORS:
             if not all(marker.encode() in current for marker in ANCHORS[relative]):
@@ -84,7 +90,7 @@ def main():
                 if os.path.exists(staged): os.unlink(staged)
         print('APLICADO_OK')
         print('BACKUP:', backup)
-        print('ESCOPO: somente dashboard-light.php e assets relacionados')
+        print('ESCOPO: dashboard-light.php, graficos e snapshots historicos; nao altera dispositivos')
     except BaseException:
         for name, dst, old in reversed(applied):
             if old is None: dst.unlink(missing_ok=True)
