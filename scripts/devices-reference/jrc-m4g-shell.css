@@ -1,0 +1,25 @@
+/* JRC_CC_DEVICES_REFERENCE_V1 — compact navigation, original JR Conect colors. */
+@media(min-width:769px) {
+    html:root:root body.m4g-shell #sidebar,
+    html:root:root body.m4g-shell #sidebar.collapsed {width:56px!important;min-width:56px!important;max-width:56px!important;z-index:1050;transition:width .16s ease,max-width .16s ease}
+    html:root:root body.m4g-shell #mainContent,
+    html:root:root body.m4g-shell #mainContent.collapsed {margin-left:56px!important;width:calc(100% - 56px)!important}
+    html:root:root body.m4g-shell #sidebar:is(:hover,:focus-within,.cc-nav-pinned) {width:244px!important;min-width:244px!important;max-width:244px!important;box-shadow:10px 0 28px #0004}
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-sec-btn,
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-soon,
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-sec a>span,
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .fb-brand strong,
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .fb-brand small,
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-search,
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .fb-user-text,
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-lang {display:none!important}
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-foot {padding:8px;gap:4px}
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-user {flex-direction:column;gap:4px}
+    html:root:root body.m4g-shell #sidebar .m4g-nav {padding:8px 5px!important}
+    html:root:root body.m4g-shell #sidebar .m4g-sec a {min-height:40px;white-space:nowrap;padding:0 13px!important}
+    html:root:root body.m4g-shell #sidebar .m4g-sec a i {flex:0 0 18px}
+    html:root:root body.m4g-shell #sidebar:not(:hover):not(:focus-within):not(.cc-nav-pinned) .m4g-sec.is-closed ul {display:block!important}
+    html:root:root body.m4g-shell #sidebar .fb-brand {padding:12px 10px!important;min-width:56px}
+    html:root:root body.m4g-shell #sidebar .m4g-sec a.active {background:#17304f!important;color:#70dbdb!important}
+}
+@media(prefers-reduced-motion:reduce) {html:root:root body.m4g-shell #sidebar {transition:none!important}}
