@@ -64,7 +64,7 @@
             <li>
 
                 <a
-                    href="/dashboard-light.php"
+                    href="/dashboard.php"
                     class="<?php echo ($currentPage ?? '') === 'dashboard' ? 'active' : ''; ?>"
                     data-tooltip="Visão Geral"
                 >
