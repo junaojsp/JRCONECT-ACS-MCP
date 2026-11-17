@@ -11,11 +11,11 @@ from pathlib import Path
 SOURCE = Path(__file__).resolve().parent.parent
 TARGET = Path('/var/www/gacs')
 FILES = ('dashboard-light.php', 'assets/js/jrc-dashboard-light.js',
-         'assets/css/jrc-dashboard-20.css',
+         'assets/css/jrc-dashboard-20.css', 'assets/css/jrc-dashboard-made4.css',
          'api/jrc-dashboard-reference-charts.php',
          'cron/collect-client-tr069-coverage.php')
 ANCHORS = {
-    'dashboard-light.php': ('jrc20-eyebrow', 'jrc20-fleet-bars'),
+    'dashboard-light.php': ('jrc20-fleet-bars', 'jrc20-tr069-rate'),
     'assets/js/jrc-dashboard-light.js': ('jrc-dashboard-reference-charts.php', 'jrc20-refresh', 'Promise.allSettled'),
     'assets/css/jrc-dashboard-20.css': ('JR Conect ACS 2.0 - interface piloto isolada.', '--jrc20-card:#1b2231', '.jrc-overview-light .jrc20-footer'),
     'api/jrc-dashboard-reference-charts.php': ('jrc_background_inventory', 'client_tr069_coverage'),
@@ -37,7 +37,7 @@ def check():
         current = dst.read_bytes() if dst.is_file() else None
         if current == incoming:
             continue
-        if current is None and relative not in ('assets/css/jrc-dashboard-20.css', 'cron/collect-client-tr069-coverage.php'):
+        if current is None and relative not in ('assets/css/jrc-dashboard-20.css', 'assets/css/jrc-dashboard-made4.css', 'cron/collect-client-tr069-coverage.php'):
             raise RuntimeError('Pagina piloto nao instalada: ' + relative)
         if current is not None and relative in ANCHORS:
             if not all(marker.encode() in current for marker in ANCHORS[relative]):
