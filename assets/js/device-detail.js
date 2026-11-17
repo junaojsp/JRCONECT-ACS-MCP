@@ -109,6 +109,15 @@ async function loadDeviceDetail(isAutoRefresh = false) {
         // Update badge
         document.getElementById('device-id-badge').textContent = device.serial_number;
 
+        // Cabecalho estilo Made4Graph (textContent evita injecao de HTML)
+        const m4Title = document.getElementById('m4-dev-title');
+        const m4Sub = document.getElementById('m4-dev-sub');
+        if (m4Title) m4Title.textContent = device.product_class || device.serial_number || 'Equipamento';
+        if (m4Sub) {
+            m4Sub.textContent = [device.serial_number, extractIP(device.ip_tr069), device.status]
+                .filter(Boolean).join(' · ');
+        }
+
         // Update tags badge
         updateTagsBadge(device.tags || []);
 
@@ -118,6 +127,28 @@ async function loadDeviceDetail(isAutoRefresh = false) {
 
         // Populate Overview Tab
         document.getElementById('overview-content').innerHTML = `
+            <div class="m4-kpis">
+                <div class="m4-kpi ${device.status === 'online' ? 'green' : 'orange'}">
+                    <i class="bi bi-activity"></i><span>Status</span>
+                    <strong>${device.status === 'online' ? 'Online' : 'Offline'}</strong>
+                    <small class="text-muted">${device.last_inform}</small>
+                </div>
+                <div class="m4-kpi blue">
+                    <i class="bi bi-clock-history"></i><span>Uptime</span>
+                    <strong>${formatUptime(device.uptime)}</strong>
+                    <small class="text-muted">Informado pela CPE</small>
+                </div>
+                <div class="m4-kpi purple">
+                    <i class="bi bi-globe"></i><span>Conexões WAN</span>
+                    <strong>${device.wan_details ? device.wan_details.length : 0}</strong>
+                    <small class="text-muted">Configuradas</small>
+                </div>
+                <div class="m4-kpi orange">
+                    <i class="bi bi-hdd-network"></i><span>Hosts conectados</span>
+                    <strong>${device.connected_devices ? device.connected_devices.length : 0}</strong>
+                    <small class="text-muted">Na rede da CPE</small>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-6">
                     <h6><i class="bi bi-info-circle"></i> Basic Information</h6>

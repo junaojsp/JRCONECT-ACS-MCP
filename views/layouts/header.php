@@ -37,13 +37,21 @@
         href="/assets/css/style.css?v=<?php echo time(); ?>"
     >
 
+    <?php if (strpos((string)($bodyClass ?? ''), 'm4g') !== false): ?>
+    <!-- Tema escuro estilo Made4Graph (opt-in via $bodyClass) -->
+    <link
+        rel="stylesheet"
+        href="/assets/css/jrc-made4graph.css?v=<?php echo time(); ?>"
+    >
+    <?php endif; ?>
+
     <!-- Logger -->
     <script
         src="/assets/js/client-logger.js?v=<?php echo time(); ?>"
     ></script>
 </head>
 
-<body>
+<body<?php echo !empty($bodyClass) ? ' class="' . htmlspecialchars((string)$bodyClass, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>
 
     <!-- Menu lateral -->
     <div class="sidebar" id="sidebar">
