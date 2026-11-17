@@ -13,8 +13,9 @@ TARGET = Path('/var/www/gacs')
 FILES = ('dashboard-light.php', 'assets/js/jrc-dashboard-light.js',
          'assets/css/jrc-dashboard-20.css')
 ANCHORS = {
-    'dashboard-light.php': ('jrc-dashboard-light.js?v=2', 'jrc-dashboard-20.css?v=1'),
-    'assets/js/jrc-dashboard-light.js': ('jrc-dashboard-reference-charts.php', "jrc20-refresh"),
+    'dashboard-light.php': ('jrc-dashboard-20.css?v=1', 'jrc-dashboard-light.js?v=2', 'jrc20-eyebrow'),
+    'assets/js/jrc-dashboard-light.js': ('jrc-dashboard-reference-charts.php', 'jrc20-refresh', 'Promise.allSettled'),
+    'assets/css/jrc-dashboard-20.css': ('JR Conect ACS 2.0 - interface piloto isolada.', '--jrc20-card:#1b2231', '.jrc-overview-light .jrc20-footer'),
 }
 
 def check():
@@ -35,11 +36,8 @@ def check():
             continue
         if current is None and relative != 'assets/css/jrc-dashboard-20.css':
             raise RuntimeError('Pagina piloto nao instalada: ' + relative)
-        if current is not None and relative == 'assets/css/jrc-dashboard-20.css':
-            raise RuntimeError('CSS existente requer revisao manual')
         if current is not None and relative in ANCHORS:
-            old_marker, new_marker = ANCHORS[relative]
-            if old_marker.encode() not in current or new_marker.encode() in current:
+            if not all(marker.encode() in current for marker in ANCHORS[relative]):
                 raise RuntimeError('Customizacao inesperada: ' + relative)
         changes.append((relative, dst, current, incoming))
     return changes
