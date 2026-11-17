@@ -20,7 +20,5 @@ function jrcWANReferenceHeader(wans) {
             '<article class="jrc-wan-ref-kpi"><div class="jrc-wan-ref-top">' +
             '<span>'+escaped(title)+'</span><i class="bi '+icon+'"></i></div>' +
             '<strong>'+escaped(value)+'</strong><small>'+escaped(desc)+'</small></article>'
-        ).join('') + '</div>' +
-        '<div class="jrc-wan-ref-section"><i class="bi bi-globe2"></i><div><strong>Conexões WAN</strong>' +
-        '<small>Detalhes das interfaces e gerenciamento do equipamento</small></div></div>';
+        ).join('') + '</div>';
 }
