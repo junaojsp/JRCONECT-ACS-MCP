@@ -101,22 +101,22 @@
       table('jrc-models-rows',data.models,'model');
       const note=document.getElementById('jrc-makers-note');
       if(note)note.textContent=(data.stale?'Inventario historico · ':'')+'Coleta: '+String(data.cached_at||'indisponivel');
-      const coverage=data.client_tr069_coverage;
-      if(coverage?.ready===true) {
-        const yes=Number(coverage.with_tr069),no=Number(coverage.without_tr069);
-        if(Number.isSafeInteger(yes)&&Number.isSafeInteger(no)&&yes>=0&&no>=0&&yes+no>0) {
-          donut('jrc-coverage-ring','jrc-coverage-total','jrc-coverage-legend',
-            [{name:'Com TR-069',count:yes},{name:'Sem TR-069',count:no}],yes+no);
-          const kpi=document.getElementById('jrc20-tr069-rate');
-          if(kpi)kpi.textContent=(100*yes/(yes+no)).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
-          const noteCoverage=document.getElementById('jrc-coverage-note');
-          if(noteCoverage)noteCoverage.textContent='Clientes distintos com login PPPoE no IXC · coleta: '+String(coverage.collected_at||'não informada')+' · não consulta contratos.';
-        }
+      const inform=data.tr069_inform;
+      const recent=Number(inform?.recent),older=Number(inform?.older),unknown=Number(inform?.unknown);
+      const valid=inform?.ready===true &&
+        [recent,older,unknown].every(n=>Number.isSafeInteger(n)&&n>=0) &&
+        recent+older+unknown===total;
+      const kpi=document.getElementById('jrc20-tr069-rate');
+      const noteCoverage=document.getElementById('jrc-coverage-note');
+      if(valid){
+        donut('jrc-coverage-ring','jrc-coverage-total','jrc-coverage-legend',
+          [{name:'Inform nas 24h da coleta',count:recent},{name:'Inform anterior',count:older},{name:'Sem data válida',count:unknown}],total);
+        if(kpi)kpi.textContent=recent.toLocaleString('pt-BR');
+        if(noteCoverage)noteCoverage.textContent='Dispositivos ACS · Inform em relação ao snapshot de '+String(inform.as_of||data.cached_at||'data desconhecida')+'. Não representa status online atual.';
       } else {
-        const kpi=document.getElementById('jrc20-tr069-rate');
         if(kpi)kpi.textContent='Pendente';
         const legend=document.getElementById('jrc-coverage-legend');
-        if(legend)legend.textContent='Coleta IXC/ACS indisponível ou desatualizada. Sem estimativas.';
+        if(legend)legend.textContent='Snapshot de comunicação indisponível. Sem estimativas.';
       }
     } catch (_) {
       const legend=document.getElementById('jrc-makers-legend');

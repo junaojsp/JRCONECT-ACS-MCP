@@ -6,56 +6,50 @@ $pageTitle='Dashboard ACS 2.0';
 $currentPage='dashboard';
 include __DIR__.'/views/layouts/header.php';
 ?>
-<link rel="stylesheet" href="/assets/css/jrc-dashboard-made4.css?v=1">
-<link rel="stylesheet" href="/assets/css/jrc-dashboard-premium.css?v=1">
-<main class="jrc-overview-light jrc-made4 jrc-premium">
-  <header class="j4-header">
-    <div><div class="j4-kicker">JRCONECT <span>TELECOM</span> / NETWORK OPERATIONS</div><h1>Visão geral da rede <span class="j5-title-accent">/ ACS</span></h1><p>Inteligência operacional e inventário TR-069, com dados rastreáveis do cache</p></div>
-    <div class="j4-header-actions"><span class="j4-live"><span></span> VISÃO DE INVENTÁRIO</span><a href="/dashboard.php">Versão anterior</a><button id="jrc20-refresh" type="button"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
-  </header>
-  <section class="j4-hero" aria-label="Indicadores da rede">
-    <article class="j4-hero-main">
-      <div class="j4-hero-tag"><i class="bi bi-hdd-network"></i> INVENTÁRIO TR-069</div>
-      <div class="j4-hero-content"><div><span class="j4-muted">Equipamentos cadastrados</span><div class="j4-number" id="jrc-overview-total">—</div><span class="j4-cue"><i class="bi bi-database"></i> GenieACS · snapshot armazenado</span></div><div class="j5-hero-orbit" aria-hidden="true"><div class="j5-orbit-ring j5-orbit-outer"></div><div class="j5-orbit-ring j5-orbit-inner"></div><div class="j5-orbit-center"><i class="bi bi-router"></i></div><span class="j5-orbit-dot"></span></div></div>
-      <div class="j4-hero-bottom"><span id="jrc20-fleet-note">Aguardando inventário</span><a href="/devices-light.php">Consultar dispositivos <i class="bi bi-arrow-up-right"></i></a></div>
-    </article>
-    <article class="j4-mini j4-mini-green"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-clock-history"></i></span><span>Última coleta</span></div><div class="j4-mini-value j4-date" id="jrc-overview-age">—</div><p>Inventário armazenado</p></article>
-    <article class="j4-mini j4-mini-orange"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-shield-check"></i></span><span>Estado do inventário</span></div><div class="j4-mini-value" id="jrc-overview-state">—</div><p>Validade do snapshot</p></article>
-    <article class="j4-mini j4-mini-purple"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-diagram-3"></i></span><span>Cobertura TR-069</span></div><div class="j4-mini-value" id="jrc20-tr069-rate">—</div><p>Clientes únicos com PPPoE no IXC</p></article>
-  </section>
-  <section class="j4-analytics" aria-label="Análise do inventário">
-    <article class="j4-panel j4-manufacturers">
-      <div class="j4-panel-head"><div><span class="j4-panel-icon blue"><i class="bi bi-bar-chart-fill"></i></span><div><h2>Fabricantes</h2><p>Participação na frota cadastrada</p></div></div><span class="j4-chip"><i class="bi bi-database-check"></i> GenieACS</span></div>
-      <div class="j4-fleet-total"><span>Distribuição por fabricante</span><strong>COMPOSIÇÃO DA FROTA</strong></div>
-      <div id="jrc20-fleet-bars" class="jrc20-fleet-bars" aria-live="polite">Carregando fabricantes...</div>
-      <footer id="jrc-makers-note" class="j4-panel-foot">Aguardando dados do cache</footer>
-    </article>
-    <article class="j4-panel j4-coverage">
-      <div class="j4-panel-head"><div><span class="j4-panel-icon purple"><i class="bi bi-broadcast"></i></span><div><h2>Clientes e TR-069</h2><p>Cobertura por cliente único</p></div></div><span class="j4-chip"><i class="bi bi-diagram-3"></i> IXC + ACS</span></div>
-      <div class="j4-coverage-content">
-        <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Clientes</small></div></div>
-        <div id="jrc-coverage-legend" class="reference-legend"><span>Coleta pendente. Nenhuma estimativa será exibida.</span></div>
-      </div>
-      <footer id="jrc-coverage-note" class="j4-panel-foot">Base: clientes distintos com PPPoE no IXC, sem contratos.</footer>
-    </article>
-  </section>
-  <section class="j4-lower" aria-label="Modelos e operação">
-    <article class="j4-panel j4-models">
-      <div class="j4-panel-head"><div><span class="j4-panel-icon cyan"><i class="bi bi-cpu"></i></span><div><h2>Principais modelos</h2><p>Modelos identificados no inventário</p></div></div><span class="j4-chip">Top 9</span></div>
-      <table class="reference-table"><thead><tr><th>Modelo da CPE</th><th>Unidades</th></tr></thead><tbody id="jrc-models-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
-    </article>
-    <article class="j4-panel j4-ops">
-      <div class="j4-panel-head"><div><span class="j4-panel-icon green"><i class="bi bi-grid-1x2-fill"></i></span><div><h2>Central operacional</h2><p>Acesso rápido às ferramentas do ACS</p></div></div></div>
-      <nav class="j4-ops-links">
-        <a href="/devices-light.php"><span class="j4-op-ico"><i class="bi bi-router"></i></span><span><strong>Dispositivos</strong><small>Inventário e consultas</small></span><i class="bi bi-arrow-up-right"></i></a>
-        <a href="/view-logs.php"><span class="j4-op-ico"><i class="bi bi-graph-up"></i></span><span><strong>Relatórios</strong><small>Históricos e registros</small></span><i class="bi bi-arrow-up-right"></i></a>
-        <a href="/configuration.php"><span class="j4-op-ico"><i class="bi bi-sliders"></i></span><span><strong>Configurações</strong><small>Parâmetros do ACS</small></span><i class="bi bi-arrow-up-right"></i></a>
-      </nav>
-      <div class="j4-health"><i class="bi bi-info-circle"></i><span>Valores históricos. A abertura do painel não realiza consultas individuais aos dispositivos.</span></div>
-      <div id="jrc-overview-warning" class="j4-warning" role="status" hidden></div>
-    </article>
-  </section>
-  <footer class="j4-footer">JRCONECT ACS · Visão de inventário em cache <span>Dados de dispositivos não são coletados durante a abertura desta página.</span></footer>
+<link rel="stylesheet" href="/assets/css/jrc-dashboard-reference.css?v=1">
+<main class="jrc-overview-light jrc-ref-layout">
+ <header class="jr-head">
+  <div><span class="jr-eyebrow">JR CONECT TELECOM · NETWORK OPERATIONS</span><h1>Dashboard ACS 2.0</h1><p>Monitoramento do inventário TR-069 · dados reais armazenados</p></div>
+  <div class="jr-head-actions"><span class="jr-source"><span></span> GENIEACS</span><a href="/dashboard.php">Versão anterior</a><button id="jrc20-refresh" type="button"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
+ </header>
+ <section class="jr-panel jr-timeseries" aria-label="Histórico do inventário ACS">
+  <div class="jr-panel-heading">
+   <div class="jr-heading-left"><span class="jr-icon blue"><i class="bi bi-activity"></i></span><div><h2>Histórico do inventário ACS</h2><p>Evolução dos equipamentos cadastrados por snapshot · não representa clientes conectados</p></div></div>
+   <div class="jr-chart-actions"><span id="jr-history-range" class="jr-chip">Últimos 30 dias</span><span class="jr-chip">Inventário ACS</span></div>
+  </div>
+  <div class="jr-history-area">
+   <div class="jr-history-top"><div><span>Dispositivos no último snapshot</span><strong id="jrc-overview-total">—</strong></div><div class="jr-series-key"><i></i> Inventário total</div></div>
+   <div id="jr-history-chart" class="jr-chart" role="img" aria-label="Histórico real dos equipamentos cadastrados no ACS"><div class="jr-empty">Carregando histórico...</div></div>
+  </div>
+  <div class="jr-history-footer"><span id="jr-history-status">Lendo snapshots disponíveis</span><span id="jrc20-fleet-note">Inventário armazenado</span></div>
+ </section>
+ <section class="jr-duo" aria-label="Análise da frota">
+  <article class="jr-panel jr-makers">
+   <div class="jr-panel-heading"><div class="jr-heading-left"><span class="jr-icon orange"><i class="bi bi-bar-chart-fill"></i></span><div><h2>Distribuição por fabricante</h2><p>Equipamentos do inventário ACS · último snapshot</p></div></div><span class="jr-chip">Fabricantes</span></div>
+   <div id="jrc20-fleet-bars" class="jrc20-fleet-bars">Carregando fabricantes...</div>
+   <div id="jrc-makers-note" class="jr-panel-footer">Fonte: cache GenieACS</div>
+  </article>
+  <article class="jr-panel jr-tr069">
+   <div class="jr-panel-heading"><div class="jr-heading-left"><span class="jr-icon violet"><i class="bi bi-broadcast"></i></span><div><h2>Comunicação TR-069</h2><p>Qualidade da informação de contato no inventário ACS</p></div></div><span class="jr-chip">ACS</span></div>
+   <div class="jr-tr069-body">
+     <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Dispositivos</small></div></div>
+     <div class="jr-tr069-side"><span>Com Inform nas 24h do snapshot</span><strong id="jrc20-tr069-rate">Pendente</strong><div id="jrc-coverage-legend" class="reference-legend">Dados do ACS em processamento</div></div>
+   </div>
+   <div class="jr-panel-footer" id="jrc-coverage-note">Somente ACS; não consulta IXC ou contratos.</div>
+  </article>
+ </section>
+ <section class="jr-bottom" aria-label="Resumo operacional">
+  <article class="jr-panel jr-models"><div class="jr-panel-heading"><div class="jr-heading-left"><span class="jr-icon cyan"><i class="bi bi-cpu"></i></span><div><h2>Principais modelos de CPE</h2><p>Modelos identificados na base GenieACS</p></div></div><span class="jr-chip">Top 9</span></div>
+   <table class="reference-table"><thead><tr><th>Modelo</th><th>Total</th></tr></thead><tbody id="jrc-models-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
+  </article>
+  <article class="jr-panel jr-operational"><div class="jr-panel-heading"><div class="jr-heading-left"><span class="jr-icon green"><i class="bi bi-grid-1x2-fill"></i></span><div><h2>Resumo operacional</h2><p>Estado da coleta e acessos do ACS</p></div></div></div>
+   <div class="jr-kpis"><div><span><i class="bi bi-clock-history"></i> Última coleta</span><strong id="jrc-overview-age">—</strong></div><div><span><i class="bi bi-database-check"></i> Condição do snapshot</span><strong id="jrc-overview-state">—</strong></div></div>
+   <nav class="jr-links"><a href="/devices-light.php"><i class="bi bi-router"></i> Dispositivos <i class="bi bi-arrow-up-right"></i></a><a href="/view-logs.php"><i class="bi bi-graph-up"></i> Relatórios <i class="bi bi-arrow-up-right"></i></a><a href="/configuration.php"><i class="bi bi-sliders"></i> Configurações <i class="bi bi-arrow-up-right"></i></a></nav>
+   <div id="jrc-overview-warning" class="jr-warning" role="status" hidden></div>
+  </article>
+ </section>
+ <p class="jr-footnote">Dashboard de inventário histórico. Não exibe conexões online, IPs duplicados ou desconexões sem fontes temporais verificadas. Nenhuma consulta a CPE é executada na abertura da página.</p>
 </main>
-<script src="/assets/js/jrc-dashboard-light.js?v=6" defer></script>
+<script src="/assets/js/jrc-dashboard-light.js?v=8" defer></script>
+<script src="/assets/js/jrc-dashboard-history.js?v=1" defer></script>
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
