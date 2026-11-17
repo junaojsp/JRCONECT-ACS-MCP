@@ -48,3 +48,36 @@ body:has(.jrc-overview-light){background:var(--jrc20-bg)}
 .jrc-overview-light .jrc20-footer{font-size:11px;color:var(--jrc20-muted);padding:0 3px}
 @media(max-width:750px){.jrc-overview-light .head{align-items:flex-start;flex-direction:column}.jrc-overview-light .cards{grid-template-columns:1fr}.jrc-overview-light .reference-body{gap:24px}.jrc-overview-light .reference-panel{padding:16px}}
 @media(prefers-reduced-motion:reduce){.jrc-overview-light *{transition:none!important}}
+
+/* v2: full-width analytics canvas inspired by modern NOC dashboards. */
+.jrc-overview-light{max-width:none;width:100%;margin:0;padding:0 2px 36px}
+.jrc-overview-light .head{margin-bottom:14px;padding:5px 0 16px}
+.jrc-overview-light .head h2{font-size:22px}
+.jrc-overview-light .jrc20-summary-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.jrc-overview-light .jrc20-summary-strip .metric{display:flex;align-items:center;gap:15px;min-height:91px;padding:15px 18px}
+.jrc-overview-light .jrc20-summary-strip .metric-icon{font-size:22px;margin:0;background:#263951;border-radius:10px;padding:11px}
+.jrc-overview-light .jrc20-summary-strip .value{font-size:23px}
+.jrc-overview-light .jrc20-summary-strip .jrc20-date{font-size:19px}
+.jrc-overview-light .jrc20-panel-heading{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:14px}
+.jrc-overview-light .jrc20-panel-heading h3{margin:0;display:flex;align-items:center;gap:10px}
+.jrc-overview-light .jrc20-panel-heading h3:before{display:none}
+.jrc-overview-light .jrc20-panel-heading h3 i{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:8px;background:#114973;color:#58b9ff;font-size:15px;box-shadow:0 0 18px #3499f529}
+.jrc-overview-light .jrc20-panel-heading p{color:var(--jrc20-muted);font-size:11px;margin:5px 0 0 40px}
+.jrc-overview-light .jrc20-meta{background:#253349;color:#afc9e6;border:1px solid #354963;border-radius:15px;padding:4px 9px;font-size:10px;white-space:nowrap}
+.jrc-overview-light .jrc20-wide{min-height:350px;margin-bottom:14px}
+.jrc-overview-light .jrc20-fleet-bars{display:grid;gap:13px;padding:10px 8px 15px;min-height:234px;align-content:center}
+.jrc-overview-light .jrc20-fleet-line{display:grid;grid-template-columns:minmax(120px,230px) 1fr 76px;align-items:center;gap:16px}
+.jrc-overview-light .jrc20-fleet-name{font-size:12px;color:#cadcf2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jrc-overview-light .jrc20-track{height:13px;border-radius:5px;background:#101827;overflow:hidden}
+.jrc-overview-light .jrc20-fill{height:100%;border-radius:5px;min-width:2px}
+.jrc-overview-light .jrc20-fleet-number{text-align:right;color:#d6e6fa;font-size:12px;font-variant-numeric:tabular-nums}
+.jrc-overview-light .jrc20-wide-foot{display:flex;justify-content:space-between;gap:12px;color:var(--jrc20-muted);font-size:11px;border-top:1px solid var(--jrc20-border);padding-top:13px}
+.jrc-overview-light .jrc20-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.jrc-overview-light .jrc20-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.jrc-overview-light .jrc20-two .reference-panel{min-height:300px}
+.jrc-overview-light .jrc20-three .reference-panel{min-height:340px}
+.jrc-overview-light .jrc20-three .reference-table th,.jrc-overview-light .jrc20-three .reference-table td{padding:8px 10px}
+.jrc-overview-light .jrc20-links .shortcut-grid{grid-template-columns:1fr;margin:0}
+.jrc-overview-light .jrc20-links .shortcut{padding:13px 14px}
+@media(max-width:1050px){.jrc-overview-light .jrc20-three{grid-template-columns:repeat(2,minmax(0,1fr))}.jrc-overview-light .jrc20-links{grid-column:1/-1}}
+@media(max-width:750px){.jrc-overview-light .jrc20-summary-strip,.jrc-overview-light .jrc20-two,.jrc-overview-light .jrc20-three{grid-template-columns:1fr}.jrc-overview-light .jrc20-links{grid-column:auto}.jrc-overview-light .jrc20-fleet-line{grid-template-columns:85px 1fr 48px;gap:8px}.jrc-overview-light .jrc20-wide-foot{flex-direction:column}.jrc-overview-light .jrc20-meta{white-space:normal}}
