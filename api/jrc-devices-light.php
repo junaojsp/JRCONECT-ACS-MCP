@@ -19,10 +19,10 @@ try {
         jsonResponse(['success'=>false,'message'=>'Inventario ainda nao coletado'],503);
     }
     $age = time() - strtotime((string)$meta['completed_at']);
-    if ($age < 0 || $age > 900) {
-        jsonResponse(['success'=>false,'message'=>'Inventario desatualizado; nao mostrar valores como atuais',
-            'cached_at'=>$meta['completed_at']],503);
-    }
+    // This is a directory, not a live status monitor. Allow a stale
+    // directory snapshot with conspicuous stale labeling; never claim
+    // that status, RX or last inform is current.
+    $stale = ($age < 0 || $age > 900);
     $search = trim((string)($_GET['q'] ?? ''));
     $manufacturer = trim((string)($_GET['manufacturer'] ?? ''));
     $model = trim((string)($_GET['model'] ?? ''));
@@ -32,8 +32,38 @@ try {
         mb_strlen($model) > 70) {
         jsonResponse(['success'=>false,'message'=>'Filtro invalido'],400);
     }
-    $limit = 30;
+    $requestedLimit = filter_var($_GET['per_page'] ?? 10, FILTER_VALIDATE_INT);
+    if (!in_array($requestedLimit, [10,20,50], true)) {
+        jsonResponse(['success'=>false,'message'=>'Paginacao invalida'],400);
+    }
+    $limit = $requestedLimit;
     $offset = ($page - 1) * $limit;
+    if (($_GET['filters'] ?? '') === '1') {
+        $makers = $db->prepare("SELECT DISTINCT
+            JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.manufacturer')) AS v
+            FROM jrc_device_inventory_rows WHERE snapshot_id=?
+            ORDER BY v LIMIT 100");
+        $makers->bind_param('s', $meta['snapshot_id']);
+        $makers->execute();
+        $manufacturerList=[];
+        foreach ($makers->get_result() as $entry) {
+            if (is_string($entry['v']) && $entry['v']!=='' && $entry['v']!=='N/A') $manufacturerList[]=$entry['v'];
+        }
+        $makers->close();
+        $models=$db->prepare("SELECT DISTINCT
+            JSON_UNQUOTE(JSON_EXTRACT(payload_json,'$.product_class')) AS v
+            FROM jrc_device_inventory_rows WHERE snapshot_id=?
+            ORDER BY v LIMIT 250");
+        $models->bind_param('s', $meta['snapshot_id']);
+        $models->execute();
+        $modelList=[];
+        foreach ($models->get_result() as $entry) {
+            if (is_string($entry['v']) && $entry['v']!=='' && $entry['v']!=='N/A') $modelList[]=$entry['v'];
+        }
+        $models->close();
+        jsonResponse(['success'=>true,'manufacturers'=>$manufacturerList,'models'=>$modelList,
+            'cached_at'=>$meta['completed_at'],'stale'=>$stale]);
+    }
     // Fields are indexed only by serial; JSON fields are filtered on request,
     // never computed at dashboard opening. Bound parameters prevent injection.
     $where = 'snapshot_id = ?';
@@ -91,7 +121,7 @@ try {
     $stmt->close();
     jsonResponse([
         'success'=>true,'source'=>'jrc_background_inventory','snapshot'=>$meta['snapshot_id'],
-        'cached_at'=>$meta['completed_at'],'total'=>$total,'page'=>$page,'per_page'=>$limit,
+        'cached_at'=>$meta['completed_at'],'stale'=>$stale,'total'=>$total,'page'=>$page,'per_page'=>$limit,
         'pages'=>(int)ceil($total/$limit),'items'=>$items
     ]);
 } catch (Throwable $error) {
