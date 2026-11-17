@@ -1,0 +1,94 @@
+/* Production ACS device page (.fb-devices), aligned to approved Dark NOC. */
+body:has(.fb-devices.jdn-live),
+body:has(.fb-devices.jdn-live) .main-content,
+body:has(.fb-devices.jdn-live) .content-wrapper{background:#10141f!important;color:#eaf3ff!important}
+body:has(.fb-devices.jdn-live) .footer{background:#10141f!important;border-top:1px solid #2b3950!important;box-shadow:none!important;margin-top:12px!important}
+.fb-devices.jdn-live{--jdn-bg:#10141f;--jdn-card:#1b2231;--jdn-layer:#222e41;--jdn-edge:#2b3950;--jdn-blue:#3499f5;--jdn-teal:#20cab9;--jdn-amber:#ff9f35;color:#eaf3ff;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;width:100%;max-width:none}
+.fb-devices.jdn-live .jdn-page-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px 17px;margin:0 0 15px;border-bottom:1px solid #29394d}
+.fb-devices.jdn-live .jdn-kicker{display:block;font-size:10px;letter-spacing:1.6px;font-weight:800;color:#62bdf9;margin-bottom:6px}
+.fb-devices.jdn-live .jdn-page-heading h1{font-size:25px!important;margin:0 0 4px;color:#f3f8ff;font-weight:780}
+.fb-devices.jdn-live .jdn-page-heading p{font-size:12px;color:#93abc6;margin:0}
+.fb-devices.jdn-live .jdn-source{font-size:10px;color:#68d9b5;white-space:nowrap}
+.fb-devices.jdn-live .jdn-inventory-hero{background:radial-gradient(circle at 94% 8%,#2469a333,transparent 40%),linear-gradient(140deg,#1e3149,#1b2231);border:1px solid #344b68;border-radius:13px;padding:21px 24px 17px;margin-bottom:15px;box-shadow:0 14px 32px #080e1b30;min-height:150px}
+.fb-devices.jdn-live .jdn-hero-head{display:flex;align-items:center;gap:10px}
+.fb-devices.jdn-live .jdn-hero-icon{display:grid;place-items:center;width:37px;height:37px;border-radius:10px;background:#155e94;color:#b6edff;font-size:20px;box-shadow:0 0 22px #3499f54a}
+.fb-devices.jdn-live .jdn-hero-label{color:#a8cae8;font-size:11px;font-weight:800;letter-spacing:.9px}
+.fb-devices.jdn-live .jdn-hero-count{display:block;color:#eef7ff;font-size:40px;line-height:1.2;letter-spacing:-1.7px;margin:7px 0;font-weight:800;font-variant-numeric:tabular-nums}
+.fb-devices.jdn-live .jdn-hero-sub{font-size:11px;color:#a8bdd3;margin:0}
+.fb-devices.jdn-live .card{background:linear-gradient(150deg,#1b2231,#192230)!important;border:1px solid #2b3950!important;border-radius:13px!important;box-shadow:0 12px 28px #080e1b2a!important;color:#eaf3ff!important;margin-bottom:15px}
+.fb-devices.jdn-live .card-header{background:transparent!important;border-bottom:1px solid #2b3950!important;color:#eef6ff!important;padding:17px 19px!important}
+.fb-devices.jdn-live .card-body{background:transparent!important;padding:17px 19px!important}
+.fb-devices.jdn-live #deviceTypeTabs{border-bottom:1px solid #34465c!important;margin-bottom:15px!important;gap:5px}
+.fb-devices.jdn-live #deviceTypeTabs .nav-link{color:#adc0d8!important;background:transparent!important;border:1px solid transparent!important;border-radius:8px 8px 0 0!important;padding:10px 12px!important}
+.fb-devices.jdn-live #deviceTypeTabs .nav-link.active{color:#edf7ff!important;background:#263c54!important;border-color:#3b5671!important;box-shadow:inset 0 -2px 0 #3499f5}
+.fb-devices.jdn-live .jdn-search-panel{border:1px solid #32445d;background:#1e2a3b!important;border-radius:11px;padding:17px 9px!important;margin:5px 0 17px!important;align-items:center}
+.fb-devices.jdn-live #search-input,.fb-devices.jdn-live select,.fb-devices.jdn-live .form-control{background:#16273a!important;color:#eaf3ff!important;border:1px solid #37516a!important;border-radius:8px!important;box-shadow:none!important}
+.fb-devices.jdn-live #search-input::placeholder{color:#91a8c2!important}
+.fb-devices.jdn-live #search-input:focus{border-color:#3499f5!important;box-shadow:0 0 0 3px #3499f521!important}
+.fb-devices.jdn-live .input-group-text{background:#21334a!important;border-color:#37516a!important;color:#7ed1fc!important}
+.fb-devices.jdn-live .jdn-list-heading{display:flex;gap:11px;align-items:center;padding:6px 2px 15px}
+.fb-devices.jdn-live .jdn-list-icon{display:grid;place-items:center;width:39px;height:39px;background:#1378a6;border-radius:10px;color:#d2f3ff;font-size:21px;box-shadow:0 0 22px #3499f54d}
+.fb-devices.jdn-live .jdn-list-heading h2{font-size:15px!important;font-weight:750!important;margin:0 0 4px;color:#f1f7ff}
+.fb-devices.jdn-live .jdn-list-heading p{font-size:11px;color:#9bb2cd;margin:0}
+.fb-devices.jdn-live #devices-table-wrap,.fb-devices.jdn-live .jdn-table-wrap{background:#1b2231!important;border:1px solid #354760!important;border-radius:11px!important;overflow-x:auto!important}
+.fb-devices.jdn-live #devices-table{--bs-table-bg:transparent!important;--bs-table-hover-bg:transparent!important;border-collapse:collapse!important;margin:0!important;color:#eaf3ff!important}
+.fb-devices.jdn-live #devices-table thead th{background:#243149!important;color:#afc5dd!important;font-size:10px!important;letter-spacing:.045em!important;border:0!important;border-bottom:1px solid #374a61!important;padding:13px 12px!important}
+.fb-devices.jdn-live #devices-table tbody tr{background:#1b2231!important;border-bottom:1px solid #2c3a4f!important}
+.fb-devices.jdn-live #devices-table tbody tr:nth-child(even){background:#202b3c!important}
+.fb-devices.jdn-live #devices-table tbody tr:hover{background:#29405a!important}
+.fb-devices.jdn-live #devices-table tbody td{background:transparent!important;color:#dbeafd!important;border:0!important;padding:13px 12px!important;font-size:12px!important;vertical-align:middle!important}
+.fb-devices.jdn-live #devices-table a{color:#a3dcff!important}
+.fb-devices.jdn-live #devices-table a:hover{color:#fff!important}
+.fb-devices.jdn-live #devices-table .jdn-rx-hidden{display:none!important}
+.fb-devices.jdn-live .btn-primary,.fb-devices.jdn-live .page-item.active .page-link{background:#287ac4!important;border-color:#3499f5!important}
+.fb-devices.jdn-live .btn-secondary,.fb-devices.jdn-live .btn-outline-secondary,.fb-devices.jdn-live .page-link{background:#23364e!important;border:1px solid #37516c!important;color:#daebff!important}
+.fb-devices.jdn-live .btn,.fb-devices.jdn-live .page-link{border-radius:8px!important;font-size:11px!important}
+.fb-devices.jdn-live .text-muted{color:#95aac5!important}
+@media(max-width:750px){.fb-devices.jdn-live .jdn-page-heading{flex-wrap:wrap}.fb-devices.jdn-live .card-body{padding:12px!important}.fb-devices.jdn-live #devices-table thead th,.fb-devices.jdn-live #devices-table tbody td{padding:10px!important}}
+
+/* v2 corrections: old visual adapter erroneously duplicated heading/hero.
+   Real count remains in the existing server-rendered stats. */
+.fb-devices.jdn-polished .jdn-page-heading,
+.fb-devices.jdn-polished .jdn-inventory-hero{display:none!important}
+.fb-devices.jdn-polished .jdn-native-header{background:linear-gradient(135deg,#1d3047 0%,#1b2231 75%)!important;border:1px solid #34475e!important;border-radius:12px;padding:20px 22px!important;margin:6px 0 14px!important;box-shadow:0 12px 30px #050b1833}
+.fb-devices.jdn-polished .jdn-native-header h1,
+.fb-devices.jdn-polished .jdn-native-header h2{font-size:22px!important;font-weight:750!important;color:#f2f7ff!important;letter-spacing:-.3px!important}
+.fb-devices.jdn-polished #devices-table tbody td:first-child .jdn-modem-mark,
+.fb-devices.jdn-polished #devices-table tbody td:first-child [class*="device-icon"],
+.fb-devices.jdn-polished #devices-table tbody td:first-child [class*="equip-icon"]{
+ background:#163956!important;border-color:#2e668d!important;color:#72c8ff!important;
+ box-shadow:inset 0 0 0 1px #3499f526,0 0 18px #3499f519!important;border-radius:9px!important;
+}
+.fb-devices.jdn-polished #devices-table tbody td:first-child .jdn-modem-glyph,
+.fb-devices.jdn-polished #devices-table tbody td:first-child .bi-router,
+.fb-devices.jdn-polished #devices-table tbody td:first-child .bi-hdd-network,
+.fb-devices.jdn-polished #devices-table tbody td:first-child .bi-modem,
+.fb-devices.jdn-polished #devices-table tbody td:first-child svg{
+ color:#56b6ff!important;fill:currentColor;
+}
+.fb-devices.jdn-polished #devices-table tbody td:first-child [style*="background"] .jdn-modem-glyph{
+ color:#56b6ff!important;
+}
+/* Pagination: adequately sized controls, separated from the table and right-aligned.
+   All original onclick handlers and disabled states are retained. */
+.fb-devices.jdn-polished #pagination-container{margin:0!important;padding:16px 5px 5px!important;display:flex;justify-content:flex-end!important;align-items:center!important;flex-wrap:wrap;gap:8px}
+.fb-devices.jdn-polished #pagination-container .col-12{width:100%!important;padding:0!important}
+.fb-devices.jdn-polished #pagination-container nav{display:flex;justify-content:flex-end;align-items:center}
+.fb-devices.jdn-polished #pagination-container .pagination{display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;margin:0!important}
+.fb-devices.jdn-polished #pagination-container .page-item{margin:0!important}
+.fb-devices.jdn-polished #pagination-container .page-link{
+ min-height:36px!important;min-width:40px!important;padding:9px 13px!important;
+ background:#22364d!important;border:1px solid #38516b!important;border-radius:8px!important;
+ color:#c8dff5!important;font-size:12px!important;font-weight:650!important;line-height:1.25!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;
+ white-space:nowrap!important;box-shadow:none!important;
+}
+.fb-devices.jdn-polished #pagination-container .page-link:hover{background:#2a4561!important;border-color:#3499f5!important;color:#fff!important}
+.fb-devices.jdn-polished #pagination-container .page-item.active .page-link{background:#2379c8!important;border-color:#3499f5!important;color:white!important}
+.fb-devices.jdn-polished #pagination-container .page-item.disabled .page-link{opacity:.42!important;cursor:not-allowed}
+.fb-devices.jdn-polished #pagination-container .page-link:focus-visible{outline:2px solid #5ab9ff!important;outline-offset:2px}
+@media(max-width:650px){
+ .fb-devices.jdn-polished #pagination-container nav,
+ .fb-devices.jdn-polished #pagination-container .pagination{justify-content:center!important}
+ .fb-devices.jdn-polished #pagination-container .page-link{padding:8px 10px!important;min-width:35px!important}
+}
