@@ -20,7 +20,20 @@ include __DIR__ . '/views/layouts/header.php';
     </div>
 
 <?php else: ?>
-<div class="jrc-inventory-page">
+<div class="jrc-inventory-page jrc-devices-reference">
+    <header class="jdn-page-title">
+      <div>
+        <div class="jdn-eyebrow">JR CONECT TELECOM / INVENTARIO TR-069</div>
+        <h1>Dispositivos</h1>
+        <p>Gerenciamento de roteadores · consulta e ações sob demanda</p>
+      </div>
+      <span class="jdn-data-source"><i class="bi bi-database-check"></i> GENIEACS</span>
+    </header>
+    <section class="jdn-total-panel" aria-label="Resumo do inventario">
+      <div class="jdn-total-top"><span><i class="bi bi-router"></i> TOTAL DE DISPOSITIVOS</span><i class="bi bi-hdd-network" aria-hidden="true"></i></div>
+      <p>Inventário de equipamentos cadastrados no ACS</p>
+      <div class="jdn-total-description">Os totais e estados dependem da consulta atual do GenieACS.</div>
+    </section>
 
     <div class="card">
 
@@ -360,6 +373,10 @@ include __DIR__ . '/views/layouts/header.php';
             </div>
 
 
+            <div class="jdn-list-heading">
+                <div class="jdn-list-icon"><i class="bi bi-hdd-stack"></i></div>
+                <div><h2>Lista de dispositivos</h2><p>Pesquise equipamentos e abra o gerenciamento individual</p></div>
+            </div>
             <!-- Tabela -->
             <div
                 id="devices-table-wrap"
@@ -523,6 +540,7 @@ window.GENIEACS_CONFIGURED =
 
 
 <link rel="stylesheet" href="/assets/css/jrc-inventory.css?v=1">
+<link rel="stylesheet" href="/assets/css/jrc-devices-reference.css?v=1">
 <script src="/assets/js/devices/devices-state.js"></script>
 <script src="/assets/js/devices.js?v=20261005-ssid24"></script>
 
