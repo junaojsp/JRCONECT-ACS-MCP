@@ -1,0 +1,11 @@
+# ACS - Dispositivos Leve (piloto opt-in)
+- Abre em `/devices-light.php`, sem alterar `devices.php`, menu, dashboard, view-logs ou a tela de detalhes.
+- Lista 30 equipamentos por vez com pesquisa por serial, ID, login PPPoE, MAC, IP e cliente quando tais campos estiverem efetivamente presentes no snapshot; filtros por fabricante/modelo.
+- O endpoint `/api/jrc-devices-light.php` usa **somente** `jrc_device_inventory_rows` e `jrc_device_inventory_state`, nunca GenieACS NBI, IXC, TR-069 ou SNMP na requisição da página.
+- O cliente não recebe RX/TX, temperatura, configurações WAN/Wi-Fi nem outros parâmetros: eles ficam na tela existente `/device-detail.php?id=...`.
+- Usa o tema azul escuro atual e layout de busca inspirado no padrão de organização de listagens da referência do usuário, sem copiar identidade do concorrente.
+- Snapshots com mais de 15 minutos, inexistentes ou inválidos são tratados como indisponíveis — não exibir como dados atuais.
+- A busca textual é sob demanda e utiliza JSON no banco, logo o desempenho da pesquisa depende do volume do inventário e dos índices efetivos; validar com aproximadamente 2.400 equipamentos antes de trocar a tela oficial.
+- Não habilita coletor, nem cron, nem flag de inventário automaticamente. O snapshot precisa existir e ser atualizado em segundo plano.
+- Instalador `scripts/deploy-acs-devices-light.py plan|apply` cria somente três arquivos novos; recusa sobrescrever customizações. Não toca no gerenciamento individual.
+- Durante a homologação, comparar pesquisa por serial, PPPoE e fabricante, disponibilidade do snapshot, tempo do endpoint, paginação e abertura dos detalhes.
