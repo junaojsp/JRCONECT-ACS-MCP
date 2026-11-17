@@ -81,3 +81,11 @@ body:has(.jrc-overview-light){background:var(--jrc20-bg)}
 .jrc-overview-light .jrc20-links .shortcut{padding:13px 14px}
 @media(max-width:1050px){.jrc-overview-light .jrc20-three{grid-template-columns:repeat(2,minmax(0,1fr))}.jrc-overview-light .jrc20-links{grid-column:1/-1}}
 @media(max-width:750px){.jrc-overview-light .jrc20-summary-strip,.jrc-overview-light .jrc20-two,.jrc-overview-light .jrc20-three{grid-template-columns:1fr}.jrc-overview-light .jrc20-links{grid-column:auto}.jrc-overview-light .jrc20-fleet-line{grid-template-columns:85px 1fr 48px;gap:8px}.jrc-overview-light .jrc20-wide-foot{flex-direction:column}.jrc-overview-light .jrc20-meta{white-space:normal}}
+
+/* KPI compacto de cobertura, sem duplicar a analise principal */
+.jrc-overview-light .jrc20-summary-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+.jrc-overview-light .jrc20-summary-strip .metric:nth-child(4):before{background:linear-gradient(90deg,#8b5cf6,transparent)}
+.jrc-overview-light .jrc20-summary-strip .metric:nth-child(4) .metric-icon{color:#b29aff;background:#332b4a}
+.jrc-overview-light .jrc20-quicklinks .shortcut-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1120px){.jrc-overview-light .jrc20-summary-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.jrc-overview-light .jrc20-summary-strip,.jrc-overview-light .jrc20-quicklinks .shortcut-grid{grid-template-columns:1fr}}
