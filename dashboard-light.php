@@ -42,7 +42,7 @@ include __DIR__.'/views/layouts/header.php';
     <div class="shortcut-grid">
       <a class="shortcut" href="/devices-light.php"><i class="bi bi-search"></i><span><strong>Dispositivos</strong><small>Pesquisar CPEs e abrir detalhes</small></span></a>
       <a class="shortcut" href="/view-logs.php"><i class="bi bi-activity"></i><span><strong>Relatorios</strong><small>Consulta de sinal optico</small></span></a>
-      <a class="shortcut" href="/mcp-server.php"><i class="bi bi-hdd-network"></i><span><strong>MCP Server</strong><small>Integracoes e infraestrutura</small></span></a>
+      <a class="shortcut" href="/configuration.php"><i class="bi bi-hdd-network"></i><span><strong>Configuracoes</strong><small>Administracao do ACS</small></span></a>
     </div>
     <div id="jrc-overview-warning" class="notice" hidden></div>
   </div>
