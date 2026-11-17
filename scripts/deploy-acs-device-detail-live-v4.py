@@ -22,9 +22,26 @@ def get_changes():
     if PAGE.is_symlink() or not PAGE.is_file() or not FOOTER.is_file() or FOOTER.is_symlink():
         raise RuntimeError('Arquivos da producao ausentes ou inseguros')
     page=PAGE.read_bytes()
-    required=(b'id="deviceTabs"',b'id="deviceTabContent"',b'fb-diag-item',b'acs-wan-page')
-    if not all(x in page for x in required):
-        raise RuntimeError('Nao parece ser a pagina personalizada identificada em producao; nao aplicar')
+    # The installed production detail has its eight tab IDs in PHP and
+    # renders the WAN panel through assets/js/device-detail.js. Previously
+    # checking 'acs-wan-page' in PHP always rejected this valid installation.
+    page_required=(b'id="deviceTabs"', b'id="deviceTabContent"',
+                   b'id="overview-tab"', b'id="wan-tab"',
+                   b'id="wifi-tab"', b'id="devices-tab"',
+                   b'fb-diag-item')
+    missing_page=[x.decode('ascii') for x in page_required if x not in page]
+    if missing_page:
+        raise RuntimeError('Detalhamento nao reconhecido no PHP: '+', '.join(missing_page))
+    renderer=WEB/'assets/js/device-detail.js'
+    if not renderer.is_file() or renderer.is_symlink():
+        raise RuntimeError('Renderizador de detalhes ausente ou inseguro')
+    renderer_code=renderer.read_bytes()
+    renderer_required=(b'acs-wan-page', b'renderWANDetailsTab',
+                       b'overview-content')
+    missing_renderer=[x.decode('ascii') for x in renderer_required
+                      if x not in renderer_code]
+    if missing_renderer:
+        raise RuntimeError('Renderizador nao reconhecido: '+', '.join(missing_renderer))
     old=FOOTER.read_bytes()
     if old.count(MARKER)!=1:
         raise RuntimeError('Ancora do adapter v3 nao reconhecida')
