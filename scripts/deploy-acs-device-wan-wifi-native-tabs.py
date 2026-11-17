@@ -44,7 +44,7 @@ NATIVE_PATCH="""
             const fields = summary.querySelector('.acs-reference-list');
             for (const item of Array.from(fields?.children || [])) {
                 const name = item.querySelector('span')?.textContent?.trim() || '';
-                if (/^Wi-Fi (2[,.]4|5)\s*GHz$/i.test(name)) item.remove();
+                if (/^Wi-Fi (2[,.]4|5)\\s*GHz$/i.test(name)) item.remove();
             }
             // Navigation to Wi-Fi remains available in the existing tab row.
             summary.querySelector('.acs-toolbar-action')?.remove();
