@@ -1,0 +1,47 @@
+/* ACS 2.0 Device detail LIVE layout — for production's inline fb-/acs- components.
+   Does not touch the outer /devices.php list or operational API logic. */
+body.jrc-live-device-v4{--jrl-bg:#10141f;--jrl-panel:#1b2231;--jrl-elev:#222e41;--jrl-stroke:#2b3950;--jrl-blue:#3499f5;--jrl-teal:#20cab9;--jrl-amber:#ff9f35;background:var(--jrl-bg)!important;color:#eaf3ff}
+body.jrc-live-device-v4 .content-wrapper,body.jrc-live-device-v4 .main-content{background:var(--jrl-bg)!important}
+body.jrc-live-device-v4 .footer{background:#10141f!important;border-top:1px solid #2b3950!important}
+body.jrc-live-device-v4 .jrc-detail-kpis{display:none!important} /* v3 blank/duplicated badges, from stale template */
+body.jrc-live-device-v4 .jrc-detail-caption,
+body.jrc-live-device-v4 .jrc-detail-operations-note{display:none!important}
+body.jrc-live-device-v4 .jrc-live-inner-grid{display:grid;grid-template-columns:205px minmax(0,1fr);gap:16px;align-items:start}
+body.jrc-live-device-v4 .jrc-live-inner-nav{position:sticky;top:15px;background:#1b2231;border:1px solid #2d3c53;border-radius:12px;padding:13px;min-width:0;box-shadow:0 12px 25px #060b1726}
+body.jrc-live-device-v4 .jrc-live-side-title{font-size:10px;font-weight:800;letter-spacing:1px;color:#92bbd8;margin:5px 8px 13px}
+body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs{display:flex!important;flex-direction:column!important;gap:5px!important;max-width:100%;width:100%;border:0!important;margin:0!important;padding:0!important}
+body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs .nav-item{width:100%;list-style:none}
+body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs .nav-link{display:flex;align-items:center;justify-content:flex-start;width:100%;gap:8px;min-height:39px;text-align:left;white-space:normal;line-height:1.25;padding:9px 11px!important;color:#b1c7de!important;border:1px solid transparent!important;background:transparent!important;border-radius:9px!important;font-size:12px!important}
+body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs .nav-link i{color:#7bbfea}
+body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs .nav-link.active{background:#243a55!important;border-color:#335574!important;box-shadow:inset 3px 0 0 #3499f5!important;color:#f4f9ff!important}
+body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs .badge{margin-left:auto!important;border:1px solid #3b5d79!important;background:#25415c!important;color:#b4e3ff!important}
+body.jrc-live-device-v4 .jrc-live-inner-grid #deviceTabContent{min-width:0;margin-top:0!important}
+body.jrc-live-device-v4 #deviceTabContent .tab-pane{min-width:0}
+body.jrc-live-device-v4 .jrc-live-section-title{font-size:14px!important;color:#edf7ff!important;font-weight:750!important;letter-spacing:-.1px;margin:0 0 13px;padding:0 0 10px;border-bottom:1px solid #304056}
+body.jrc-live-device-v4 .jrc-live-overview-card{background:#1b2231!important;border:1px solid #2e415a!important;border-radius:13px!important;color:#eaf3ff!important;box-shadow:0 12px 28px #060b1733!important;min-width:0;overflow:hidden}
+body.jrc-live-device-v4 .jrc-live-overview-card h2,
+body.jrc-live-device-v4 .jrc-live-overview-card h3{color:#f0f8ff!important}
+body.jrc-live-device-v4 .jrc-live-overview-card [class*=header]{border-bottom-color:#30435a!important}
+body.jrc-live-device-v4 .jrc-live-diagnostic{color:#c1d7ee!important;min-width:0;font-size:12px}
+body.jrc-live-device-v4 .jrc-live-diagnostic strong{color:#eaf4ff!important;font-variant-numeric:tabular-nums;font-weight:740}
+body.jrc-live-device-v4 .jrc-live-diagnostic i{color:#20cab9!important}
+body.jrc-live-device-v4 .jrc-live-wan{background:#1b2231!important;border:1px solid #31445b!important;border-radius:13px!important;color:#e7f2ff!important;min-width:0}
+body.jrc-live-device-v4 .jrc-live-wan [class*=summary],
+body.jrc-live-device-v4 .jrc-live-wan [class*=metric]{background:#202f44;border-color:#344c65!important}
+body.jrc-live-device-v4 .jrc-live-wan button{border-radius:9px}
+body.jrc-live-device-v4 .jrc-live-wan [class*=primary-btn]{background:#206eae!important;border:1px solid #3499f5!important;color:#f2faff!important}
+body.jrc-live-device-v4 #deviceTabContent [class*="acs-"][class*="card"],
+body.jrc-live-device-v4 #deviceTabContent [class*="fb-"][class*="card"]{border-radius:12px;border-color:#2c3d53;box-shadow:0 10px 25px #060b171e}
+body.jrc-live-device-v4 #deviceTabContent .table-responsive{overflow-x:auto;border-radius:10px}
+body.jrc-live-device-v4 #deviceTabContent .table thead th{background:#263650!important;color:#abc8e7!important;border-color:#354962!important}
+body.jrc-live-device-v4 #deviceTabContent .table td{border-color:#30425b!important}
+body.jrc-live-device-v4 #deviceTabContent input,
+body.jrc-live-device-v4 #deviceTabContent select{border-radius:8px}
+body.jrc-live-device-v4 #deviceTabContent button:focus-visible,
+body.jrc-live-device-v4 #deviceTabs button:focus-visible{outline:2px solid #5bbaff!important;outline-offset:2px}
+@media(max-width:1150px){body.jrc-live-device-v4 .jrc-live-inner-grid{grid-template-columns:170px minmax(0,1fr)}}
+@media(max-width:800px){body.jrc-live-device-v4 .jrc-live-inner-grid{grid-template-columns:1fr}
+ body.jrc-live-device-v4 .jrc-live-inner-nav{position:static}
+ body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs{flex-direction:row!important;flex-wrap:wrap}
+ body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs .nav-item{width:auto}
+ body.jrc-live-device-v4 #deviceTabs.jrc-live-tabs .nav-link{width:auto}}
