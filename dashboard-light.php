@@ -2,94 +2,59 @@
 declare(strict_types=1);
 require_once __DIR__.'/config/config.php';
 requireLogin();
-$pageTitle = 'Visao geral - Leve';
-$currentPage = 'dashboard';
+$pageTitle='Dashboard ACS 2.0';
+$currentPage='dashboard';
 include __DIR__.'/views/layouts/header.php';
 ?>
-<style>
-.jrc-overview-light{width:100%;color:#e7f3ff}
-.jrc-overview-light .sub{font-size:12px;color:#91b2c9}
-.jrc-overview-light .head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px}
-.jrc-overview-light h2{font-size:23px;font-weight:650;margin:0 0 5px}
-.jrc-overview-light .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
-.jrc-overview-light .metric{background:#0c243b;border:1px solid #215176;padding:18px;border-radius:11px;min-height:125px}
-.jrc-overview-light .metric-icon{font-size:19px;color:#53b9f5;margin-bottom:8px}
-.jrc-overview-light .value{font-size:29px;font-weight:700;color:#65cafa;line-height:1.25}
-.jrc-overview-light .label{font-size:12px;color:#a4c1d6;margin-top:5px}
-.jrc-overview-light .panel{background:#0c2137;border:1px solid #215176;border-radius:11px;padding:18px;margin-bottom:14px}
-.jrc-overview-light .shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:13px}
-.jrc-overview-light .shortcut{display:flex;align-items:center;gap:11px;text-decoration:none;border:1px solid #285777;border-radius:8px;padding:14px;background:#11304b;color:#d9efff}
-.jrc-overview-light .shortcut:hover{background:#1a4564;color:#fff}
-.jrc-overview-light .shortcut i{color:#67bfff;font-size:22px}
-.jrc-overview-light .shortcut strong{display:block;font-size:14px}
-.jrc-overview-light .shortcut small{display:block;color:#9fbed2;font-size:11px}
-.jrc-overview-light .notice{padding:10px 12px;border-radius:7px;background:#3b2b1a;border:1px solid #876137;color:#ffd390;font-size:12px;margin-top:12px}
-.jrc-overview-light .btn-alt{border:1px solid #386587;color:#b8d9ed;text-decoration:none;border-radius:7px;padding:8px 11px;font-size:12px}
-@media(max-width:900px){.jrc-overview-light .cards,.jrc-overview-light .shortcut-grid{grid-template-columns:1fr}}
-
-/* Reference-inspired layout: two large donut panels, two compact ranked tables. */
-.jrc-overview-light .reference-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px}
-.jrc-overview-light .reference-panel{background:#0c2137;border:1px solid #215176;border-radius:11px;padding:18px;min-height:250px}
-.jrc-overview-light .reference-panel h3{font-size:15px;color:#edf8ff;margin:0 0 14px;font-weight:650}
-.jrc-overview-light .reference-body{display:flex;gap:20px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:192px}
-.jrc-overview-light .reference-ring{width:180px;height:180px;border-radius:50%;background:#18435d;display:grid;place-items:center;flex:none}
-.jrc-overview-light .reference-hole{background:#0c2137;width:112px;height:112px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-.jrc-overview-light .reference-hole b{font-size:24px;color:#f1faff}
-.jrc-overview-light .reference-hole small{font-size:10px;color:#aac3d8}
-.jrc-overview-light .reference-legend{display:grid;gap:8px;font-size:12px;min-width:135px}
-.jrc-overview-light .reference-legend-item{display:flex;gap:9px;align-items:center;color:#d4e8f5}
-.jrc-overview-light .reference-dot{width:10px;height:10px;border-radius:50%;flex:none}
-.jrc-overview-light .reference-note{font-size:12px;color:#a5c6da;text-align:center;max-width:340px}
-.jrc-overview-light .reference-table{width:100%;border-collapse:collapse;font-size:12px}
-.jrc-overview-light .reference-table th,.jrc-overview-light .reference-table td{padding:10px;border-bottom:1px solid #244964;text-align:left}
-.jrc-overview-light .reference-table th{color:#b7d9ec;background:#15405d}
-.jrc-overview-light .reference-table td{color:#daeffd}
-.jrc-overview-light .reference-table tbody tr:hover{background:#173650}
-.jrc-overview-light .reference-table a{color:#76ccff;text-decoration:none}
-.jrc-overview-light .reference-label{color:#9ebbd0;font-size:11px;margin-top:8px}
-@media(max-width:980px){.jrc-overview-light .reference-grid{grid-template-columns:1fr}}
-</style>
-<link rel="stylesheet" href="/assets/css/jrc-dashboard-20.css?v=4">
-<section class="jrc-overview-light">
-  <div class="head">
-    <div><span class="jrc20-eyebrow">JR CONECT · ACS 2.0</span><h2>Visão geral da rede</h2><p class="sub">Inventário em cache · detalhes técnicos sob demanda</p></div>
-    <div class="jrc20-actions"><a href="/dashboard.php">Versão anterior</a><button type="button" id="jrc20-refresh">Atualizar visualização</button></div>
-  </div>
-  <div class="jrc20-summary-strip">
-    <div class="metric"><i class="bi bi-router metric-icon"></i><div><div class="value" id="jrc-overview-total">—</div><div class="label">CPEs no inventário ACS</div></div></div>
-    <div class="metric"><i class="bi bi-clock-history metric-icon"></i><div><div class="value jrc20-date" id="jrc-overview-age">—</div><div class="label">Último inventário</div></div></div>
-    <div class="metric"><i class="bi bi-database-check metric-icon"></i><div><div class="value" id="jrc-overview-state">—</div><div class="label">Condição do snapshot</div></div></div>
-    <div class="metric"><i class="bi bi-diagram-3 metric-icon"></i><div><div class="value" id="jrc20-tr069-rate">—</div><div class="label">Clientes com TR-069 · IXC</div></div></div>
-  </div>
-  <section class="reference-panel jrc20-wide" aria-label="Visão analítica do inventário">
-    <div class="jrc20-panel-heading"><div><h3><i class="bi bi-activity"></i> Visão analítica da frota</h3><p>Distribuição por fabricante no último inventário; não é histórico de conexões</p></div><span class="jrc20-meta" id="jrc20-fleet-note">Aguardando snapshot</span></div>
-    <div id="jrc20-fleet-bars" class="jrc20-fleet-bars" aria-live="polite"><p class="reference-note">Carregando distribuição da frota...</p></div>
-    <div class="jrc20-wide-foot"><span id="jrc-makers-note">Aguardando inventário armazenado</span><span>Fonte: GenieACS · cache local</span></div>
+<link rel="stylesheet" href="/assets/css/jrc-dashboard-made4.css?v=1">
+<main class="jrc-overview-light jrc-made4">
+  <header class="j4-header">
+    <div><div class="j4-kicker">JRCONECT <span>TELECOM</span> / CENTRO DE OPERAÇÕES</div><h1>Dashboard da rede</h1><p>Visão do inventário ACS · dados consolidados em cache</p></div>
+    <div class="j4-header-actions"><span class="j4-live"><span></span> Painel operacional</span><a href="/dashboard.php">Versão anterior</a><button id="jrc20-refresh" type="button"><i class="bi bi-arrow-clockwise"></i> Atualizar</button></div>
+  </header>
+  <section class="j4-hero" aria-label="Indicadores da rede">
+    <article class="j4-hero-main">
+      <div class="j4-hero-tag"><i class="bi bi-hdd-network"></i> INVENTÁRIO TR-069</div>
+      <div class="j4-hero-content"><div><span class="j4-muted">Equipamentos no inventário</span><div class="j4-number" id="jrc-overview-total">—</div><span class="j4-cue"><i class="bi bi-database"></i> GenieACS · snapshot armazenado</span></div><div class="j4-hero-symbol"><i class="bi bi-router"></i></div></div>
+      <div class="j4-hero-bottom"><span id="jrc20-fleet-note">Aguardando inventário</span><a href="/devices-light.php">Consultar dispositivos <i class="bi bi-arrow-up-right"></i></a></div>
+    </article>
+    <article class="j4-mini j4-mini-green"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-clock-history"></i></span><span>Última coleta</span></div><div class="j4-mini-value j4-date" id="jrc-overview-age">—</div><p>Inventário armazenado</p></article>
+    <article class="j4-mini j4-mini-orange"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-shield-check"></i></span><span>Estado do inventário</span></div><div class="j4-mini-value" id="jrc-overview-state">—</div><p>Validade do snapshot</p></article>
+    <article class="j4-mini j4-mini-purple"><div class="j4-mini-title"><span class="j4-mini-icon"><i class="bi bi-diagram-3"></i></span><span>Cobertura TR-069</span></div><div class="j4-mini-value" id="jrc20-tr069-rate">—</div><p>Clientes únicos com PPPoE no IXC</p></article>
   </section>
-  <div class="jrc20-two jrc20-secondary">
-    <section class="reference-panel" aria-label="Cobertura TR-069">
-      <div class="jrc20-panel-heading"><h3><i class="bi bi-diagram-3"></i> Clientes com e sem TR-069</h3><span class="jrc20-meta">Base IXC · sem contratos</span></div>
-      <div class="reference-body">
+  <section class="j4-analytics" aria-label="Análise do inventário">
+    <article class="j4-panel j4-manufacturers">
+      <div class="j4-panel-head"><div><span class="j4-panel-icon blue"><i class="bi bi-bar-chart-fill"></i></span><div><h2>Fabricantes</h2><p>Participação na frota cadastrada</p></div></div><span class="j4-chip">GenieACS</span></div>
+      <div class="j4-fleet-total"><span>Distribuição por fabricante</span><strong>INVENTÁRIO</strong></div>
+      <div id="jrc20-fleet-bars" class="jrc20-fleet-bars" aria-live="polite">Carregando fabricantes...</div>
+      <footer id="jrc-makers-note" class="j4-panel-foot">Aguardando dados do cache</footer>
+    </article>
+    <article class="j4-panel j4-coverage">
+      <div class="j4-panel-head"><div><span class="j4-panel-icon purple"><i class="bi bi-broadcast"></i></span><div><h2>Clientes e TR-069</h2><p>Cobertura por cliente único</p></div></div><span class="j4-chip">IXC + ACS</span></div>
+      <div class="j4-coverage-content">
         <div id="jrc-coverage-ring" class="reference-ring"><div class="reference-hole"><b id="jrc-coverage-total">—</b><small>Clientes</small></div></div>
-        <div id="jrc-coverage-legend" class="reference-legend"><div class="reference-note">Coleta de clientes únicos IXC pendente. Sem estimativas.</div></div>
+        <div id="jrc-coverage-legend" class="reference-legend"><span>Coleta pendente. Nenhuma estimativa será exibida.</span></div>
       </div>
-      <p class="reference-label" id="jrc-coverage-note">O total de ONUs não representa clientes únicos.</p>
-    </section>
-    <section class="reference-panel">
-      <div class="jrc20-panel-heading"><h3><i class="bi bi-cpu"></i> Modelos de CPE</h3><span class="jrc20-meta">Inventário ACS</span></div>
-      <table class="reference-table"><thead><tr><th>Modelo</th><th>Total</th></tr></thead><tbody id="jrc-models-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
-    </section>
-  </div>
-  <div class="panel jrc20-quicklinks">
-    <strong>Acessos operacionais</strong>
-    <div class="shortcut-grid">
-      <a class="shortcut" href="/devices-light.php"><i class="bi bi-search"></i><span><strong>Dispositivos</strong><small>Pesquisar CPEs e abrir detalhes</small></span></a>
-      <a class="shortcut" href="/view-logs.php"><i class="bi bi-activity"></i><span><strong>Relatórios</strong><small>Sinal óptico e histórico</small></span></a>
-      <a class="shortcut" href="/configuration.php"><i class="bi bi-sliders"></i><span><strong>Configurações</strong><small>Gerenciamento ACS</small></span></a>
-    </div>
-    <div id="jrc-overview-warning" class="notice" hidden></div>
-  </div>
-  <p class="jrc20-footer">Dados provenientes do último inventário armazenado. Esta tela não consulta ONUs, RX, temperatura, IXC ou TR-069 ao abrir.</p>
-</section>
-<script src="/assets/js/jrc-dashboard-light.js?v=5" defer></script>
+      <footer id="jrc-coverage-note" class="j4-panel-foot">Base: clientes distintos com PPPoE no IXC, sem contratos.</footer>
+    </article>
+  </section>
+  <section class="j4-lower" aria-label="Modelos e operação">
+    <article class="j4-panel j4-models">
+      <div class="j4-panel-head"><div><span class="j4-panel-icon cyan"><i class="bi bi-cpu"></i></span><div><h2>Principais modelos</h2><p>Modelos identificados no inventário</p></div></div><span class="j4-chip">Top 9</span></div>
+      <table class="reference-table"><thead><tr><th>Modelo da CPE</th><th>Unidades</th></tr></thead><tbody id="jrc-models-rows"><tr><td colspan="2">Carregando...</td></tr></tbody></table>
+    </article>
+    <article class="j4-panel j4-ops">
+      <div class="j4-panel-head"><div><span class="j4-panel-icon green"><i class="bi bi-grid-1x2-fill"></i></span><div><h2>Central operacional</h2><p>Acesso rápido às ferramentas do ACS</p></div></div></div>
+      <nav class="j4-ops-links">
+        <a href="/devices-light.php"><span class="j4-op-ico"><i class="bi bi-router"></i></span><span><strong>Dispositivos</strong><small>Inventário e consultas</small></span><i class="bi bi-arrow-up-right"></i></a>
+        <a href="/view-logs.php"><span class="j4-op-ico"><i class="bi bi-graph-up"></i></span><span><strong>Relatórios</strong><small>Históricos e registros</small></span><i class="bi bi-arrow-up-right"></i></a>
+        <a href="/configuration.php"><span class="j4-op-ico"><i class="bi bi-sliders"></i></span><span><strong>Configurações</strong><small>Parâmetros do ACS</small></span><i class="bi bi-arrow-up-right"></i></a>
+      </nav>
+      <div class="j4-health"><i class="bi bi-info-circle"></i><span>Valores históricos. A abertura do painel não realiza consultas individuais aos dispositivos.</span></div>
+      <div id="jrc-overview-warning" class="j4-warning" role="status" hidden></div>
+    </article>
+  </section>
+  <footer class="j4-footer">JRCONECT ACS · Visão de inventário em cache <span>Dados de dispositivos não são coletados durante a abertura desta página.</span></footer>
+</main>
+<script src="/assets/js/jrc-dashboard-light.js?v=6" defer></script>
 <?php include __DIR__.'/views/layouts/footer.php'; ?>
