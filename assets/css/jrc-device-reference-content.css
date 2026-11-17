@@ -1,0 +1,99 @@
+/* Overrides the installed live-v6 and global blue theme ONLY inside the reference page. */
+#jrc-device-reference{background:#10141b!important;border:0!important;border-radius:0!important;padding:14px!important;color:#e9edf4!important}
+#jrc-device-reference:has(.jrc-live-inner-grid){display:block!important}
+#jrc-device-reference .jrc-live-inner-grid{display:grid!important;grid-template-columns:180px minmax(0,1fr)!important;gap:18px!important;background:transparent!important;padding:0!important}
+#jrc-device-reference .jrc-live-inner-nav{background:#171c26!important;border:1px solid #2b3240!important;border-radius:10px!important;padding:10px!important;box-shadow:none!important}
+#jrc-device-reference #deviceTabContent,#jrc-device-reference #wan-content,#jrc-device-reference #devices-content,#jrc-device-reference #wifi,#jrc-device-reference #dhcp-content,#jrc-device-reference .tab-pane{background:transparent!important;border:0!important;box-shadow:none!important}
+#jrc-device-reference #deviceTabs .nav-link{font-size:13px!important;min-height:38px!important;line-height:1.3!important;color:#c2c9d4!important;padding:10px!important}
+#jrc-device-reference #deviceTabs .nav-link.active{background:#242b36!important;color:#fff!important;border:1px solid #3d4655!important;border-radius:6px!important;box-shadow:inset 2px 0 #6aa7f5!important}
+#jrc-device-reference .jrc-wan-ref-kpis,#jrc-device-reference .jrc-wifi-ref-kpis,#jrc-device-reference .jrc-ref-summary{gap:15px!important;margin-bottom:18px!important}
+#jrc-device-reference .jrc-wan-ref-kpi,#jrc-device-reference .jrc-wifi-ref-kpi,#jrc-device-reference .jrc-ref-summary article{background:linear-gradient(130deg,#1a2232,#191e2b)!important;border:1px solid #283143!important;border-radius:10px!important;min-height:110px!important;padding:18px!important;box-shadow:none!important}
+#jrc-device-reference .jrc-ref-summary article:first-child,#jrc-device-reference .jrc-wifi-ref-kpi:first-child{background:linear-gradient(130deg,#102b27,#152126)!important;border-color:#204039!important}
+#jrc-device-reference .jrc-wan-ref-top,#jrc-device-reference .jrc-wifi-ref-label,#jrc-device-reference .jrc-ref-summary article>div{font-size:12px!important;color:#c5ccd9!important;font-weight:600!important}
+#jrc-device-reference .jrc-wan-ref-kpi strong,#jrc-device-reference .jrc-wifi-ref-kpi>strong,#jrc-device-reference .jrc-ref-summary article>strong{font-size:24px!important;margin:16px 0 4px!important;color:#f2f4f8!important}
+#jrc-device-reference .jrc-wan-ref-kpi small,#jrc-device-reference .jrc-wifi-ref-kpi>small,#jrc-device-reference .jrc-ref-summary article>small{font-size:11px!important;color:#959fad!important}
+#jrc-device-reference #wan-content .acs-wan-page-header,#jrc-device-reference #devices-content>h6,#jrc-device-reference #wifi .acs-overview-card-header{background:#191e29!important;border:1px solid #282e3b!important;border-radius:9px!important;padding:19px!important;margin:0 0 16px!important;box-shadow:none!important}
+#jrc-device-reference #wan-content .acs-wan-page-header h4,#jrc-device-reference #devices-content>h6,#jrc-device-reference #wifi .acs-kicker{font-size:18px!important;color:#f0f2f6!important;font-weight:700!important}
+#jrc-device-reference #wan-content .acs-wan-card{background:#191d28!important;border:1px solid #292e3c!important;border-radius:10px!important;padding:18px!important;box-shadow:none!important}
+#jrc-device-reference #wan-content .acs-wan-card-top{border:0!important;padding-bottom:0!important}
+#jrc-device-reference #wan-content .acs-wan-hero{display:block!important;background:#171c26!important;border:1px solid #262c39!important;padding:13px!important}
+#jrc-device-reference #wan-content .acs-wan-hero>span{display:block!important;font-size:11px!important;color:#a1a9b6!important;text-transform:none!important;letter-spacing:0!important}
+#jrc-device-reference #wan-content .acs-wan-hero strong{display:block!important;text-align:left!important;font-size:16px!important;margin-top:5px!important}
+#jrc-device-reference #wan-content .acs-wan-details{gap:9px!important}
+#jrc-device-reference #wan-content .acs-wan-details>div{background:#171c26!important;border:1px solid #262c39!important;border-radius:5px!important;padding:13px!important}
+#jrc-device-reference #wan-content .acs-wan-details span{font-size:11px!important;color:#9da7b7!important;text-transform:none!important;letter-spacing:0!important}
+#jrc-device-reference #wan-content .acs-wan-details strong,#jrc-device-reference #wan-content .acs-wan-details a{font-size:13px!important;color:#e8edf5!important}
+#jrc-device-reference #wan-content .acs-wan-tags span{background:#252c3c!important;border:0!important;color:#bdc7d8!important;font-size:11px!important}
+#jrc-device-reference #devices-content #connected-devices-table tbody{gap:12px!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#jrc-device-reference #devices-content #connected-devices-table tr{position:relative!important;background:#191d28!important;border:1px solid #303644!important;border-top:3px solid #5684c9!important;border-radius:10px!important;padding:18px!important;min-height:185px!important;gap:9px!important;box-shadow:none!important}
+#jrc-device-reference #devices-content #connected-devices-table tr:has(.badge.online){border-top-color:#36a68c!important}
+#jrc-device-reference #devices-content #connected-devices-table tr:has(.badge.offline){border-top-color:#6a7080!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(2){font-size:14px!important;margin:0 0 6px!important;line-height:1.5!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(2)>i{display:inline-grid!important;place-items:center!important;width:32px!important;height:32px!important;border-radius:9px!important;background:#323947!important;color:#dce4f0!important;font-size:18px!important;margin-right:8px!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(2) strong{font-size:14px!important;color:#eef1f7!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(2) small{font-size:11px!important;color:#969eae!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(3){font-size:13px!important;color:#f1f4f9!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(4){font-size:11px!important;color:#8d98a9!important;margin-bottom:4px!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(4) code{color:#a1abba!important;font-size:11px!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(5),#jrc-device-reference #devices-content #connected-devices-table td:nth-child(6){font-size:10px!important;align-self:end!important}
+#jrc-device-reference #devices-content .badge.online{background:#11392f!important;color:#49d6ab!important;border:1px solid #205545!important}
+#jrc-device-reference #devices-content .badge.offline{background:#2c303b!important;color:#9ca5b7!important;border:1px solid #3b424f!important}
+#jrc-device-reference #devices-content .hotspot-user:has(>span.text-muted:only-child),#jrc-device-reference #devices-content .hotspot-traffic:has(>span.text-muted:only-child){display:none!important}
+#jrc-device-reference #devices-content #hotspot-status{font-size:11px!important;color:#929dae!important}
+#jrc-device-reference #wifi .acs-wifi-health-row{background:#191d28!important;border-color:#2c3341!important;border-top-color:#36a68c!important;padding:18px!important;min-height:230px!important}
+#jrc-device-reference #wifi .acs-wifi-health-row:nth-child(2){border-top-color:#9364d2!important}
+#jrc-device-reference #wifi .acs-wifi-health-detail{background:#222733!important;border:0!important;border-radius:4px!important}
+#jrc-device-reference #wifi .acs-wifi-health-state{border-bottom-color:#2b3240!important}
+#jrc-device-reference #dhcp-content .jrc-ref-lan-config,#jrc-device-reference #dhcp-content .jrc-ref-ports{background:#191d28!important;border-color:#2c3341!important}
+#jrc-device-reference #dhcp-content .card-body tr{background:#171c26!important;border-color:#282e3b!important}
+@media(max-width:1200px){#jrc-device-reference #devices-content #connected-devices-table tbody{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:850px){#jrc-device-reference .jrc-live-inner-grid{grid-template-columns:minmax(0,1fr)!important}#jrc-device-reference .jrc-live-inner-nav{position:static!important}#jrc-device-reference #deviceTabs.jrc-live-tabs{flex-direction:row!important;flex-wrap:wrap!important}#jrc-device-reference #deviceTabs.jrc-live-tabs .nav-item{width:auto!important}}
+@media(max-width:570px){#jrc-device-reference #devices-content #connected-devices-table tbody{grid-template-columns:minmax(0,1fr)!important}}
+
+#jrc-device-reference .jrc-content-heading{display:flex!important;align-items:center!important;gap:12px!important;padding:18px!important;background:#191e29!important;border:1px solid #282e3b!important;border-radius:9px!important;margin:0 0 16px!important;color:#eef1f7!important}
+#jrc-device-reference .jrc-content-heading h3{margin:0!important;font-size:18px!important;font-weight:700!important;color:#eef1f7!important}
+#jrc-device-reference .jrc-content-heading small{display:block!important;font-size:12px!important;color:#a2aab9!important;margin-top:4px!important}
+#jrc-device-reference .jrc-content-heading>.btn{margin-left:auto!important;white-space:nowrap}
+#jrc-device-reference .jrc-heading-icon{display:grid;place-items:center;width:36px;height:36px;flex-shrink:0;border-radius:8px;background:#347fdd;color:#fff;font-size:21px}
+#jrc-device-reference .jrc-lan-configuration,#jrc-device-reference .jrc-lan-ethernet,#jrc-device-reference .jrc-wan-interface{background:#191d28!important;border:1px solid #292f3e!important;border-radius:10px!important;padding:18px!important;margin-bottom:14px!important}
+#jrc-device-reference .jrc-lan-configuration>.jrc-content-heading,#jrc-device-reference .jrc-lan-ethernet>.jrc-content-heading{background:transparent!important;border:0!important;padding:0!important}
+#jrc-device-reference .jrc-lan-fields{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#jrc-device-reference .jrc-lan-field,#jrc-device-reference .jrc-wan-field{background:#171b25!important;border:1px solid #252c39!important;border-radius:5px!important;padding:15px!important;min-width:0}
+#jrc-device-reference .jrc-lan-field small,#jrc-device-reference .jrc-wan-field small{display:block;font-size:11px;color:#9ea8b9;margin-bottom:7px}
+#jrc-device-reference .jrc-lan-field strong,#jrc-device-reference .jrc-wan-field strong{display:block;font-size:14px;color:#edf2f9;overflow-wrap:anywhere}
+#jrc-device-reference .jrc-port-drawings{display:flex;justify-content:center;flex-wrap:wrap;gap:24px;border:1px solid #3b4250;border-radius:9px;padding:28px;margin:22px 0}
+#jrc-device-reference .jrc-port-item{text-align:center;color:#aeb8c9;font-size:11px}
+#jrc-device-reference .jrc-port-item>strong{display:block;margin-top:9px}
+#jrc-device-reference .jrc-port-socket{width:54px;height:68px;border:2px solid #444e5d;border-radius:11px;background:#1b212b;display:grid;place-items:center;padding:9px;color:#697484}
+#jrc-device-reference .jrc-port-socket>i{font-size:25px}
+#jrc-device-reference .jrc-port-socket.is-up{background:#123c31;border-color:#289e75;color:#38d59c;box-shadow:0 0 16px #1ab37c20}
+#jrc-device-reference .jrc-port-leds{display:flex;gap:7px}.jrc-port-leds b{width:7px;height:7px;border-radius:50%;background:#414958}
+#jrc-device-reference .is-up .jrc-port-leds b:first-child{background:#1bcc8a}#jrc-device-reference .is-up .jrc-port-leds b:last-child{background:#c8af44}
+#jrc-device-reference .jrc-table-caption{font-size:13px;color:#b9c2d0;margin:18px 0 12px}
+#jrc-device-reference .jrc-port-table{font-size:12px!important;--bs-table-bg:transparent!important;--bs-table-color:#d7dfea!important;--bs-table-border-color:#2b3342!important;background:transparent!important}
+#jrc-device-reference .jrc-port-table tr,#jrc-device-reference .jrc-port-table td,#jrc-device-reference .jrc-port-table th{background:transparent!important;color:#c9d2df!important;border-color:#2b3342!important;padding:10px!important}
+#jrc-device-reference .jrc-host-identity{display:flex;align-items:center;gap:10px}
+#jrc-device-reference .jrc-host-identity small{display:block;margin-top:3px;font-size:11px;color:#8f9aaf}
+#jrc-device-reference .jrc-host-avatar{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;background:#39414f;border-radius:10px;font-size:22px;color:#e8edf6}
+#jrc-device-reference .jrc-host-avatar img{display:block;width:24px;height:24px;object-fit:contain;filter:brightness(0) invert(1)}
+#jrc-device-reference .brand-hp{background:#2870b8}#jrc-device-reference .brand-google{background:#596673}#jrc-device-reference .brand-samsung{background:#233c83}#jrc-device-reference .brand-xiaomi{background:#f57924}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(2){margin-bottom:12px!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(3){width:100%!important;font-size:13px!important}
+#jrc-device-reference #devices-content #connected-devices-table td:nth-child(4){width:100%!important;font-size:11px!important}
+#jrc-device-reference #devices-content #connected-devices-table tr{min-height:175px!important;align-content:start!important}
+#jrc-device-reference .jrc-hotspot-details,#jrc-device-reference .jrc-wan-telemetry,#jrc-device-reference .jrc-wan-advanced{padding:12px 15px;color:#9caabd;font-size:12px;border:1px solid #293341;border-radius:8px;margin-top:14px;background:#171c26}
+#jrc-device-reference details>summary{cursor:pointer}
+#jrc-device-reference .jrc-hotspot-details small{display:block;margin-top:12px}
+#jrc-device-reference .jrc-wan-identity{display:flex;justify-content:space-between;gap:15px;align-items:start;margin-bottom:20px}
+#jrc-device-reference .jrc-wan-identity h3{font-size:16px;margin:0 0 10px;color:#f0f3f9}
+#jrc-device-reference .jrc-state-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#687182;margin-right:8px}
+#jrc-device-reference .jrc-state-dot.online{background:#27c594}
+#jrc-device-reference .jrc-wan-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#a5aebf}
+#jrc-device-reference .jrc-wan-buttons{display:flex;gap:6px;flex-shrink:0}
+#jrc-device-reference .jrc-wan-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#jrc-device-reference .jrc-wan-field.is-wide{grid-column:1/-1}
+#jrc-device-reference .jrc-wan-advanced[open] .jrc-wan-fields{margin-top:14px}
+#jrc-device-reference .jrc-wan-telemetry[open] .jr-wan-usage{margin-top:14px}
+#jrc-device-reference .jrc-empty{padding:18px;color:#96a6bb}
+@media(max-width:700px){#jrc-device-reference .jrc-lan-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#jrc-device-reference .jrc-wan-identity{flex-wrap:wrap}}
+@media(max-width:480px){#jrc-device-reference .jrc-lan-fields,#jrc-device-reference .jrc-wan-fields{grid-template-columns:minmax(0,1fr)}#jrc-device-reference .jrc-content-heading{flex-wrap:wrap}}

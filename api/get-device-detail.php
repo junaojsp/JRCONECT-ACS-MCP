@@ -35,6 +35,8 @@ $deviceResult = $genieacs->getDevice($deviceId);
 
 if ($deviceResult['success']) {
     $parsed = $genieacs->parseDeviceData($deviceResult['data']);
+    require_once __DIR__ . '/../lib/JrcDeviceResources.php';
+    $parsed = array_merge($parsed, jrcDeviceResources($deviceResult['data']));
     jsonResponse(['success' => true, 'device' => $parsed]);
 } else {
     jsonResponse(['success' => false, 'message' => 'Device tidak ditemukan']);
