@@ -118,4 +118,59 @@ final class JrcIxcInventoryReader
         }
         return $output;
     }
+    /**
+     * Count unique IXC client registrations, no contract queries.
+     * A client is managed only when a unique PPPoE login connects that client
+     * to an ACS device. Missing/ambiguous logins never count as managed.
+     * Return aggregates only; no personal information persisted.
+     */
+    public static function clientCoverage(string $url, string $token, array $devices): array
+    {
+        $clients = self::records($url, $token, 'cliente');
+        $users = self::records($url, $token, 'radusuarios');
+        $clientIds = [];
+        foreach ($clients as $row) {
+            $id = trim((string)($row['id'] ?? ''));
+            if ($id !== '') $clientIds[$id] = true;
+        }
+        if (!$clientIds) throw new RuntimeException('IXC sem clientes identificaveis');
+        // Login may not uniquely identify one client: reject conflicting mappings.
+        $owners = []; $conflicting = [];
+        foreach ($users as $row) {
+            $login = strtolower(trim((string)($row['login'] ?? '')));
+            $id = trim((string)($row['id_cliente'] ?? ''));
+            if ($login === '' || $id === '' || !isset($clientIds[$id])) continue;
+            if (isset($owners[$login]) && $owners[$login] !== $id) $conflicting[$login] = true;
+            else $owners[$login] = $id;
+        }
+        $managed = [];
+        $seenDevices = 0;
+        foreach ($devices as $device) {
+            $candidates = [
+                $device['ixc_pppoe_username'] ?? null,
+                $device['pppoe_username'] ?? null
+            ];
+            $ids = [];
+            foreach ($candidates as $raw) {
+                if (!is_scalar($raw)) continue;
+                $login = strtolower(trim((string)$raw));
+                if ($login !== '' && !isset($conflicting[$login]) && isset($owners[$login])) {
+                    $ids[$owners[$login]] = true;
+                }
+            }
+            // An ONU with two logins pointing to different clients is ambiguous.
+            if (count($ids) === 1) {
+                $managed[array_key_first($ids)] = true;
+                $seenDevices++;
+            }
+        }
+        return [
+            'total' => count($clientIds),
+            'with_tr069' => count($managed),
+            'without_tr069' => count($clientIds) - count($managed),
+            'matched_devices' => $seenDevices,
+            'basis' => 'ixc_registered_clients',
+        ];
+    }
+
 }
