@@ -95,6 +95,11 @@
       }
     }
   }
+  const refresh=document.getElementById('jrc20-refresh');
+  if(refresh) refresh.addEventListener('click',()=>{
+    refresh.disabled=true;
+    Promise.allSettled([loadCharts(),load()]).finally(()=>{ refresh.disabled=false; });
+  });
   loadCharts();
   load();
 })();
