@@ -1,0 +1,27 @@
+/* JRC_CC_DEVICES_REFERENCE_V1 */
+html:root:root body.m4g-shell .fb-devices #jrc-dev-grid th,
+html:root:root body.m4g-shell .fb-devices #jrc-dev-grid th.jrc-c-mono {
+    font-family:Inter,system-ui,sans-serif!important;
+    font-size:14px!important;font-weight:700!important;text-transform:none!important;
+    letter-spacing:normal!important;
+}
+html:root:root body.m4g-shell .fb-devices #jrc-dev-grid td {
+    height:35px;padding:6px 8px;font-size:13px;
+}
+html:root:root body.m4g-shell .fb-devices #jrc-dev-grid th {padding:0 8px;height:38px}
+html:root:root body.m4g-shell .fb-devices .jrc-dns-more {
+    display:inline-block;border-radius:999px;padding:2px 6px;background:#173c50;
+    color:#70dbdb;font:600 12px/1.25 Inter,system-ui,sans-serif;cursor:help;
+}
+html:root:root body.m4g-shell .fb-devices .jrc-dns-more:focus-visible {outline:2px solid var(--m4-cyan)}
+html:root:root body.m4g-shell .fb-devices .jrc-dns-first {display:inline-block;max-width:calc(100% - 35px);overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+@media(min-width:1700px) {
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] {table-layout:fixed;width:100%}
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] td {overflow:hidden;text-overflow:ellipsis}
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] .jrc-col-status {width:30px;min-width:30px;max-width:30px;padding-left:8px}
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] :is([data-col="tx"],[data-col="rx"]) {width:60px}
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] [data-col="fonte"] {width:65px}
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] :is([data-col="conexao"],[data-col="chegada"]) {width:165px}
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] [data-col="dns"] {width:165px}
+    html:root:root body.m4g-shell .fb-devices #jrc-dev-grid[data-compact-default="true"] [data-col="leitura"] {width:145px}
+}
