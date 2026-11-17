@@ -107,9 +107,16 @@
         if(Number.isSafeInteger(yes)&&Number.isSafeInteger(no)&&yes>=0&&no>=0&&yes+no>0) {
           donut('jrc-coverage-ring','jrc-coverage-total','jrc-coverage-legend',
             [{name:'Com TR-069',count:yes},{name:'Sem TR-069',count:no}],yes+no);
+          const kpi=document.getElementById('jrc20-tr069-rate');
+          if(kpi)kpi.textContent=(100*yes/(yes+no)).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
           const noteCoverage=document.getElementById('jrc-coverage-note');
           if(noteCoverage)noteCoverage.textContent='Clientes distintos com login PPPoE no IXC · coleta: '+String(coverage.collected_at||'não informada')+' · não consulta contratos.';
         }
+      } else {
+        const kpi=document.getElementById('jrc20-tr069-rate');
+        if(kpi)kpi.textContent='Pendente';
+        const legend=document.getElementById('jrc-coverage-legend');
+        if(legend)legend.textContent='Coleta IXC/ACS indisponível ou desatualizada. Sem estimativas.';
       }
     } catch (_) {
       const legend=document.getElementById('jrc-makers-legend');
