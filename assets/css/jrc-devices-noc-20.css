@@ -1,0 +1,44 @@
+/* JR Conect ACS 2.0 — Devices, Premium Dark NOC visual layer.
+   Included only on /devices.php, AFTER existing styles. No data/actions altered. */
+body{--jdn-bg:#10141f;--jdn-card:#1b2231;--jdn-surface:#202b3d;--jdn-border:#2b3950;--jdn-blue:#3499f5;--jdn-teal:#20cab9;--jdn-amber:#ff9f35;--jdn-muted:#91a6c2;--jdn-text:#e6f3ff;background:var(--jdn-bg)!important;color:var(--jdn-text)}
+body .main-content,body .content-wrapper{background:var(--jdn-bg)!important}
+body .content-wrapper{padding-top:20px!important}
+body .footer{background:var(--jdn-bg)!important;border-top:1px solid var(--jdn-border)!important;color:var(--jdn-muted)!important;margin-top:18px!important;box-shadow:none!important}
+body .footer img{max-height:26px!important;width:auto!important;opacity:.78}
+body .jrc-inventory-page{color:var(--jdn-text);font-family:Inter,system-ui,"Segoe UI",sans-serif}
+body .jrc-inventory-page>.card,body .jrc-inventory-page .card,body .content-wrapper>.card{background:linear-gradient(160deg,#1b2231,#19212f)!important;border:1px solid var(--jdn-border)!important;border-radius:14px!important;box-shadow:0 12px 30px #070d1c32!important;color:var(--jdn-text)}
+body .jrc-inventory-page .card-header,body .content-wrapper>.card>.card-header{background:transparent!important;border-bottom:1px solid var(--jdn-border)!important;color:#f0f6ff!important;padding:18px 20px!important;font-size:14px;font-weight:750}
+body .jrc-inventory-page .card-header .bi-router{display:inline-grid;place-items:center;width:38px;height:38px;margin-right:8px;background:linear-gradient(145deg,#1a76b8,#165181);box-shadow:0 0 22px #3499f542;color:#d5f3ff;border-radius:11px;font-size:18px}
+body .jrc-inventory-page .card-body{background:transparent!important;padding:19px!important}
+body .jrc-inventory-page .badge{border-radius:7px;font-size:11px;padding:6px 9px;font-weight:700}
+body .jrc-inventory-page .badge.bg-primary,body .jrc-inventory-page .badge.bg-secondary{background:#24344a!important;color:#c2d5e9!important}
+body .jrc-inventory-page .badge.bg-success{background:#15483d!important;color:#55e4bd!important}
+body .jrc-inventory-page .badge.bg-danger{background:#48252e!important;color:#ff8791!important}
+body .jrc-inventory-page .badge.bg-warning{background:#4d371f!important;color:#ffbc65!important}
+body .jrc-inventory-page .btn{border-radius:9px!important;font-size:12px;font-weight:640;box-shadow:none!important}
+body .jrc-inventory-page .btn-primary{background:#227cc2!important;border-color:#3499f5!important}
+body .jrc-inventory-page .btn-secondary,body .jrc-inventory-page .btn-outline-secondary{background:#24354b!important;border-color:#3b4e66!important;color:#dbeafe!important}
+body .jrc-inventory-page .nav-tabs{border-bottom:1px solid var(--jdn-border)!important;gap:7px}
+body .jrc-inventory-page .nav-tabs .nav-link{color:#9fb4ce!important;border:1px solid transparent!important;border-radius:9px 9px 0 0;padding:9px 13px}
+body .jrc-inventory-page .nav-tabs .nav-link.active{background:#213850!important;border-color:#365775!important;color:#f2f9ff!important;box-shadow:inset 0 -2px 0 var(--jdn-blue)}
+body .jrc-inventory-page input,body .jrc-inventory-page select,body .jrc-inventory-page .form-control,body .jrc-inventory-page .form-select{background:#17283b!important;border:1px solid #344860!important;color:var(--jdn-text)!important;border-radius:9px!important;box-shadow:none!important}
+body .jrc-inventory-page input::placeholder{color:#879db7!important}
+body .jrc-inventory-page input:focus,body .jrc-inventory-page select:focus{border-color:var(--jdn-blue)!important;box-shadow:0 0 0 3px #3499f525!important}
+body .jrc-inventory-page .input-group-text{background:#23344a!important;border-color:#344860!important;color:#8bcaff!important}
+body .jrc-inventory-page .table-responsive,body .jrc-inventory-page #devices-table-wrap,body .content-wrapper .table-responsive{background:#1b2231!important;border:1px solid #304058!important;border-radius:12px!important;overflow-x:auto;scrollbar-color:#3e5772 #1b2231}
+body .jrc-inventory-page #devices-table,body .jrc-inventory-page table.table{--bs-table-bg:transparent;--bs-table-hover-bg:transparent;--bs-table-accent-bg:transparent;border-collapse:collapse!important;width:100%;margin:0!important;color:var(--jdn-text)!important}
+body .jrc-inventory-page #devices-table thead th,body .jrc-inventory-page table.table thead th{background:#233046!important;color:#afc5df!important;border:0!important;border-bottom:1px solid #344761!important;padding:13px 14px!important;letter-spacing:.05em;text-transform:uppercase;font-size:10px!important;font-weight:760!important;white-space:nowrap}
+body .jrc-inventory-page #devices-table tbody tr,body .jrc-inventory-page table.table tbody tr{background:#1b2231!important;border-bottom:1px solid #2b3950!important}
+body .jrc-inventory-page #devices-table tbody tr:nth-child(even),body .jrc-inventory-page table.table tbody tr:nth-child(even){background:#1e293a!important}
+body .jrc-inventory-page #devices-table tbody tr:hover,body .jrc-inventory-page table.table tbody tr:hover{background:#29415a!important}
+body .jrc-inventory-page #devices-table tbody td,body .jrc-inventory-page table.table tbody td{background:transparent!important;background-color:transparent!important;color:#dfebfa!important;padding:14px!important;border:0!important;vertical-align:middle!important;font-size:12px!important}
+body .jrc-inventory-page #devices-table tbody a,body .jrc-inventory-page table.table tbody a{color:#b0ddff!important;text-decoration:none}
+body .jrc-inventory-page #devices-table tbody a:hover,body .jrc-inventory-page table.table tbody a:hover{color:#fff!important}
+body .jrc-inventory-page .pagination{gap:5px;flex-wrap:wrap}
+body .jrc-inventory-page .page-link{background:#23344a!important;border:1px solid #354c65!important;color:#c2d9ef!important;border-radius:8px!important;font-size:11px}
+body .jrc-inventory-page .page-item.active .page-link{background:#256db7!important;border-color:#3499f5!important;color:#fff!important}
+body .jrc-inventory-page .page-item.disabled .page-link{opacity:.45}
+body .jrc-inventory-page .text-muted{color:#97adc5!important}
+body .jrc-inventory-page .spinner{border-top-color:#3499f5!important}
+@media(max-width:700px){body .jrc-inventory-page .card-body{padding:12px!important}body .jrc-inventory-page .card-header{padding:13px!important}body .jrc-inventory-page #devices-table thead th,body .jrc-inventory-page #devices-table tbody td{padding:10px!important}}
+@media(prefers-reduced-motion:no-preference){body .jrc-inventory-page .btn,body .jrc-inventory-page .nav-link{transition:background .15s,border-color .15s}}
