@@ -1,0 +1,70 @@
+/* Visão geral interna do device — mesma linguagem da dashboard ACS 2.0.
+ * Somente CSS. Nenhum menu, JS, handler, comando ou dado é modificado.
+ * CSS escopado por #overview-content para não afetar outras abas. */
+#overview-content{
+ --jrc-base:#10141f;--jrc-card:#1b2231;--jrc-soft:#222e41;
+ --jrc-edge:#29354a;--jrc-text:#e9f2ff;--jrc-muted:#91a6c2;
+ --jrc-blue:#3499f5;--jrc-teal:#20cab9;--jrc-amber:#ff9f35;
+ color:var(--jrc-text);font-family:Inter,system-ui,"Segoe UI",sans-serif;
+}
+#overview-content .acs-overview-card,
+#overview-content .fb-card{
+ background:var(--jrc-card)!important;
+ border:1px solid var(--jrc-edge)!important;
+ border-radius:14px!important;
+ box-shadow:0 10px 30px #0509142b,inset 0 1px 0 #ffffff06!important;
+ color:var(--jrc-text)!important;
+}
+#overview-content .acs-overview-card h2,
+#overview-content .acs-overview-card h3,
+#overview-content .acs-overview-card h4,
+#overview-content .acs-overview-card h5,
+#overview-content .acs-overview-card h6,
+#overview-content .fb-card h2,
+#overview-content .fb-card h3,
+#overview-content .fb-card h4{
+ color:var(--jrc-text)!important;letter-spacing:-.25px;font-weight:740;
+}
+#overview-content .fb-section-title{
+ color:var(--jrc-text)!important;font-size:14px!important;
+ font-weight:740!important;letter-spacing:-.1px;
+ border-bottom:1px solid var(--jrc-edge);
+ padding-bottom:11px;margin-bottom:13px;
+}
+#overview-content .fb-diag-item{color:var(--jrc-muted);font-size:12px;min-width:0}
+#overview-content .fb-diag-item strong{
+ color:#bfe6ff!important;font-variant-numeric:tabular-nums;
+}
+#overview-content .fb-diag-item .bi{color:var(--jrc-teal)}
+#overview-content [class*="metric-card"],
+#overview-content [class*="indicator-card"],
+#overview-content [class*="stat-card"]{
+ background:#202b3e!important;border:1px solid #30415a!important;
+ border-radius:11px!important;color:var(--jrc-text);
+}
+#overview-content [class*="metric-card"] strong,
+#overview-content [class*="indicator-card"] strong,
+#overview-content [class*="stat-card"] strong{
+ color:#eaf3ff!important;font-variant-numeric:tabular-nums;
+}
+#overview-content [class*="metric-card"] .text-muted,
+#overview-content [class*="indicator-card"] .text-muted{
+ color:var(--jrc-muted)!important;
+}
+#overview-content .progress{background:#111927;border-radius:9px;overflow:hidden}
+#overview-content .progress-bar.bg-primary{background:var(--jrc-blue)!important}
+#overview-content .progress-bar.bg-success{background:var(--jrc-teal)!important}
+#overview-content .progress-bar.bg-warning{background:var(--jrc-amber)!important}
+#overview-content table{border-color:#2e3c52}
+#overview-content table th{color:var(--jrc-muted)}
+#overview-content table td{color:var(--jrc-text)}
+#overview-content .card-header{background:transparent!important;border-bottom:1px solid var(--jrc-edge)!important}
+#overview-content .card-body{min-width:0}
+#overview-content .badge.bg-success{background:#164d3c!important;color:#74ebbd!important}
+#overview-content .badge.bg-warning{background:#503b21!important;color:#ffd48e!important}
+#overview-content .badge.bg-primary{background:#17446d!important;color:#8ccfff!important}
+#overview-content .btn:focus-visible,
+#overview-content a:focus-visible{outline:2px solid #60baff;outline-offset:2px}
+@media(max-width:767px){
+ #overview-content .acs-overview-card,#overview-content .fb-card{border-radius:11px!important}
+}
