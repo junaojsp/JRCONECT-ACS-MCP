@@ -25,8 +25,9 @@
  // Mount the EXISTING Bootstrap tab triggers as a side menu only if there
  // is one unambiguous parent for both controls and panels. Moving nodes
  // preserves listeners, IDs, values, and the original tab activation model.
- if(tabs.parentElement===panes.parentElement && !tabs.closest('.jrc-live-inner-grid')){
-   const parent=tabs.parentElement;
+ let parent=tabs.parentElement;
+ while(parent && !parent.contains(panes) && parent!==document.body)parent=parent.parentElement;
+ if(parent && parent!==document.body && !tabs.closest('.jrc-live-inner-grid')){
    const grid=document.createElement('div');
    grid.className='jrc-live-inner-grid';
    const side=document.createElement('aside');
