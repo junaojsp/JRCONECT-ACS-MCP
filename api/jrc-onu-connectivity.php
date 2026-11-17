@@ -62,7 +62,7 @@ try {
         $inventory[$key]=$decoded;
     }
     $stmt->close();
-    $snapshot=JrcSnmpTelemetry::load();
+    $snapshot=JrcSnmpTelemetry::enabled() ? JrcSnmpTelemetry::load() : null;
     $now=time();
     $classified=[];
     foreach ($values as $serial) {
